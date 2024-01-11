@@ -1,4 +1,6 @@
-﻿namespace _750HrsTracker.Models
+﻿using _750HrsTracker.Models.JointEntities;
+
+namespace _750HrsTracker.Models
 {
     public class Team
     {
