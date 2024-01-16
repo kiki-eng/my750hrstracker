@@ -1,6 +1,29 @@
-﻿namespace _750HrsTracker.Services.Interfaces
+﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Filters;
+using _750HrsTracker.Models.ResponseWrappers;
+
+namespace _750HrsTracker.Services.Interfaces
 {
     public interface IUserService
     {
+
+        Task<ResponseHandler<GetUserResponse>> GetUserAsync(Guid userId);
+        Task<ResponseHandler<GetUserResponse>> GetUserByTokenAsync(HttpRequest httpRequest);
+
+        Task<ResponseHandler<UpdateUserSecurityRequest>> UpdateUserSecurityAsync(Guid userId, UpdateUserSecurityRequest request);
+        Task<ResponseHandler<GetUserResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request);
+
+
+
+        Task<ResponseHandler<SignInResponse>> SignInAsync(SignInRequest request, HttpRequest httpRequest);
+        Task<ResponseHandler<string>> SignUpAsync(SignUpRequest request, HttpRequest httpRequest, bool fromAdmin = false);
+
+
+        Task<ResponseHandler<string>> RecoverPasswordAsync(RecoverPasswordRequest request, HttpRequest httpRequest);
+        Task<ResponseHandler<string>> ResetPasswordAsync(ResetPasswordRequest request);
+        Task<ResponseHandler<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
+        Task<ResponseHandler<string>> VerifyEmailAsync(VerifyEmailRequest request);
+        Task<ResponseHandler<string>> ResendVerifyEmailAsync(ResendVerifyEmailRequest request, HttpRequest httpRequest);
     }
 }

@@ -1,5 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Models.ResponseWrappers;
+using _750HrsTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace _750HrsTracker.Controllers
 {
@@ -7,5 +13,212 @@ namespace _750HrsTracker.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+
+
+        [AllowAnonymous]
+        [Route("signin")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<SignInResponse>))]
+        public async Task<IActionResult> SignInAsync(SignInRequest request)
+        {
+            ResponseHandler<SignInResponse> response = new ResponseHandler<SignInResponse>();
+            if (!ModelState.IsValid)
+            {
+                response.Success = false;
+                response.Message = "error";
+                return BadRequest(response);
+            }
+            response = await _userService.SignInAsync(request, Request);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+
+        }
+       
+
+
+        [AllowAnonymous]
+        [Route("signup")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> SignUpAsync(SignUpRequest request)
+        {
+            ResponseHandler<string> response = new();
+            if (!ModelState.IsValid)
+            {
+                response.Success = false;
+                response.Message = "error";
+                return BadRequest(response);
+            }
+            response = await _userService.SignUpAsync(request, Request);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+
+        }
+       
+
+        [Authorize]
+        [Route("{id}")]
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        public async Task<IActionResult> GetUserAsync(Guid id)
+        {
+            ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+           
+            response = await _userService.GetUserAsync(id);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [Route("me")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        public async Task<IActionResult> GetUserByTokenAsync()
+        {
+            ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+
+            response = await _userService.GetUserByTokenAsync(Request);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [Route("{userId}")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        public async Task<IActionResult> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
+        {
+            ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+           
+            response = await _userService.UpdatetUserProfileAsync(userId, request);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [Route("{userId}/update-security")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateUserSecurityRequest>))]
+        public async Task<IActionResult> UpdateMerchantUserSecurity(Guid userId, UpdateUserSecurityRequest request)
+        {
+            ResponseHandler<UpdateUserSecurityRequest> response = new ResponseHandler<UpdateUserSecurityRequest>();
+           
+            response = await _userService.UpdateUserSecurityAsync(userId, request);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }       
+
+        [AllowAnonymous]
+        [Route("recover-password")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> RecoverPasswordAsync(RecoverPasswordRequest request)
+        {
+            ResponseHandler<string> response = await _userService.RecoverPasswordAsync(request, Request);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [AllowAnonymous]
+        [Route("reset-password")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            ResponseHandler<string> response = await _userService.ResetPasswordAsync(request);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [Route("{userId}/change-password")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> ChangePasswordAsync(Guid merchantUserId, ChangePasswordRequest request)
+        {
+            ResponseHandler<string> response = await _userService.ChangePasswordAsync(merchantUserId, request);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [AllowAnonymous]
+        [Route("verify-email")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> VerifyEmailAsync(VerifyEmailRequest request)
+        {
+            ResponseHandler<string> response = await _userService.VerifyEmailAsync(request);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [AllowAnonymous]
+        [Route("resend-verification-email")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> ResendVerifyEmailAsync(ResendVerifyEmailRequest request)
+        {
+            ResponseHandler<string> response = await _userService.ResendVerifyEmailAsync(request, Request);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+
     }
 }

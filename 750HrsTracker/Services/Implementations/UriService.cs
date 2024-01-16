@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.Filters;
 using _750HrsTracker.Services.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Http;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -14,7 +15,7 @@ namespace _750HrsTracker.Services.Implementations
 
         public Uri GetPageUri(PaginationFilter filter, string route)
         {
-            var request = _accessor?.HttpContext?.Request;
+            var request = _accessor!.HttpContext!.Request;
             var baseUri = string.Concat(request?.Scheme, "://", request?.Host.ToUriComponent());
 
             Uri endpointUri = new Uri(string.Concat(baseUri, route));
