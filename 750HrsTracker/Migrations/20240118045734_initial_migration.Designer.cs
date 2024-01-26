@@ -12,8 +12,8 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240116045325_alter_user_table_added_auth_columns")]
-    partial class alter_user_table_added_auth_columns
+    [Migration("20240118045734_initial_migration")]
+    partial class initial_migration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

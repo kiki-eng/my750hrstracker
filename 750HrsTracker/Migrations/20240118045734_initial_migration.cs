@@ -40,6 +40,7 @@ namespace _750HrsTracker.Migrations
                     ResetTokenExpires = table.Column<DateTime>(type: "datetime2", nullable: true),
                     VerificationToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     VerificationTokenExpires = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastPasswordResetAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -87,7 +88,7 @@ namespace _750HrsTracker.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -98,8 +99,7 @@ namespace _750HrsTracker.Migrations
                         name: "FK_Teams_Users_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

@@ -25,8 +25,8 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<TeamUser>(entity =>
             {
                 entity.HasKey(tu => new { tu.TeamId, tu.UserId });
-                entity.HasOne(tu => tu.Team).WithMany(tu => tu.TeamUsers).OnDelete(DeleteBehavior.NoAction);
-                entity.HasOne(tu => tu.User).WithMany(tu => tu.UserTeams).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(tu => tu.Team).WithMany(tu => tu.TeamUsers).HasForeignKey(tu => tu.TeamId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(tu => tu.User).WithMany(tu => tu.UserTeams).HasForeignKey(tu => tu.UserId).OnDelete(DeleteBehavior.NoAction);
             });
 
             builder.Entity<User>(b =>

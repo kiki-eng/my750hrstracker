@@ -1,9 +1,11 @@
 ﻿using _750HrsTracker.Models.JointEntities;
+using System.ComponentModel.DataAnnotations;
 
 namespace _750HrsTracker.Models
 {
     public class Team
     {
+        [Key]
         public Guid Id { get; set; }
         public string? Name { get; set; }    
         public Guid? OwnerId { get; set; }

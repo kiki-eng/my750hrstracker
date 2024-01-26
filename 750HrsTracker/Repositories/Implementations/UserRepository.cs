@@ -140,7 +140,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
               
 
-                await _userManager.CreateAsync(user);
+                var newUserEntity = await _userManager.CreateAsync(user);
                 var newUser = await _userManager.FindByEmailAsync(user.Email);
 
 

@@ -12,6 +12,8 @@ namespace _750HrsTracker.Repositories.Implementations
         }
 
         #region Repositroy section
+        public IPropertyRepository PropertyRepository => new PropertyRepository(_context);
+
         #endregion
 
         public void Save()
