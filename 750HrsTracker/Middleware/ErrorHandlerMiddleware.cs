@@ -44,39 +44,39 @@ namespace _750HrsTracker.Middleware
                     case ApplicationException e:
                         // custom application error
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        rhe.message = e.Message;
+                        rhe.message = $"::: {e.Message} ::: " + (error.InnerException != null ? $"{error.InnerException?.Message} :::" : "");
                         rhe.severity = ErrorSeverity.NORMAL;
                         break;
 
                     case ForbiddenAccessException e:
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        rhe.message = e.Message;
+                        rhe.message = $"::: {e.Message} ::: " + (error.InnerException != null ? $"{error.InnerException?.Message} :::" : "");
                         rhe.severity = ErrorSeverity.HIGH;
                         break;
 
                     case EmailNotConfirmedException e:
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        rhe.message = e.Message;
+                        rhe.message = $"::: {e.Message} ::: " + (error.InnerException != null ? $"{error.InnerException?.Message} :::" : "");
                         rhe.severity = ErrorSeverity.LOW;
                         break;
 
                     case UnauthorizedAccessException e:
                         // custom application error
                         response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        rhe.message = e.Message;
+                        rhe.message = $"::: {e.Message} ::: " + (error.InnerException != null ? $"{error.InnerException?.Message} :::" : "");
                         rhe.severity = ErrorSeverity.HIGH;
                         break;
 
                     case KeyNotFoundException e:
                         // not found error
                         response.StatusCode = (int)HttpStatusCode.NotFound;
-                        rhe.message = e.Message;
+                        rhe.message = $"::: {e.Message} ::: " + (error.InnerException != null ? $"{error.InnerException?.Message} :::" : "");
                         rhe.severity = ErrorSeverity.LOW;
                         break;
                     default:
                         // unhandled error
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        rhe.message = error.Message;
+                        rhe.message = $"::: {error.Message} ::: " + (error.InnerException != null ? $"{error.InnerException?.Message} :::" : ""); 
                         rhe.severity = ErrorSeverity.HIGH;
                         break;
                 }
