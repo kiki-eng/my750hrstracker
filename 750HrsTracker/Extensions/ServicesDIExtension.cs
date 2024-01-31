@@ -1,4 +1,6 @@
-﻿using _750HrsTracker.Repositories.Implementations;
+﻿using _750HrsTracker.Filters;
+using _750HrsTracker.Providers;
+using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Implementations;
 using _750HrsTracker.Services.Interfaces;
@@ -8,19 +10,25 @@ namespace _750HrsTracker.Extensions
 {
     public static class ServicesDIExtension
     {
-        public static IServiceCollection AddServicesFromExtension(this IServiceCollection service)
+        public static IServiceCollection AddServicesFromExtension(this IServiceCollection services)
         {
             //repository  
-            service.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPropertyRepository, PropertyRepository>();
 
             // services
-            service.TryAddTransient<IUriService, UriService>();
-            service.TryAddScoped<IUserService, UserService>();
-            service.TryAddScoped<INotificationService, NotificationService>();
-            service.TryAddScoped<IEmailService, EmailService>();
+            services.TryAddTransient<IUriService, UriService>();
+            services.TryAddScoped<IUserService, UserService>();
+            services.TryAddScoped<INotificationService, NotificationService>();
+            services.TryAddScoped<IEmailService, EmailService>();
+            services.TryAddScoped<IPropertyService, PropertyService>();
 
 
-            return service;
+            services.AddSingleton<SessionProvider>();
+            services.AddScoped<SessionFilter>();
+
+
+            return services;
         }
     }
 }

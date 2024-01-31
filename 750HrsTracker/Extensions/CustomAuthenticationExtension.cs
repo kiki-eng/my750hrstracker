@@ -49,7 +49,6 @@ namespace _750HrsTracker.Extensions
                                    response.WriteAsync(JsonConvert.SerializeObject(rhe));
                                    return Task.CompletedTask;
                                }
-                               context.HttpContext.Request.Headers["TeamId"] = user!.DefaultTeamId!;
                                context.Success();
                                return Task.CompletedTask;
                            }
