@@ -1,9 +1,11 @@
 using _750HrsTracker.Extensions;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Middleware;
 using _750HrsTracker.Models;
 using _750HrsTracker.Persistence.Contexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using SendGrid.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
 
@@ -17,9 +19,34 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 });
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("ApplicationConfiguration"));
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen( c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Scheme = "bearer",
+        BearerFormat = "JWT", //important
+        In = ParameterLocation.Header,
+        Description = "Please insert token into field",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+    {
+        new OpenApiSecurityScheme
+        {
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+        },
+            new string[] { }
+        }
+    });
+});
 
 builder.Services.AddSendGrid(options =>
     options.ApiKey = builder.Configuration.GetSection("ApplicationConfiguration:SendGridKey").Value
@@ -39,6 +66,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddServicesFromExtension();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddCustomAuthentication(builder.Configuration.GetSection("ApplicationConfiguration").Get<AppSettings>());
+builder.Services.AddAuthorization();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,10 +81,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.CustomRunMigration();
+
+// global error handler
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.Run();
