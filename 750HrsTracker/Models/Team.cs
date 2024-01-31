@@ -14,6 +14,8 @@ namespace _750HrsTracker.Models
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
 
+        public ICollection<AvailableProperty>? Properties { get; set; }
         public ICollection<TeamUser>? TeamUsers { get; set; }
+        public ICollection<PropertyTeamUser>? PropertyTeamUsers { get; set; }
     }
 }

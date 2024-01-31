@@ -23,7 +23,11 @@ namespace _750HrsTracker.Models
         public DateTime? VerificationTokenExpires { get; set; }
         public DateTime? LastPasswordResetAt { get; set; }
 
+
+        public ICollection<AvailableProperty>? PropertiesCreated { get; set; }
         public ICollection<TeamUser>? UserTeams { get; set; }
+        public ICollection<PropertyTeamUser>? PropertyTeamUsers { get; set; }
+
 
         public User()
         {

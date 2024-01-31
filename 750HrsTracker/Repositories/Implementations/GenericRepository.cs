@@ -1,4 +1,6 @@
-﻿using _750HrsTracker.Persistence.Contexts;
+﻿using _750HrsTracker.Filters;
+using _750HrsTracker.Models.ResponseWrappers;
+using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -14,14 +16,17 @@ namespace _750HrsTracker.Repositories.Implementations
             _context = context;
         }
 
-        public async Task AddAsync(TEntity entity)
+        public async Task<TEntity> AddAsync(TEntity entity)
         {
-            await _context.AddAsync(entity);
+            var entry = await _context.Set<TEntity>().AddAsync(entity);
+            await _context.SaveChangesAsync();  
+            return entry.Entity; 
         }
 
         public async Task AddRangeAsync(List<TEntity> entities)
         {
             await _context.AddRangeAsync(entities);
+            await _context.SaveChangesAsync();  
         }
 
         public async Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
@@ -35,7 +40,35 @@ namespace _750HrsTracker.Repositories.Implementations
             var query = _context.Set<TEntity>();
             return await Task.Run(() => query);
         }
+        public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter)
+        {
+            var records = await _context.Set<TEntity>().Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
 
+            var totalCount = await _context.Set<TEntity>().CountAsync();
+
+            RepositoryResponseHandler<TEntity> response = new RepositoryResponseHandler<TEntity>
+            {
+                Records = records,
+                TotalCount = totalCount
+            };
+
+            return response;
+        }
+        
+        public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter)
+        {
+            var records = await _context.Set<TEntity>().Where(predicate).Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+
+            var totalCount = await _context.Set<TEntity>().Where(predicate).CountAsync();
+
+            RepositoryResponseHandler<TEntity> response = new RepositoryResponseHandler<TEntity>
+            {
+                Records = records,
+                TotalCount = totalCount
+            };
+
+            return response;
+        }
         public async Task<TEntity> GetSingleOrDefaultAsync(Guid id)
         {
             var data = await _context.Set<TEntity>().FindAsync(id);
@@ -50,5 +83,14 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<bool> IsAnyAsync(Expression<Func<TEntity, bool>> predicate)
             => await _context.Set<TEntity>().AnyAsync(predicate);
+
+        public async Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var entry = await _context.Set<TEntity>().FirstOrDefaultAsync(predicate) ?? throw new KeyNotFoundException("Record to be deleted not found");                
+            _context.Set<TEntity>().Remove(entry);
+            await _context.SaveChangesAsync();
+            return entry;
+        }
+
     }
 }

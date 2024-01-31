@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using _750HrsTracker.Filters;
+using _750HrsTracker.Models.ResponseWrappers;
+using System.Linq.Expressions;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
@@ -6,10 +8,15 @@ namespace _750HrsTracker.Repositories.Interfaces
     {
         Task<IQueryable<TEntity>> GetAllAsync();
         Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
-        Task AddAsync(TEntity entity);
+        Task<TEntity> AddAsync(TEntity entity);
         Task AddRangeAsync(List<TEntity> entities);
         Task<bool> IsAnyAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> GetSingleOrDefaultAsync(Guid id);
         Task<TEntity> GetSingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+
+        Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate);
+
+        Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter);
+        Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter);
     }
 }

@@ -1,4 +1,6 @@
-﻿using _750HrsTracker.Models;
+﻿using _750HrsTracker.Filters;
+using _750HrsTracker.Models;
+using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 
@@ -11,5 +13,6 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             _context = context;
         }
+
     }
 }

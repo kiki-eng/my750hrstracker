@@ -15,6 +15,7 @@ namespace _750HrsTracker.Persistence.Contexts
         public DbSet<Team> Teams { get; set; } 
         public DbSet<TeamUser> Team_User { get; set; } 
         public new DbSet<Role> Roles { get; set; }
+        public DbSet<AvailableProperty> Properties { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -27,6 +28,21 @@ namespace _750HrsTracker.Persistence.Contexts
                 entity.HasKey(tu => new { tu.TeamId, tu.UserId });
                 entity.HasOne(tu => tu.Team).WithMany(tu => tu.TeamUsers).HasForeignKey(tu => tu.TeamId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(tu => tu.User).WithMany(tu => tu.UserTeams).HasForeignKey(tu => tu.UserId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            builder.Entity<AvailableProperty>(entity =>
+            {
+                entity.HasOne(ap => ap.CreatedBy).WithMany(ap => ap.PropertiesCreated).HasForeignKey(ap => ap.CreatedById);
+                entity.HasOne(ap => ap.Team).WithMany(ap => ap.Properties).HasForeignKey(ap => ap.TeamId);
+
+            });
+
+            builder.Entity<PropertyTeamUser>(entity =>
+            {
+                entity.HasKey(tu => new { tu.TeamId, tu.UserId, tu.PropertyId });
+                entity.HasOne(tu => tu.Team).WithMany(tu => tu.PropertyTeamUsers).HasForeignKey(tu => tu.TeamId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(tu => tu.User).WithMany(tu => tu.PropertyTeamUsers).HasForeignKey(tu => tu.UserId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(tu => tu.Property).WithMany(tu => tu.PropertyTeamUsers).HasForeignKey(tu => tu.PropertyId).OnDelete(DeleteBehavior.NoAction);
             });
 
             builder.Entity<User>(b =>
