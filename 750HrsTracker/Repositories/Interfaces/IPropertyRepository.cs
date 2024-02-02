@@ -6,5 +6,7 @@ namespace _750HrsTracker.Repositories.Interfaces
 {
     public interface IPropertyRepository : IGenericRepository<AvailableProperty>
     {
+        Task<AvailableProperty> UpdateAsync(Guid id, Guid teamId, AvailableProperty property);
+        Task<bool> AssignPropertyToUsersAsync(Guid propertyId, Guid teamId, List<Guid> userIds);
     }
 }

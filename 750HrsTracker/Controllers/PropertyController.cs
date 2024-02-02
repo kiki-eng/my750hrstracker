@@ -38,7 +38,7 @@ namespace _750HrsTracker.Controllers
         
         
         [HttpGet("search")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<GetPropertyResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetPropertyResponse>>))]
         public async Task<IActionResult> SearchPropertiesAsync([FromQuery] string keyword)
             => Ok(await _propertyService.SearchPropertiesAsync(keyword));
         

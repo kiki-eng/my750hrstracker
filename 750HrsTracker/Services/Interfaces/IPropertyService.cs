@@ -10,7 +10,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<GetPropertyResponse>> AddPropertyAsync(AddUpdatePropertyRequest request); 
         Task<ResponseHandler<GetPropertyResponse>> GetPropertyAsync(Guid id); 
         Task<PagedResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route); 
-        Task<PagedResponseHandler<GetPropertyResponse>> SearchPropertiesAsync(string keyword); 
+        Task<ResponseHandler<List<GetPropertyResponse>>> SearchPropertiesAsync(string keyword); 
         Task<ResponseHandler<GetPropertyResponse>> UpdatePropertyAsync(Guid id, AddUpdatePropertyRequest request); 
         Task<ResponseHandler<string>> DeletePropertyAsync(Guid id); 
         Task<ResponseHandler<string>> AssignPropertyToUsersAsync(Guid id, AssignPropertyToUsersRequest request); 

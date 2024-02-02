@@ -5,10 +5,12 @@ using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Providers;
+using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
 using Org.BouncyCastle.Crypto;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -42,9 +44,16 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public Task<ResponseHandler<string>> AssignPropertyToUsersAsync(Guid id, AssignPropertyToUsersRequest request)
+        public async Task<ResponseHandler<string>> AssignPropertyToUsersAsync(Guid id, AssignPropertyToUsersRequest request)
         {
-            throw new NotImplementedException();
+            ResponseHandler<string> response = new();
+
+            var property = await _propertyRepository.AssignPropertyToUsersAsync(id, (Guid)Session.TeamId!, request.UserIds);
+
+            response.Success = true;
+            response.Message = "Property deleted successfully";
+
+            return response;
         }
 
         public async Task<ResponseHandler<string>> DeletePropertyAsync(Guid id)
@@ -94,14 +103,31 @@ namespace _750HrsTracker.Services.Implementations
 
         }
 
-        public Task<PagedResponseHandler<GetPropertyResponse>> SearchPropertiesAsync(string keyword)
+        public async Task<ResponseHandler<List<GetPropertyResponse>>> SearchPropertiesAsync([NotNull] string keyword)
         {
-            throw new NotImplementedException();
+
+            ResponseHandler<List<GetPropertyResponse>> response = new();
+
+            var property = await _propertyRepository.SearchEntityAsync(p => p.TeamId == Session.TeamId && p.Name!.ToLower().Contains(keyword.ToLower()));
+
+            response.Success = true;
+            response.Message = "Property added successfully";
+            response.Data = property.Select(p => _mapper.Map<GetPropertyResponse>(p)).ToList();
+
+            return response;
         }
 
-        public Task<ResponseHandler<GetPropertyResponse>> UpdatePropertyAsync(Guid id, AddUpdatePropertyRequest request)
+        public async Task<ResponseHandler<GetPropertyResponse>> UpdatePropertyAsync(Guid id, AddUpdatePropertyRequest request)
         {
-            throw new NotImplementedException();
+            ResponseHandler<GetPropertyResponse> response = new();            
+
+            var updatedProperty = await _propertyRepository.UpdateAsync(id, (Guid) Session.TeamId!, _mapper.Map<AvailableProperty>(request));
+
+            response.Success = true;
+            response.Message = "Property updated successfully";
+            response.Data = _mapper.Map<GetPropertyResponse>(updatedProperty);
+
+            return response;
         }
 
 

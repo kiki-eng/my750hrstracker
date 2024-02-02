@@ -16,6 +16,7 @@ namespace _750HrsTracker.Persistence.Contexts
         public DbSet<TeamUser> Team_User { get; set; } 
         public new DbSet<Role> Roles { get; set; }
         public DbSet<AvailableProperty> Properties { get; set; }
+        public DbSet<PropertyTeamUser> PropertyTeamUsers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

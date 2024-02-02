@@ -92,5 +92,10 @@ namespace _750HrsTracker.Repositories.Implementations
             return entry;
         }
 
+        public async Task<List<TEntity>> SearchEntityAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _context.Set<TEntity>().Where(predicate).ToListAsync();
+        }
+
     }
 }

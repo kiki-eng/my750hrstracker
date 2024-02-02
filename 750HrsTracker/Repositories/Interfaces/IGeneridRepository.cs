@@ -18,5 +18,7 @@ namespace _750HrsTracker.Repositories.Interfaces
 
         Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter);
         Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter);
+
+        Task<List<TEntity>> SearchEntityAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }
