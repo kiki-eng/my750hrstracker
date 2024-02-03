@@ -6,12 +6,18 @@
         public string? AppBaseUrl { get; set; }
         public string? SystemNotificationReceiver { get; set; }
         public string? NotificationOrigin { get; set; }
-        public int VerificationTokenValidHours { get; set; }    
-        public int JwtTokenTTLMinutees { get; set; }    
-        public int ResetTokenValidHours { get; set; }    
+        public int VerificationTokenValidHours { get; set; }
+        public int JwtTokenTTLMinutees { get; set; }
+        public int ResetTokenValidHours { get; set; }
 
         public string? SenderName { get; set; }
         public string? SenderAddress { get; set; }
         public string? FrontendBaseUrl { get; set; }
+
+        public string? CurrentEnvironment { get; set;}
+        public string? AzureStorageBlobConnectionString { get; set; }
+        public string? AzureStorageBlobContainerName { get; set; }
+
+
     }
 }
