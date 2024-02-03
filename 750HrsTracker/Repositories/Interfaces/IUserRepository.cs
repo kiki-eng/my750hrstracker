@@ -15,5 +15,6 @@ namespace _750HrsTracker.Repositories.Interfaces
 
         Task<User> GetUserByEmailAsync(string emailAddress);
         Task<User> GetUserAsync(Guid userId);
+        Task<User> GetUserAsync(Guid userId, Guid teamId);
     }
 }

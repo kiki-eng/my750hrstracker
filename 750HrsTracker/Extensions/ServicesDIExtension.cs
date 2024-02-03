@@ -15,6 +15,7 @@ namespace _750HrsTracker.Extensions
             //repository  
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPropertyRepository, PropertyRepository>();
+            services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
 
             // services
             services.TryAddTransient<IUriService, UriService>();
@@ -22,6 +23,7 @@ namespace _750HrsTracker.Extensions
             services.TryAddScoped<INotificationService, NotificationService>();
             services.TryAddScoped<IEmailService, EmailService>();
             services.TryAddScoped<IPropertyService, PropertyService>();
+            services.TryAddScoped<IActivityLogService, ActivityLogService>();   
 
 
             services.AddSingleton<SessionProvider>();

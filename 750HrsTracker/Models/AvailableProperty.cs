@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using System.ComponentModel.DataAnnotations;
 
@@ -28,6 +29,7 @@ namespace _750HrsTracker.Models
         public Team? Team { get; set; }
 
         public ICollection<PropertyTeamUser>? PropertyTeamUsers { get; set; }
+        public ICollection<ActivityLogProperty>? ActivityLogProperties { get; set; }
 
     }
 }

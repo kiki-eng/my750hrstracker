@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.Models;
+using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,11 @@ namespace _750HrsTracker.Persistence.Contexts
         public new DbSet<Role> Roles { get; set; }
         public DbSet<AvailableProperty> Properties { get; set; }
         public DbSet<PropertyTeamUser> PropertyTeamUsers { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<ActivityLogDocument> ActivityLogDocuments { get; set; }
+        public DbSet<ActivityLogProperty> ActivityLogProperties { get; set; }
+        public DbSet<ActivityLogCategory> ActivityLogCategories { get; set; }
+        public DbSet<ActivityLogActivity> ActivityLogActivities { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -44,6 +50,23 @@ namespace _750HrsTracker.Persistence.Contexts
                 entity.HasOne(tu => tu.Team).WithMany(tu => tu.PropertyTeamUsers).HasForeignKey(tu => tu.TeamId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(tu => tu.User).WithMany(tu => tu.PropertyTeamUsers).HasForeignKey(tu => tu.UserId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(tu => tu.Property).WithMany(tu => tu.PropertyTeamUsers).HasForeignKey(tu => tu.PropertyId).OnDelete(DeleteBehavior.NoAction);
+            });
+            
+            builder.Entity<ActivityLogProperty>(entity =>
+            {
+                entity.HasKey(tu => new { tu.ActivityLogId, tu.PropertyId });
+                entity.HasOne(tu => tu.Property).WithMany(tu => tu.ActivityLogProperties).HasForeignKey(tu => tu.PropertyId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(tu => tu.ActivityLog).WithMany(tu => tu.ActivityLogProperties).HasForeignKey(tu => tu.ActivityLogId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            builder.Entity<ActivityLog>(entity =>
+            {
+                entity.HasOne(e => e.ActivityBy).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityById).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.CreatedBy).WithMany(e => e.LogsCreated).HasForeignKey(e => e.CreatedById).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Team).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.ActivityLogActivity).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogActivityId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.ActivityLogCategory).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(e => e.ActivityLogDocuments).WithOne(e => e.ActivityLog).HasForeignKey(e => e.ActivityLogId).OnDelete(DeleteBehavior.NoAction);
             });
 
             builder.Entity<User>(b =>

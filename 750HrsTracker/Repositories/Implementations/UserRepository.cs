@@ -55,6 +55,11 @@ namespace _750HrsTracker.Repositories.Implementations
             User user = await _context.Users.Include(m => m.UserTeams!).ThenInclude(mu => mu.Team).FirstOrDefaultAsync(m => m.Id == userId) ?? throw new KeyNotFoundException("User not found");
             return user;
         }
+        public async Task<User> GetUserAsync(Guid userId, Guid teamId)
+        {
+            var userTeam = await _context.Team_User.Include(m => m.User).FirstOrDefaultAsync(m => m.UserId == userId && m.TeamId == teamId) ?? throw new KeyNotFoundException("User not found");
+            return userTeam.User;
+        }
 
         public async Task<User> GetUserByEmailAsync(string emailAddress)
         {

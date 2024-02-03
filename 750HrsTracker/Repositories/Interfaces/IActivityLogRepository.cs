@@ -1,0 +1,13 @@
+﻿using _750HrsTracker.Models;
+using _750HrsTracker.Models.ActivityLogModels;
+using _750HrsTracker.Models.JointEntities;
+
+namespace _750HrsTracker.Repositories.Interfaces
+{
+    public interface IActivityLogRepository : IGenericRepository<ActivityLog>
+    {
+        Task<ActivityLog> UpdateAsync(Guid id, Guid teamId, ActivityLog property);
+        Task<ActivityLogDocument> AttachLogDocumentAsync(ActivityLogDocument activityLogDocument);
+        Task AttachLogPropertyAsync(List<ActivityLogProperty> activityLogProperties);
+    }
+}

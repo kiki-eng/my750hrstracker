@@ -48,10 +48,10 @@ namespace _750HrsTracker.Services.Implementations
         {
             ResponseHandler<string> response = new();
 
-            var property = await _propertyRepository.AssignPropertyToUsersAsync(id, (Guid)Session.TeamId!, request.UserIds);
+            var property = await _propertyRepository.AssignPropertyToUsersAsync(id, (Guid)Session.TeamId!, request.UserIds!);
 
             response.Success = true;
-            response.Message = "Property deleted successfully";
+            response.Message = "Property assignment completed successfully";
 
             return response;
         }
@@ -96,7 +96,7 @@ namespace _750HrsTracker.Services.Implementations
             };
 
             response.Success = true;
-            response.Message = "Property added successfully";
+            response.Message = "Property retrieved successfully";
             response.Data = _mapper.Map<GetPropertyResponse>(property);
 
             return response;
@@ -111,7 +111,7 @@ namespace _750HrsTracker.Services.Implementations
             var property = await _propertyRepository.SearchEntityAsync(p => p.TeamId == Session.TeamId && p.Name!.ToLower().Contains(keyword.ToLower()));
 
             response.Success = true;
-            response.Message = "Property added successfully";
+            response.Message = "Properties retrieved successfully";
             response.Data = property.Select(p => _mapper.Map<GetPropertyResponse>(p)).ToList();
 
             return response;
