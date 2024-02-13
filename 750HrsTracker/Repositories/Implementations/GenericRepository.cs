@@ -97,5 +97,26 @@ namespace _750HrsTracker.Repositories.Implementations
             return await _context.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
+        public bool AllExistAsync(Expression<Func<TEntity, bool>> predicate, List<Guid> entityIds, string idColumnName)
+        {
+            bool allExist = _context.Set<TEntity>().Where(predicate).Select(GetIdSelector(idColumnName)).All(id => entityIds.Contains(id));
+
+            return allExist;
+        }
+        
+        public bool AllExistAsync(List<Guid> entityIds, string idColumnName)
+        {
+            bool allExist = _context.Set<TEntity>().Select(GetIdSelector(idColumnName)).All(id => entityIds.Contains(id));
+
+            return allExist;
+        }
+
+        private static Func<TEntity, Guid> GetIdSelector(string columnName)
+        {
+            var parameter = Expression.Parameter(typeof(TEntity), "e");
+            var property = Expression.Property(parameter, columnName);
+            var lambda = Expression.Lambda<Func<TEntity, Guid>>(property, parameter);
+            return lambda.Compile();
+        }
     }
 }

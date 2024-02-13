@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.Models;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.SubscriptionModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,11 @@ namespace _750HrsTracker.Persistence.Contexts
         public DbSet<ActivityLogProperty> ActivityLogProperties { get; set; }
         public DbSet<ActivityLogCategory> ActivityLogCategories { get; set; }
         public DbSet<ActivityLogActivity> ActivityLogActivities { get; set; }
+        public DbSet<ActivityLogSubCategory> ActivityLogSubCategories { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<TeamSubscription> TeamSubscriptions { get; set; }
+        public DbSet<SubscriptionPermission> SubscriptionPermissions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -67,6 +73,43 @@ namespace _750HrsTracker.Persistence.Contexts
                 entity.HasOne(e => e.ActivityLogActivity).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogActivityId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.ActivityLogCategory).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasMany(e => e.ActivityLogDocuments).WithOne(e => e.ActivityLog).HasForeignKey(e => e.ActivityLogId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            builder.Entity<ActivityLogActivity>(entity =>
+            {
+                entity.HasMany(e => e.ActivityLogSubCategories).WithOne(e => e.LogActivity).HasForeignKey(e => e.LogActivityId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.ActivityLogCategory).WithMany(e => e.ActivityLogActivities).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasIndex(e => e.Slug).IsUnique();
+            });
+
+            builder.Entity<Subscription>(entity =>
+            {
+                entity.HasIndex(e => e.Slug).IsUnique();
+                entity.Property(e => e.Price).HasColumnType("Decimal").HasPrecision(18, 2);
+            });
+
+            builder.Entity<SubscriptionPermission>(entity =>
+            {
+                entity.HasKey(e => new { e.SubscriptionId, e.PermissionId });
+                entity.HasOne(s => s.Subscription).WithMany(s => s.SubcriptionPermissions).HasForeignKey(s => s.SubscriptionId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(s => s.Permission).WithMany(s => s.SubscriptionPermissions).HasForeignKey(s => s.PermissionId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            builder.Entity<TeamSubscription>(entity =>
+            {
+                entity.HasKey(e => new { e.SubscriptionId, e.TeamId }); 
+                entity.HasOne(e => e.Subscription).WithMany(e => e.TeamSubscriptions).HasForeignKey(e => e.SubscriptionId).OnDelete(DeleteBehavior.NoAction);   
+                entity.HasOne(e => e.Team).WithMany(e => e.TeamSubscriptions).HasForeignKey(e => e.SubscriptionId).OnDelete(DeleteBehavior.NoAction);   
+            });
+
+            builder.Entity<ActivityLogCategory>(entity =>
+            {
+                entity.HasIndex(e => e.Slug).IsUnique();
+            });
+            
+            builder.Entity<ActivityLogSubCategory>(entity =>
+            {
+                entity.HasIndex(e => e.Slug).IsUnique();
             });
 
             builder.Entity<User>(b =>

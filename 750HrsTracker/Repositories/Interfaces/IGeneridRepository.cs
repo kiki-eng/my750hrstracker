@@ -20,5 +20,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter);
 
         Task<List<TEntity>> SearchEntityAsync(Expression<Func<TEntity, bool>> predicate);
+        bool AllExistAsync(Expression<Func<TEntity, bool>> predicate, List<Guid> entityIds, string idColumnName);
+        bool AllExistAsync(List<Guid> entityIds, string idColumnName);
     }
 }
