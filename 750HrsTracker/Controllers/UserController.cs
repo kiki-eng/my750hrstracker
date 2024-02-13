@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,8 +19,6 @@ namespace _750HrsTracker.Controllers
         {
             _userService = userService;
         }
-
-
 
         [AllowAnonymous]
         [Route("signin")]

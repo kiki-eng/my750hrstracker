@@ -68,7 +68,7 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-            public async Task<PagedResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route)
+        public async Task<PagedResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route)
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var properties = await _propertyRepository.GetAllPaginatedAsync(p => p.TeamId == Session.TeamId!, filter);

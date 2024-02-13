@@ -255,6 +255,23 @@ namespace _750HrsTracker.Helpers
 
         }
 
+        public static string GenerateSlug(string input)
+        {
+            string slug = input.ToLowerInvariant();
+
+            StringBuilder validChars = new ();
+            foreach (char c in slug)
+            {
+                if (char.IsLetterOrDigit(c) || c == '-' || c == ' ')
+                {
+                    validChars.Append(c);
+                }
+            }
+            slug = validChars.ToString();
+            slug = slug.Replace(" ", "-");
+
+            return slug;
+        }
 
     }
 

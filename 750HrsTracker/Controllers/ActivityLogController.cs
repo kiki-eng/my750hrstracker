@@ -20,9 +20,11 @@ namespace _750HrsTracker.Controllers
         {
             _activityLogService = activityLogService;
         }
+
+
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
-        public async Task<IActionResult> AddActivityLogAsync(AddActivityLogRequest request)
+        public async Task<IActionResult> AddActivityLogAsync([FromForm] AddActivityLogRequest request)
            => Ok(await _activityLogService.AddActivityLogAsync(request));
 
 
