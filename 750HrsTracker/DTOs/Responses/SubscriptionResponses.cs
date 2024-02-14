@@ -11,4 +11,11 @@
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
     }
+
+    public class UpdateSubscriptionPermissionResponse
+    {
+        public Guid SubscriptionId { get; set; }
+        public string? SubscriptionName { get; set; }
+        public List<GetPermissionResponse>? Permissions { get; set; }   
+    }
 }

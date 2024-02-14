@@ -2,6 +2,7 @@
 using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Repositories.Implementations;
@@ -14,12 +15,14 @@ namespace _750HrsTracker.Services.Implementations
     public class SubscriptionService : ISubscriptionService
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IPermissionRepository _permissionRepository;
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
-        public SubscriptionService(ISubscriptionRepository subscriptionRepository, 
+        public SubscriptionService(ISubscriptionRepository subscriptionRepository, IPermissionRepository permissionRepository,
             IMapper mapper, IUriService uriService)
         {
-            _subscriptionRepository = subscriptionRepository;   
+            _subscriptionRepository = subscriptionRepository;
+            _permissionRepository = permissionRepository;
             _mapper = mapper;
             _uriService = uriService;
         }
@@ -106,6 +109,18 @@ namespace _750HrsTracker.Services.Implementations
             response.Success = true;
             response.Message = "Subscriptions retrieved successfully";
             response.Data = subscriptions.Select(s => _mapper.Map<GetSubscriptionResponse>(s)).ToList();
+
+            return response;
+        }
+
+        public async Task<ResponseHandler<UpdateSubscriptionPermissionResponse>> UpdateSubscriptionPermissionsAsync(Guid subscriptionId, UpdateSubscriptionPermissionRequest request)
+        {
+            ResponseHandler<UpdateSubscriptionPermissionResponse> response = new();
+
+            var subscriptionPermission = await _subscriptionRepository.UpdateSubscriptionPermissionsAsync(subscriptionId, request.Permissions!.Select(p => _mapper.Map<Permission>(p)).ToList());
+
+            response.Success = true;
+            response.Message = "Subscription permisisons updated successfully";
 
             return response;
         }

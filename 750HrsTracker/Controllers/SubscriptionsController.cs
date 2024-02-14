@@ -25,7 +25,6 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> AddSubscriptionAsync(AddUpdateSubscriptionRequest request)
            => Ok(await _subscriptionService.AddSubscriptionAsync(request));
 
-
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetSubscriptionResponse>>))]
         public async Task<IActionResult> GetAllSubscriptionsAsync([FromQuery] PaginationFilter filter)
@@ -50,5 +49,10 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> DeleteSubscriptionAsync(Guid id)
           => Ok(await _subscriptionService.DeleteSubscriptionAsync(id));
+        
+        [HttpPut("{id}/update-permissions")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateSubscriptionPermissionResponse>))]
+        public async Task<IActionResult> UpdateSubscriptionPermissionsAsync(Guid id, UpdateSubscriptionPermissionRequest request)
+          => Ok(await _subscriptionService.UpdateSubscriptionPermissionsAsync(id, request));
     }
 }

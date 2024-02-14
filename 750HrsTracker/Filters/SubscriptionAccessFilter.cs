@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace _750HrsTracker.Filters
 {
-    public class SubscriptionAccessFilter : IAsyncActionFilter
+    public class SubscriptionAccessFilter : ActionFilterAttribute
     {
         private readonly string _permission;
         public SubscriptionAccessFilter(string permission)
@@ -14,7 +14,7 @@ namespace _750HrsTracker.Filters
             _permission = permission;
 
         }
-        public async Task OnActionExecutionAsync(
+        public override async Task OnActionExecutionAsync(
            ActionExecutingContext context,
            ActionExecutionDelegate next)
         {

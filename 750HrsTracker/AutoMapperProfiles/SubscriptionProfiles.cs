@@ -11,6 +11,9 @@ namespace _750HrsTracker.AutoMapperProfiles
         {
             CreateMap<Subscription, GetSubscriptionResponse>();
             CreateMap<AddUpdateSubscriptionRequest, Subscription>();
+            CreateMap<Subscription, UpdateSubscriptionPermissionResponse>()
+                .ForMember(s => s.SubscriptionId, sp => sp.MapFrom(o => o.Id))
+                .ForMember(s => s.SubscriptionName, sp => sp.MapFrom(o => o.Name));
         }
     }
 }

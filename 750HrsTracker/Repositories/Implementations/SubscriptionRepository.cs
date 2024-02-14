@@ -1,4 +1,6 @@
-﻿using _750HrsTracker.Models.SubscriptionModels;
+﻿using _750HrsTracker.Helpers;
+using _750HrsTracker.Models;
+using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,51 @@ namespace _750HrsTracker.Repositories.Implementations
             await _context.SaveChangesAsync();
 
             return updated.Entity;
+        }
+
+        public async Task<Subscription> GetSubscriptionPermissionsAsync(Guid subscriptionId)
+        {
+            var subscription = await _context.Subscriptions.Include(s => s.SubcriptionPermissions!).ThenInclude(sp => sp.Permission).FirstOrDefaultAsync(t => t.Id == subscriptionId) 
+                ?? throw new KeyNotFoundException("No subscription available");
+
+            return subscription;
+        }
+
+        public async Task<List<SubscriptionPermission>> UpdateSubscriptionPermissionsAsync(Guid subscriptionId, List<Permission> permissions)
+        {
+            List<SubscriptionPermission> updatedPermissions = new List<SubscriptionPermission>();   
+
+            var subscription = await _context.Subscriptions.Include(s => s.SubcriptionPermissions).FirstOrDefaultAsync(s => s.Id == subscriptionId) ?? throw new KeyNotFoundException("Subscription not found");
+
+            var allPermissions = await _context.Permissions.ToListAsync();
+
+            //check if all permssions to update exists
+            if (!allPermissions.Any(ap => permissions.Any(p => p.Id == ap.Id)))
+            {
+                throw new KeyNotFoundException("One or more permissions to update for subscription does not exist");
+            }
+
+            if(subscription.SubcriptionPermissions != null && subscription.SubcriptionPermissions.Count > 0)
+            {
+                _context.SubscriptionPermissions.RemoveRange(subscription.SubcriptionPermissions);
+            }
+
+            foreach(var permission in permissions)
+            {
+                SubscriptionPermission subscriptionPermission = new()
+                {
+                    SubscriptionId = subscription.Id,
+                    PermissionId = permission.Id,
+                };
+
+                updatedPermissions.Add(subscriptionPermission);
+            }
+
+            await _context.SubscriptionPermissions.AddRangeAsync(updatedPermissions);
+
+            await _context.SaveChangesAsync();  
+
+            return await _context.SubscriptionPermissions.Where(sp => sp.SubscriptionId == subscription.Id).ToListAsync();
         }
     }
 }
