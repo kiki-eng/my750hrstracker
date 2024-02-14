@@ -54,6 +54,25 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> DeleteActivityLogAsync(Guid id)
             => Ok(await _activityLogService.DeleteActivityLogAsync(id));
+        
+        [HttpGet("download-import-template")]
+        public async Task<IActionResult> DownloadActivityLogImportTemplateAsync()
+        {
+            // Path to the template CSV file
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "750hrsTracker_ActivityLogImportTemplate.csv");
+
+            // Check if the file exists
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            // Return the file as a FileStreamResult
+            //var fileStream = System.IO.File.OpenRead(filePath);
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/octet-stream", "750hrsTracker_ActivityLogImportTemplate.csv");
+        }
 
 
     }
