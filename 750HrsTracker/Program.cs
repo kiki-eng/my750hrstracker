@@ -3,6 +3,7 @@ using _750HrsTracker.Helpers;
 using _750HrsTracker.Middleware;
 using _750HrsTracker.Models;
 using _750HrsTracker.Persistence.Contexts;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -73,18 +74,24 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.MapControllers();
 app.CustomRunMigration();

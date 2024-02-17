@@ -73,6 +73,26 @@ namespace _750HrsTracker.Controllers
             byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
             return File(fileBytes, "application/octet-stream", "750hrsTracker_ActivityLogImportTemplate.csv");
         }
+        
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportActivityLogAsync()
+        {
+            // Path to the template CSV file
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "750hrsTracker_ActivityLogImportTemplate.csv");
+
+            // Check if the file exists
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            // Return the file as a FileStreamResult
+            //var fileStream = System.IO.File.OpenRead(filePath);
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/octet-stream", "750hrsTracker_ActivityLogImportTemplate.csv");
+        }
+
 
 
     }
