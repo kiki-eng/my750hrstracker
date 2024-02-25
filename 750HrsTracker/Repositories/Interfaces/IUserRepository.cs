@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.Models;
+using _750HrsTracker.Models.Misc;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
@@ -16,5 +17,6 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> GetUserByEmailAsync(string emailAddress);
         Task<User> GetUserAsync(Guid userId);
         Task<User> GetUserAsync(Guid userId, Guid teamId);
+        Task<List<UserRolesOnly>> GetUserRolesAsync(Guid userId);
     }
 }

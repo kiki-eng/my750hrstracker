@@ -24,7 +24,7 @@ namespace _750HrsTracker.Services.Implementations
                   <div id=""message-container"">
                     <p id=""salutation"">Hi {request.RecipientName},</p>
                     <p class=""message-body msg"">
-                        This is to notify you of the successful login to your GemsPay account.
+                        This is to notify you of the successful login to your account.
                     </p>
 
                     <div id=""login-details"">
@@ -124,9 +124,33 @@ namespace _750HrsTracker.Services.Implementations
                 return false;
             }
         }
-        public async Task<bool> SendInvitationNotification(InvitationNotificationRequest request, bool isMobileRequest = false)
+        public async Task<bool> SendInvitationNotification(InvitationNotificationRequest request, bool isMobileRequest = false, string appName = "750HrsTracker")
         {
-            throw new NotImplementedException();
+
+            var html = $@"
+                 <div id=""message-container"">
+                    <p id=""salutation"">Hello there,</p>
+                    <p class=""message-body"">
+                        You have been invited by {request.InviterName} to join {request.TeamName} on {appName}.
+                    </p>
+                    <p class=""message-body"">
+                        Click the button below to accept the invitation.
+                    </p>
+                </div>
+
+                <div class=""button-holder"">
+                    <a class=""btn"" style=""color: #F5F4F9"" href=""{request.InvitationLink}"" target=""_blank"">Accept Invitation</a>
+                </div>
+            ";
+            try
+            {
+                var sent = await _emailService.SendMail(request.RecipientEmail!, "750HrsTracker: New User Onboarded!", html);
+                return sent;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
 

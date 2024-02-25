@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Models.SubscriptionModels;
+﻿using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.SubscriptionModels;
 
 namespace _750HrsTracker.Models
 {
@@ -8,8 +9,10 @@ namespace _750HrsTracker.Models
         public string? Value { get; set; }
         public string? Slug { get; set; }
         public string? Module { get; set; }
+        public string? Type { get; set; }
 
         public ICollection<SubscriptionPermission>? SubscriptionPermissions { get; set; }
+        public ICollection<RolePermission>? RolePermissions { get; set; }
 
 
     }

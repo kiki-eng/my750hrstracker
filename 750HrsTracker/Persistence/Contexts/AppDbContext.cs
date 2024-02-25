@@ -29,6 +29,7 @@ namespace _750HrsTracker.Persistence.Contexts
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<TeamSubscription> TeamSubscriptions { get; set; }
         public DbSet<SubscriptionPermission> SubscriptionPermissions { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -141,6 +142,13 @@ namespace _750HrsTracker.Persistence.Contexts
             {
                 b.ToTable("UserRoles");
                 b.HasKey(ur => new { ur.UserId, ur.RoleId, ur.TeamId });
+            });
+            
+            builder.Entity<RolePermission>(b =>
+            {
+                b.HasKey(ur => new { ur.RoleId, ur.PermissionId });
+                b.HasOne(rp => rp.Role).WithMany(rp => rp.RolePermissions).HasForeignKey(rp => rp.RoleId);
+                b.HasOne(rp => rp.Permission).WithMany(rp => rp.RolePermissions).HasForeignKey(rp => rp.PermissionId);
             });
         }
     }

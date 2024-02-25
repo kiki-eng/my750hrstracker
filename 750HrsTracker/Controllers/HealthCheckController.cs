@@ -10,7 +10,7 @@ namespace _750HrsTracker.Controllers
     {
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> HealthCheckAsync()
+        public IActionResult HealthCheck()
         {
 
             return Ok(new HealthCheckResponse { Response = "I'm alive :)" });
@@ -19,6 +19,6 @@ namespace _750HrsTracker.Controllers
 
     public class HealthCheckResponse
     {
-        public string Response { get; set; }
+        public string? Response { get; set; }
     }
 }

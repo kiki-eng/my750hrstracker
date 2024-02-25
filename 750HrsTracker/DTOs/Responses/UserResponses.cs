@@ -27,4 +27,19 @@
         public DateTime CreatedAt { get; set; }
     }
 
+    public class InviteUserResponse
+    {
+        public bool InvitationSent { get; set; }
+    }
+
+    public class PendingUserInvitationResponse
+    {
+        public string? InvitedEmail { get; set; }
+        public string? InviterEmail { get; set; }
+        public string? InviterName { get; set; }
+        public string? RoleName { get; set; }
+        public string? RoleId { get; set; }
+        public DateTime InvitedAt { get; set; }
+
+    }
 }

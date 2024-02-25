@@ -31,6 +31,7 @@ namespace _750HrsTracker.Services.Implementations
             var permission = _mapper.Map<Permission>(request);
             permission.Value = PermissionConstants.Permission + "." + permission.Module + "." + permission.Name;
             permission.Slug = $"{PermissionConstants.Permission}_{permission.Module!}_{permission.Name!}".ToLower();
+            permission.Type = PermissionConstants.Permission;
 
             var exists = await _permissionRepository.IsAnyAsync(p => p.Module!.ToLower() == permission.Module!.ToLower() && p.Name!.ToLower() == permission.Name!.ToLower());
 

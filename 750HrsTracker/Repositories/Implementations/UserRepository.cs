@@ -2,6 +2,7 @@
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.Misc;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -16,12 +17,14 @@ namespace _750HrsTracker.Repositories.Implementations
     {
         private readonly AppDbContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly AppSettings _appSettings;
-        public UserRepository(AppDbContext context, UserManager<User> userManager, IOptionsSnapshot<AppSettings> appSettings) : base(context)
+        public UserRepository(AppDbContext context, UserManager<User> userManager, IOptionsSnapshot<AppSettings> appSettings, RoleManager<Role> roleManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _appSettings = appSettings.Value;
+            _roleManager = roleManager;
         }
 
         public async Task<User> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword)
@@ -224,6 +227,27 @@ namespace _750HrsTracker.Repositories.Implementations
             await _context.SaveChangesAsync();
 
             return updated.Entity;
+        }
+
+        public async Task<List<UserRolesOnly>> GetUserRolesAsync(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(mu => mu.Id.Equals(userId)) ?? throw new KeyNotFoundException("User not found");
+            var userRoles = _context.UserRoles.Where(mur => mur.UserId == userId && mur.TeamId == Guid.Parse(user.DefaultTeamId!)).ToList();
+
+            List<UserRolesOnly> roles = new();
+            foreach (var r in userRoles)
+            {
+                var role = await _roleManager.FindByIdAsync(r.RoleId.ToString());
+                UserRolesOnly rolesOnly = new ()
+                {
+                    RoleName = role.Name,
+                    RoleId = role.Id
+                };
+
+                roles.Add(rolesOnly);
+            }
+
+            return roles;
         }
     }
 }

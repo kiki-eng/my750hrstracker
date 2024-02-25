@@ -22,6 +22,7 @@ namespace _750HrsTracker.Extensions
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<ITeamSubscriptionRepository, TeamSubscriptionRepository>();
+            services.AddScoped<ITeamRepository, TeamRepository>();
             
 
             // services
@@ -37,6 +38,7 @@ namespace _750HrsTracker.Extensions
             services.TryAddScoped<ISubscriptionService, SubscriptionService>();
             services.AddTransient<IAdminService, AdminService>();
             services.TryAddScoped<IPermissionService, PermissionService>();
+            services.TryAddScoped<ITeamService,TeamService>();
 
 
 

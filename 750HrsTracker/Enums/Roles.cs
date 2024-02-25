@@ -6,4 +6,10 @@
         Owner,
         Basic
     }
+
+    public enum RoleType
+    {
+        system,
+        team
+    }
 }

@@ -7,6 +7,7 @@
         public string? SystemNotificationReceiver { get; set; }
         public string? NotificationOrigin { get; set; }
         public int VerificationTokenValidHours { get; set; }
+        public int InvitationTokenExpiresMinutes { get; set; }
         public int JwtTokenTTLMinutees { get; set; }
         public int ResetTokenValidHours { get; set; }
 

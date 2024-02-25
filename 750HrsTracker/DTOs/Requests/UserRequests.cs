@@ -76,4 +76,24 @@ namespace _750HrsTracker.DTOs.Requests
         public string? EmailAddress { get; set; }
 
     }
+
+    public class InviteUserRequest
+    {
+        public string? EmailAddress { get; set; }
+        public Guid RoleId { get; set; }
+    }
+
+    public class ValidateInvitationRequest
+    {
+        public string? InvitationCode { get; set; }
+    }
+    public class CreateInvitedUserRequest
+    {
+        public string? InvitationCode { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Password { get; set; }
+        public string? ConfirmPassword { get; set; }
+    }
+    
 }

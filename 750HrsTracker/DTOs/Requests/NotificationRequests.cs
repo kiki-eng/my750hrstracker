@@ -49,7 +49,8 @@
         public string? InvitationCode { get; set; }
         public string? InviterName { get; set; }
         public string? InviterEmail { get; set; }
-        public string? MerchantBusinessName { get; set; }
+        public string? InvitationLink { get; set; }
+        public string? TeamName { get; set; }
         public string? Origin { get; set; }
         public string? OriginIpAddress { get; set; }
     }
