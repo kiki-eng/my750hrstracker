@@ -11,7 +11,7 @@ using System.Net;
 
 namespace _750HrsTracker.Controllers
 {
-    [Route("api/teams")]
+    [Route("api/team")]
     [ApiController]
     [Authorize]
     [ServiceFilter(typeof(SessionFilter))]
@@ -22,6 +22,31 @@ namespace _750HrsTracker.Controllers
         {
             _teamService = teamService;
         }
+
+        [HttpPost("roles")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetRoleResponse>))]
+        public async Task<IActionResult> AddTeamRoleAsync(AddRoleRequest request)
+            => Ok(await _teamService.AddTeamRoleAsync(request));
+        
+        [HttpGet("roles")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetRoleResponse>>))]
+        public async Task<IActionResult> GetTeamRolesAsync([FromQuery] PaginationFilter filter)
+            => Ok(await _teamService.GetTeamRolesAsync(filter, Request.Path));
+
+        [HttpPatch("roles/{roleId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetRoleResponse>))]
+        public async Task<IActionResult> UpdatetRoleAsync(Guid roleId, UpdateRoleRequest request)
+            => Ok(await _teamService.UpdatetRoleAsync(roleId, request));
+        
+        [HttpDelete("roles/{roleId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetRoleResponse>))]
+        public async Task<IActionResult> DeleteRoleAsync(Guid roleId)
+            => Ok(await _teamService.DeleteRoleAsync(roleId));
+
+        [HttpPatch("roles/{roleId}/update-permissions")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetRoleResponse>))]
+        public async Task<IActionResult> UpdateRolePermissionsAsync(Guid roleId, UpdateRolePermissionsRequest request)
+            => Ok(await _teamService.UpdateRolePermissionsAsync(roleId, request));
 
         [HttpPost("invite-user")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<InviteUserResponse>))]

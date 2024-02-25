@@ -1,4 +1,6 @@
-﻿using _750HrsTracker.Helpers;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Helpers;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Persistence.Contexts;
@@ -7,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Options;
+using System.Data;
+using System.Security.Claims;
 
 namespace _750HrsTracker.Repositories.Implementations
 {
@@ -15,11 +19,135 @@ namespace _750HrsTracker.Repositories.Implementations
         private readonly AppDbContext _context;
         private readonly AppSettings _appSettings;
         private readonly UserManager<User> _userManager;
-        public TeamRepository(AppDbContext context, IOptionsSnapshot<AppSettings> appSettings, UserManager<User> userManager)
+        private readonly RoleManager<Role> _roleManager;
+        public TeamRepository(AppDbContext context, IOptionsSnapshot<AppSettings> appSettings, UserManager<User> userManager, RoleManager<Role> roleManager)
         {
             _context = context;
             _appSettings = appSettings.Value;
             _userManager = userManager;
+            _roleManager = roleManager;
+
+        }
+        public async Task<Role> AddTeamRoleAsync(Guid teamId, string roleName, Guid currentUserId, List<Permission> permissions)
+        {
+            var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
+            var currentUser = await _userManager.FindByIdAsync(currentUserId.ToString());
+        
+            var role = await _context.Roles.AddAsync(new Role
+            {
+                Name = roleName,
+                Slug = Utility.GenerateSlug(roleName),
+                TeamId = team.Id,
+                RoleType = RoleType.team,
+                CreatorId = currentUser.Id.ToString(),
+                CreatedBy = $"{currentUser.Firstname} {currentUser.Lastname}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = $"{currentUser.Firstname} {currentUser.Lastname}",
+                ModifiedById = currentUser.Id.ToString(),
+                Default = false
+            });
+
+            await _context.SaveChangesAsync();
+
+            var newRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == role.Entity.Id);
+
+
+            var allClaims = await _roleManager.GetClaimsAsync(newRole!);
+            foreach (var permission in permissions)
+            {
+                var perm = _context.Permissions.FirstOrDefault(p => p.Id == permission.Id);
+                if (perm != null)
+                {
+                    if (!allClaims.Any(a => a.Type == PermissionConstants.Permission && a.Value == perm.Value))
+                        await _roleManager.AddClaimAsync(newRole!, new Claim(PermissionConstants.Permission, perm.Value!));
+                }
+            }
+
+            return newRole!;
+        }
+
+        public async Task<List<Role>> GetTeamRolesAsync(Guid teamId)
+        {
+            var roles = new List<Role>();
+
+            var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
+
+            var defaultRoles = await _context.Roles.Where(r => r.Name.ToLower() != Roles.Owner.ToString().ToLower() && r.Default).ToListAsync();
+
+            var customRoles = await _context.Roles.Where(r => r.TeamId.Equals(team.Id) && !r.Default).ToListAsync();
+
+            roles = defaultRoles.Union(customRoles).ToList();
+
+            return roles;
+        }
+
+        public async Task<Role> UpdateTeamRoleAsync(Guid teamId, Guid roleId, Guid currentUserId, Role role)
+        {
+
+            var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
+
+            var existingRole = await _context.Roles.FirstOrDefaultAsync(mr => mr.Id == roleId && mr.TeamId.Equals(team.Id)) ?? throw new KeyNotFoundException("Invalid role");
+            var currentUser = await _userManager.FindByIdAsync(currentUserId.ToString());
+
+            existingRole.Name = role.Name;
+            existingRole.Slug = Utility.GenerateSlug(role.Name);
+            existingRole.ModifiedAt = DateTime.Now;
+            existingRole.ModifiedBy = $"{currentUser.Firstname} {currentUser.Lastname}";
+            existingRole.ModifiedById = currentUser.Id.ToString();
+
+            var updated = _context.Roles.Update(existingRole);
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
+        }
+
+        public async Task<Role> DeleteRoleAsync(Guid teamId, Guid roleId)
+        {
+            var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
+
+            var existingRole = await _context.Roles.FirstOrDefaultAsync(mr => mr.Id == roleId && mr.TeamId.Equals(team.Id)) ?? throw new KeyNotFoundException("Invalid role");
+
+            var userInRole = await _context.UserRoles.AnyAsync(ur => ur.RoleId == existingRole.Id && ur.TeamId == team.Id);
+
+            if (userInRole)
+            {
+                throw new ApplicationException("Cannot delete role. Users are still attached to role");
+            }
+
+            var deleted = _context.Roles.Remove(existingRole);
+            await _context.SaveChangesAsync();
+            return deleted.Entity;
+
+        }
+
+        public async Task<Role> UpdateRolePermissionsAsync(Guid teamId, Guid roleId, Guid currentUserId, List<Permission> permissions)
+        {
+            var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
+
+            var existingRole = await _context.Roles.FirstOrDefaultAsync(mr => mr.Id == roleId && mr.TeamId.Equals(team.Id)) ?? throw new KeyNotFoundException("Invalid role");
+
+            var currentUser = await _userManager.FindByIdAsync(currentUserId.ToString());
+            var allClaims = await _roleManager.GetClaimsAsync(existingRole);
+
+
+            foreach (var permission in permissions)
+            {
+                var perm = _context.Permissions.FirstOrDefault(p => p.Id.Equals(permission.Id) && p.Value == permission.Value);
+                if (perm != null)
+                {
+                    if (!allClaims.Any(a => a.Type == PermissionConstants.Permission && a.Value == perm.Value))
+                        await _roleManager.AddClaimAsync(existingRole, new Claim(PermissionConstants.Permission, perm.Value!));
+                }
+            }
+
+            existingRole.ModifiedAt = DateTime.Now;
+            existingRole.ModifiedBy = $"{currentUser.Firstname} {currentUser.Lastname}";
+            existingRole.ModifiedById = currentUser.Id.ToString();
+
+            var updated = _context.Roles.Update(existingRole);
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
         }
 
         // === user invitation start === //

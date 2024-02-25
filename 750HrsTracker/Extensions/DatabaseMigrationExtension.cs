@@ -1,11 +1,13 @@
-﻿using _750HrsTracker.Persistence.Contexts;
+﻿using _750HrsTracker.Models;
+using _750HrsTracker.Persistence.Contexts;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace _750HrsTracker.Extensions
 {
     public static class DatabaseMigrationExtension
     {
-        public static void CustomRunMigration(this WebApplication app)
+        public static async void CustomRunMigration(this WebApplication app)
         {
             using(var scope = app.Services.CreateScope())
             {
@@ -14,6 +16,7 @@ namespace _750HrsTracker.Extensions
                 var logger = loggerFactory.CreateLogger("App");
 
                 var context = services.GetRequiredService<AppDbContext>();
+                var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
                 try
                 {
@@ -25,7 +28,12 @@ namespace _750HrsTracker.Extensions
                         logger.LogInformation("Database successfully updated");
                     }
 
+                    await Persistence.Seeds.DefaultRoles.SeedAsync(context);
+                    await Persistence.Seeds.DefaultPermission.SeedPermissionForRoleAsync(roleManager, context);
+
                     logger.LogInformation("Application starting ...");
+
+
                 }catch (Exception ex)
                 {
                     logger.LogError(ex, "An error occured updating DB");

@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
@@ -20,15 +21,102 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IMapper _mapper;
         private readonly AppSettings _appSettings;
         private readonly INotificationService _notificationService;
+        private readonly IUriService _uriService;
 
-        public TeamService(ITeamRepository teamRepository,IMapper mapper, IOptionsSnapshot<AppSettings> appSettings,
-            IUserRepository userRepository, SessionProvider sessionProvider, INotificationService notificationService) : base(sessionProvider)
+        public TeamService(ITeamRepository teamRepository, IMapper mapper, IOptionsSnapshot<AppSettings> appSettings,
+            IUserRepository userRepository, SessionProvider sessionProvider, INotificationService notificationService, IUriService uriService) : base(sessionProvider)
         {
             _teamRepository = teamRepository;
             _mapper = mapper;
             _appSettings = appSettings.Value;
             _userRepository = userRepository;
             _notificationService = notificationService;
+            _uriService = uriService;
+        }
+        public async Task<ResponseHandler<GetRoleResponse>> AddTeamRoleAsync(AddRoleRequest request)
+        {
+            ResponseHandler<GetRoleResponse> response = new();
+
+            var permissions = request.Permissions!.Select(p => new Permission { Id = p.Id }).ToList();
+
+            var teamRole =
+                await _teamRepository.AddTeamRoleAsync((Guid)Session.TeamId!, request.RoleName!, (Guid)Session.UserId!, permissions);
+
+            response.Success = true;
+            response.Message = "Role created successfully";
+            response.Data = new GetRoleResponse
+            {
+                Id = teamRole.Id,
+                Name = teamRole.Name,
+                Slug = teamRole.Slug,
+                Default = teamRole.Default,
+            };
+            return response;
+        }
+
+        public async Task<PagedResponseHandler<List<GetRoleResponse>>> GetTeamRolesAsync(PaginationFilter filter, string route)
+        {
+            var teamRoles = await _teamRepository.GetTeamRolesAsync((Guid)Session.TeamId!);
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var records = teamRoles.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).ToList();
+
+            var pagedData = records.Select(sn => new GetRoleResponse
+            {
+                Id = sn.Id,
+                Name = sn.Name,
+                Slug = sn.Slug,
+                Default = sn.Default,
+            }).ToList();
+
+            var totalCount = teamRoles.Count;
+
+            PagedResponseHandler<List<GetRoleResponse>> response =
+                PaginationHelper.CreatePagedResponse(pagedData, validFilter, totalCount, _uriService, route);
+
+            response.Success = true;
+            response.Message = "Roles retrieved successfully";
+            return response;
+        }
+        public async Task<ResponseHandler<GetRoleResponse>> UpdatetRoleAsync(Guid roleId, UpdateRoleRequest request)
+        {
+            ResponseHandler<GetRoleResponse> response = new();
+
+            var teamRole =
+                await _teamRepository.UpdateTeamRoleAsync((Guid)Session.TeamId!, roleId, (Guid)Session.UserId!, new Role { Name = request.RoleName });
+
+            response.Success = true;
+            response.Message = "Role updated successfully";
+            response.Data = new GetRoleResponse
+            {
+                Id = teamRole.Id,
+                Name = teamRole.Name,
+                Slug = teamRole.Slug,
+                Default = teamRole.Default,
+            };
+            return response;
+        }
+        public async Task<ResponseHandler<string>> DeleteRoleAsync(Guid roleId)
+        {
+
+            ResponseHandler<string> response = new();
+            var deletedRole =
+                await _teamRepository.DeleteRoleAsync((Guid)Session.TeamId!, roleId);
+
+            response.Success = true;
+            response.Message = "Role deleted successfully";
+            return response;
+        }
+
+        public async Task<ResponseHandler<string>> UpdateRolePermissionsAsync(Guid roleId, UpdateRolePermissionsRequest request)
+        {
+            ResponseHandler<string> response = new ResponseHandler<string>();
+            var teamRole =
+                await _teamRepository.UpdateRolePermissionsAsync((Guid)Session.TeamId!, roleId, (Guid)Session.UserId!, request.Permissions!.Select(p => new Permission { Id = p.Id }).ToList());
+            response.Success = true;
+            response.Message = "Role permissions updated successfully";
+
+            return response;
         }
 
 
