@@ -150,7 +150,7 @@ namespace _750HrsTracker.Services.Implementations
                 {
                     RecipientName = user.Firstname,
                     RecipientEmail = user.Email,
-                    VerifyEmailToken = Encryption.Base64EncodeDecode(toBeEncoded),
+                    VerifyEmailToken = user.VerificationToken,
                     Origin = _appSettings.NotificationOrigin,
                     OriginIpAddress = Utility.GetRequestIPAddress(httpRequest),
                 };
@@ -317,13 +317,12 @@ namespace _750HrsTracker.Services.Implementations
 
                 if (!savedUser.EmailConfirmed)
                 {
-                    string toBeEncoded = $"{savedUser.Email}|{savedUser.VerificationToken}";
 
                     EmailVerificationNotificationRequest notificationRequest = new EmailVerificationNotificationRequest
                     {
                         RecipientName = savedUser.Firstname,
                         RecipientEmail = savedUser.Email,
-                        VerifyEmailToken = Encryption.Base64EncodeDecode(toBeEncoded),
+                        VerifyEmailToken = savedUser.VerificationToken,
                         Origin = _appSettings.NotificationOrigin,
                         OriginIpAddress = Utility.GetRequestIPAddress(httpRequest),
                     };
@@ -381,22 +380,7 @@ namespace _750HrsTracker.Services.Implementations
         {
             ResponseHandler<string> response = new ResponseHandler<string>();
 
-            string emailAddress, verificationToken;
-            try
-            {
-                string decoded = Encryption.Base64EncodeDecode(request.VerificationToken!, "decode")!;
-
-                string[] splitted = decoded.Split('|');
-
-                emailAddress = splitted[0];
-                verificationToken = splitted[1];
-
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("invalid token  :::   " + ex.Message);
-            }
-            var merchantUser = await _userRepository.VerifyEmailAsync(emailAddress, verificationToken);
+            var merchantUser = await _userRepository.VerifyEmailAsync(request.VerificationToken!);
 
             if (merchantUser == null)
             {

@@ -77,13 +77,13 @@ namespace _750HrsTracker.Services.Implementations
                     </p>
                     <br/>
                     <p>
-                        Verify your email and gain full access to the platform by clicking the link below
+                        Verify your email and gain full access to the platform by using the code below
+                    </p>
+                    <p>
+                        <b>{request.VerifyEmailToken}</b>
                     </p>
                 </div>
                 <br/>
-                <div>
-                    <a href=""{verificationUrl}"" target=""_blank"">Confirm email address</a>
-                </div>
             ";
 
             try

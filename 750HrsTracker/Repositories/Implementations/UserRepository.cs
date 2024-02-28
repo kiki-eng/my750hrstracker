@@ -88,7 +88,21 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             var existingUser = await _context.Users.FirstOrDefaultAsync(mu => mu.Id == user.Id) ?? throw new KeyNotFoundException("User not found");
 
-            existingUser.VerificationToken = Utility.RandomString(20);
+
+            var verificationCode = Utility.GenerateRandomOtp();
+
+            while (true)
+            {
+                if (_context.Users.Any(ui => ui.VerificationToken == verificationCode))
+                {
+                    verificationCode = Utility.GenerateRandomOtp();
+                }
+                else
+                {
+                    break;
+                }
+            }
+            existingUser.VerificationToken = verificationCode;
             existingUser.VerificationTokenExpires = DateTime.Now.AddHours(_appSettings.VerificationTokenValidHours);
 
             var updated = _context.Users.Update(existingUser);
@@ -139,8 +153,21 @@ namespace _750HrsTracker.Repositories.Implementations
 
                 var savedTeam = _context.Teams.Add(team);
 
+                var verificationCode = Utility.GenerateRandomOtp();
 
-                user.VerificationToken = Utility.RandomString(20);
+                while (true)
+                {
+                    if (_context.Users.Any(ui => ui.VerificationToken == verificationCode))
+                    {
+                        verificationCode = Utility.GenerateRandomOtp();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                user.VerificationToken = verificationCode;
                 user.VerificationTokenExpires = DateTime.Now.AddHours(_appSettings.VerificationTokenValidHours);
                 user.DefaultTeamId = savedTeam.Entity.Id.ToString();
                 user.IsActive = true;
@@ -214,9 +241,9 @@ namespace _750HrsTracker.Repositories.Implementations
             return existingUser;
         }
 
-        public async Task<User> VerifyEmailAsync(string emailAddress, string verificationToken)
+        public async Task<User> VerifyEmailAsync(string verificationToken)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailAddress && u.VerificationToken == verificationToken && u.VerificationTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token");
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.VerificationToken == verificationToken && u.VerificationTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token");
 
             user.EmailConfirmed = true;
             user.VerificationToken = null;

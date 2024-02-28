@@ -150,6 +150,11 @@ namespace _750HrsTracker.Persistence.Contexts
                 b.HasOne(rp => rp.Role).WithMany(rp => rp.RolePermissions).HasForeignKey(rp => rp.RoleId);
                 b.HasOne(rp => rp.Permission).WithMany(rp => rp.RolePermissions).HasForeignKey(rp => rp.PermissionId);
             });
+
+            builder.Entity<UserInvitation>(b =>
+            {
+                b.HasIndex(ui => ui.Code).IsUnique();
+            });
         }
     }
 }

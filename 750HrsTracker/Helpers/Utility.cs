@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.Models;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -163,7 +164,8 @@ namespace _750HrsTracker.Helpers
         public static string GenerateRandomOtp()
         {
             var generator = new Random();
-            return generator.Next(0123456789).ToString("D6").Substring(0, 4);
+            int codeNumber = generator.Next(10000000, 99999999);
+            return codeNumber.ToString("D8");
         }
        
         public static async Task<HttpResponseMessage?> MakeHttpRequest(object requestData, string baseAddress, string requestUri, HttpMethod method, Dictionary<string, string> headers = null, bool paymentLinkValidation = false)

@@ -10,7 +10,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> RecoverPasswordAsync(string emailAddress);
         Task<User> ResetPasswordAsync(string emailAddress, string newPassword, string resetToken);
         Task<User> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
-        Task<User> VerifyEmailAsync(string emailAddress, string verificationToken);
+        Task<User> VerifyEmailAsync(string verificationToken);
         Task<User> ResetEmailVerificationTokenAsync(User user);
         Task<User> UpdateUserSecurityAsync(Guid id, User user);
 

@@ -160,9 +160,23 @@ namespace _750HrsTracker.Repositories.Implementations
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId) ?? throw new KeyNotFoundException("Invalid role selected");
 
             var existingInvitation = await _context.UserInvitations.FirstOrDefaultAsync(ui => ui.Email == inviteeEmail && ui.TeamId == team.Id);
+            var invitationCode = Utility.GenerateRandomOtp();
+
+            while (true)
+            {
+                if (_context.UserInvitations.Any(ui => ui.Code == invitationCode))
+                {
+                    invitationCode = Utility.GenerateRandomOtp();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
             if (existingInvitation != null)
             {
-                existingInvitation.Code = Utility.RandomString(20).ToLower();
+                existingInvitation.Code = invitationCode;
                 existingInvitation.ExpiresAt = DateTime.Now.AddMinutes(_appSettings.InvitationTokenExpiresMinutes);
                 existingInvitation.InviterId = user.Id;
                 existingInvitation.RoleName = role.Name;
@@ -180,7 +194,7 @@ namespace _750HrsTracker.Repositories.Implementations
             var userInvitation = new UserInvitation()
             {
                 Email = inviteeEmail,
-                Code = Utility.RandomString(20).ToLower(),
+                Code = invitationCode,
                 InviterId = user.Id,
                 TeamId = team.Id,
                 TeamName = team.Name,
