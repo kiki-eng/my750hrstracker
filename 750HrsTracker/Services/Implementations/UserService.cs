@@ -80,10 +80,11 @@ namespace _750HrsTracker.Services.Implementations
 
 
                 User user = await _userRepository.GetUserAsync(Guid.Parse(userId)) ?? throw new KeyNotFoundException("user not found");
-
+                var responseData = _mapper.Map<GetUserResponse>(user);
+                responseData.DefaulTeamId = user.DefaultTeamId;
                 response.Success = true;
                 response.Message = "User retrieved successfully";
-                response.Data = _mapper.Map<GetUserResponse>(user); 
+                response.Data = responseData; 
                 return response;
             }
             catch

@@ -1,6 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
-using _750HrsTracker.Models;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Persistence.Contexts;
@@ -37,6 +37,11 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var logs = await _context.ActivityLogs.Include(al => al.ActivityLogActivity).Include(al => al.ActivityLogCategory)
                 .Where(al => al.PropertyType == propertyType).OrderByDescending(al => al.CreatedAt).ToListAsync();
+
+            if (propertyType.Equals(AvailablePropertyType.LTR))
+            {
+                logs = logs.Where(l => l.ActivityLogCategory != null && l.ActivityLogCategory!.Slug == LogCategoryConstants.MaterialParticipationSlug).ToList();
+            }
 
             var totalHours = logs.Sum(l => l.HoursSpent);
             var totalMinutes = logs.Sum(l => l.MinutesSpent);
