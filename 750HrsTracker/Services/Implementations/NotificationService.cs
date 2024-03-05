@@ -98,19 +98,18 @@ namespace _750HrsTracker.Services.Implementations
         }
         public async Task<bool> SendPasswordResetNotification(PasswordResetNotificationRequest request, bool isMobileRequest = false)
         {
-            string url = $"{_appSettings.FrontendBaseUrl}/reset-password/{request.ResetPasswordToken}";
 
             var html = $@"
                 <div id=""message-container"">
                     <p>Hello {request.RecipientName},</p>
                     <br/>
                     <p>
-                        Reset your password and regain access to your account by clicking the link below
+                        Reset your password and regain access to your account by using the token below
                     </p>
                 </div>
                 <br/>
                 <div>
-                    <a href=""{url}"" style=""color: #F5F4F9"" target=""_blank"">Reset Password</a>
+                    <b>{request.ResetPasswordToken}</b>
                 </div>
             ";
 

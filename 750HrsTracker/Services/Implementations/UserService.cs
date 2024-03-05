@@ -100,13 +100,11 @@ namespace _750HrsTracker.Services.Implementations
 
                 var merchantUser = await _userRepository.RecoverPasswordAsync(request.EmailAddress!);
 
-                string toBeEncoded = $"{merchantUser.Email}|{merchantUser.ResetToken}";
-
                 PasswordResetNotificationRequest notificationRequest = new PasswordResetNotificationRequest
                 {
                     RecipientName = merchantUser.Firstname,
                     RecipientEmail = merchantUser.Email,
-                    ResetPasswordToken = Encryption.Base64EncodeDecode(toBeEncoded),
+                    ResetPasswordToken = merchantUser.ResetToken,
                     Origin = _appSettings.NotificationOrigin,
                     OriginIpAddress = Utility.GetRequestIPAddress(httpRequest),
 

@@ -75,8 +75,22 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var user = await _userManager.FindByEmailAsync(emailAddress) ?? throw new ApplicationException("User with provided email address not found");
 
-          
-            user.ResetToken = Utility.RandomString(20);
+
+            var resetToken = Utility.GenerateRandomOtp();
+
+            while (true)
+            {
+                if (_context.Users.Any(ui => ui.ResetToken == resetToken))
+                {
+                    resetToken = Utility.GenerateRandomOtp();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            user.ResetToken = resetToken;
             user.ResetTokenExpires = DateTime.Now.AddHours(_appSettings.ResetTokenValidHours);
 
             await _userManager.UpdateAsync(user);
@@ -115,8 +129,7 @@ namespace _750HrsTracker.Repositories.Implementations
         public async Task<User> ResetPasswordAsync(string emailAddress, string newPassword, string resetToken)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailAddress && u.ResetToken == resetToken && u.ResetTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token"); 
-
-           
+                      
 
             user.PasswordHash = Encryption.HashPassword(newPassword);
             user.LastPasswordResetAt = DateTime.Now;
