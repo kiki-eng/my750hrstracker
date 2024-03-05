@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Models.JointEntities;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Models.JointEntities;
 
 namespace _750HrsTracker.Models.ActivityLogModels
 {
@@ -23,6 +24,8 @@ namespace _750HrsTracker.Models.ActivityLogModels
         
         public Guid? ActivityLogCategoryId { get; set; }
         public ActivityLogCategory? ActivityLogCategory { get; set; }
+
+        public AvailablePropertyType PropertyType { get; set; }
 
         public ICollection<ActivityLogDocument>? ActivityLogDocuments { get; set; }
         public ICollection<ActivityLogProperty>? ActivityLogProperties { get; set; }

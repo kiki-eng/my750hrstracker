@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.ResponseWrappers;
@@ -9,6 +10,7 @@ namespace _750HrsTracker.Services.Interfaces
 {
     public interface IActivityLogService
     {
+        Task<ResponseHandler<GetDashboardResponse>> GetDashboardDataAsync(AvailablePropertyType availablePropertyType);
         Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request);
         Task<ResponseHandler<GetActivityLogResponse>> GetActivityLogAsync(Guid id);
         Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(PaginationFilter filter, string route);
