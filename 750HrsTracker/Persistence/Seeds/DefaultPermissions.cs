@@ -32,6 +32,10 @@ namespace _750HrsTracker.Persistence.Seeds
                 new Permission { Module = "Users", Name = "Update"},
                 new Permission { Module = "Users", Name = "Delete"},
                 new Permission { Module = "Users", Name = "Switch"},
+                
+                //Property
+                new Permission { Module = "Property", Name = "Create"},
+                new Permission { Module = "Property", Name = "View"},
             };
 
 
@@ -39,10 +43,19 @@ namespace _750HrsTracker.Persistence.Seeds
 
             foreach (var permission in permissions)
             {
-                var exists = context.Permissions.Any(p => p.Module!.ToLower() == permission.Module!.ToLower() && p.Name!.ToLower() == permission.Name!.ToLower());
-                if (!exists)
+                var exists = await context.Permissions.FirstOrDefaultAsync(p => p.Module!.ToLower() == permission.Module!.ToLower() && p.Name!.ToLower() == permission.Name!.ToLower());
+                if (exists == null)
                 {
                     await permissionsRepository.AddAsync(permission);
+                }
+                else
+                {
+                    exists.Value = PermissionConstants.Permission + "." + permission.Module + "." + permission.Name;
+                    exists.Slug = $"{PermissionConstants.Permission}_{permission.Module!}_{permission.Name!}".ToLower();
+                    exists.Type = PermissionConstants.Permission;
+
+                    context.Permissions.Update(exists);
+                    await context.SaveChangesAsync();   
                 }
             }
 
@@ -83,7 +96,7 @@ namespace _750HrsTracker.Persistence.Seeds
             var allClaims = await roleManager.GetClaimsAsync(role);
             var allPermission = context.Permissions.ToList();
 
-            foreach (var permission in allPermission)
+            foreach (var permission in permissions)
             {
                 if (!allClaims.Any(a => a.Type == PermissionConstants.Permission && permissions.Any(p => p.Value == a.Value!)))
                 {

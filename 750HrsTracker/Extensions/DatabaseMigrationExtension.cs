@@ -30,6 +30,8 @@ namespace _750HrsTracker.Extensions
 
                     await Persistence.Seeds.DefaultRoles.SeedAsync(context);
                     await Persistence.Seeds.DefaultPermission.SeedPermissionForRoleAsync(roleManager, context);
+                    await Persistence.Seeds.DefaultLogData.SeedDefaultCatgoriesAsync(context);
+                    await Persistence.Seeds.DefaultLogData.SeedDefaultLogActivityAsync(context);
 
                     logger.LogInformation("Application starting ...");
 

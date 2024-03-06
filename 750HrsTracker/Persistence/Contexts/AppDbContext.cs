@@ -110,7 +110,7 @@ namespace _750HrsTracker.Persistence.Contexts
             
             builder.Entity<ActivityLogSubCategory>(entity =>
             {
-                entity.HasIndex(e => e.Slug).IsUnique();
+                entity.HasIndex(e => new {e.Slug, e.LogActivityId}).IsUnique();
             });
 
             builder.Entity<User>(b =>

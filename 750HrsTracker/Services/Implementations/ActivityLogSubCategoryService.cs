@@ -23,10 +23,11 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IUriService _uriService;
 
         public ActivityLogSubCategoryService(IMapper mapper, IUriService uriService, 
-            IActivityLogCategoryRepository logCategoryRepository, IActivityLogSubCategoryRepository logSubCategoryRepository)
+            IActivityLogCategoryRepository logCategoryRepository, IActivityLogSubCategoryRepository logSubCategoryRepository, IActivityLogActivityRepository logActivityRepository)
         {
             _logCategoryRepository = logCategoryRepository;
-            _logSubCategoryRepository = logSubCategoryRepository;   
+            _logSubCategoryRepository = logSubCategoryRepository;
+            _logActivityRepository = logActivityRepository;
             _mapper = mapper;
             _uriService = uriService;
 
@@ -57,10 +58,11 @@ namespace _750HrsTracker.Services.Implementations
             ResponseHandler<GetLogActivitySubCategoryResponse> response = new();
 
             var logActivitySubCategory = await _logSubCategoryRepository.GetSingleOrDefaultAsync(p => p.Id == id) ?? throw new KeyNotFoundException("Log activity sub category not found");
-
+            var responseData = _mapper.Map<GetLogActivitySubCategoryResponse>(logActivitySubCategory);
+            responseData.LogActivity = _mapper.Map<GetActivityLogActivityResponse>(await _logActivityRepository.GetSingleOrDefaultAsync((Guid)logActivitySubCategory.LogActivityId!));
             response.Success = true;
             response.Message = "Log activity sub category retrieved successfully";
-            response.Data = _mapper.Map<GetLogActivitySubCategoryResponse>(logActivitySubCategory);
+            response.Data = responseData;
 
             return response;
         }
