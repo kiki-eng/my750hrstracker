@@ -13,6 +13,7 @@ namespace _750HrsTracker.Controllers
     [Route("api/activity-logs")]
     [Authorize]
     [ApiController]
+    [ServiceFilter(typeof(SessionFilter))]
     public class ActivityLogController : ControllerBase
     {
         private readonly IActivityLogService _activityLogService;
@@ -24,7 +25,7 @@ namespace _750HrsTracker.Controllers
 
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
-        public async Task<IActionResult> AddActivityLogAsync([FromForm] AddActivityLogRequest request)
+        public async Task<IActionResult> AddActivityLogAsync(AddActivityLogRequest request)
            => Ok(await _activityLogService.AddActivityLogAsync(request));
 
 

@@ -20,9 +20,17 @@ namespace _750HrsTracker.DTOs.Requests
         public ActivityLogType LogType { get; set; }
 
         public List<Guid>? PropertiesIds { get; set; }
-        public IFormFile? SupportingDocument { get; set; }
+        public List<Base64FileModel>? SupportingDocuments { get; set; }
     }
 
+
+    public class Base64FileModel
+    {
+        public string? FileName { get; set; }
+        public string? FileExtension { get; set; }
+        public string? ContentType { get; set; }
+        public string? Data { get; set; }
+    }
     public class UpdateActivityLogRequest
     {
         public string? Name { get; set; }

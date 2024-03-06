@@ -13,6 +13,8 @@ using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using Microsoft.Extensions.Options;
 using _750HrsTracker.Enums;
+using System.IO;
+using _750HrsTracker.Extensions;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -39,11 +41,17 @@ namespace _750HrsTracker.Services.Implementations
             ResponseHandler<GetActivityLogResponse> response = new();
 
             // validate supporting document
-            var file = request.SupportingDocument!;
-            if (file.Length < 1)
-            {
-                throw new ApplicationException("invalid file submitted");
+
+            // Convert Base64 string to byte array
+            List<Base64FormFile> files = new();
+
+            foreach(var ff in request.SupportingDocuments!)
+            {               
+                byte[] fileBytes = Convert.FromBase64String(ff.Data!);
+                var base64FormFile = new Base64FormFile(ff.FileName!, ff.ContentType!, fileBytes);
+                files.Add(base64FormFile);
             }
+
 
             var requestData = _mapper.Map<ActivityLog>(request);
             requestData.TeamId = (Guid)Session.TeamId!;
@@ -55,13 +63,19 @@ namespace _750HrsTracker.Services.Implementations
 
             var activityLog = await _activityLogRepository.AddAsync(requestData);
 
-            ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(file, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
-
-            if(documentUploadResponse != null)
+            foreach(var f in files)
             {
-                await _activityLogRepository.AttachLogDocumentAsync(documentUploadResponse!);
+                ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
 
+                if (documentUploadResponse != null)
+                {
+                    documentUploadResponse!.ActivityLogId = activityLog.Id;
+                    await _activityLogRepository.AttachLogDocumentAsync(documentUploadResponse!);
+
+                }
             }
+
+           
 
             List<ActivityLogProperty> properties = new(); 
             foreach(var propertyId in request.PropertiesIds!)

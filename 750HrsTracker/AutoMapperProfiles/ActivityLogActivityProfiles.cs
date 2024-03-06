@@ -11,7 +11,11 @@ namespace _750HrsTracker.AutoMapperProfiles
         {
             CreateMap<ActivityLogActivity, GetActivityLogActivityResponse>().ForMember(s => s.PropertyType, sp => sp.MapFrom(o => o.AvailablePropertyType));
             CreateMap<AddUpdateActivityLogActivityRequest, ActivityLogActivity>();
-            CreateMap<ActivityLogSubCategory, GetLogActivitySubCategoryResponse>(); 
+            CreateMap<ActivityLogSubCategory, GetLogActivitySubCategoryResponse>();
+
+
+            CreateMap<AddActivityLogRequest, ActivityLog>();
+            CreateMap<ActivityLog, GetActivityLogResponse>();
         }
     }
 }
