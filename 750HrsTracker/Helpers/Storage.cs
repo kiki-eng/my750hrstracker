@@ -1,9 +1,12 @@
 ﻿using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ActivityLogModels;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 
 namespace _750HrsTracker.Helpers
 {
@@ -17,7 +20,7 @@ namespace _750HrsTracker.Helpers
 
             var fileName = Utility.UcWords(documentFor.ToString()).Replace(" ", "_").ToString().ToLower() + extension;
 
-            var fileUploadResponse = await UploadDocumentAsync(_appSettings, file, teamId.ToString(), documentFor, fileName);
+            var fileUploadResponse = await UploadDocumentAsync(_appSettings, file, documentFor, fileName, teamId.ToString());
 
             var filePath = fileUploadResponse.FileAbsoluteUri;
 
@@ -32,7 +35,7 @@ namespace _750HrsTracker.Helpers
 
             return document;
         } 
-        public static async Task<DocumentUploadResponse> UploadDocumentAsync(AppSettings appSettings, IFormFile file, string teamId, DocumentFor documentFor, string fileName)
+        public static async Task<DocumentUploadResponse> UploadDocumentAsync(AppSettings appSettings, IFormFile file, DocumentFor documentFor, string fileName, string teamId = null!)
         {
             try
             {
@@ -40,11 +43,12 @@ namespace _750HrsTracker.Helpers
                 string directoryName = "";
                 string currentEnvironment = appSettings.CurrentEnvironment!;
 
-                if (documentFor == DocumentFor.ActivityLog)
+                directoryName = documentFor switch
                 {
-                    directoryName = "activity-logs/" + teamId + "/" + fileName;
-                }
-
+                    DocumentFor.ActivityLog => "activity-logs/" + teamId + "/" + fileName,
+                    DocumentFor.Template => $"{LogCategoryConstants.TemplatesDirectory}/{fileName}",
+                    _ => throw new ApplicationException("Invalid document type"),
+                };
 
                 BlobServiceClient serviceClient = new(appSettings.AzureStorageBlobConnectionString);
 
@@ -78,6 +82,104 @@ namespace _750HrsTracker.Helpers
             }
 
         }
+
+        public static async Task<byte[]> DownloadDocumentAsStream(AppSettings appSettings, string directoryName)
+        {
+             
+            BlobServiceClient serviceClient = new(appSettings.AzureStorageBlobConnectionString);
+
+            var containers = serviceClient.GetBlobContainers().FirstOrDefault(c => c.Name == appSettings.AzureStorageBlobContainerName);
+
+            BlobContainerClient containerClient = serviceClient.GetBlobContainerClient(appSettings.AzureStorageBlobContainerName);
+
+            BlobClient blobClient = containerClient.GetBlobClient(directoryName);
+
+            if (await blobClient.ExistsAsync())
+            {
+                var tempUrl = GetDocTempUrl(appSettings, directoryName);
+
+                // Create a memory stream to hold the blob data
+                using MemoryStream stream = new();
+                await blobClient.DownloadToAsync(stream);
+                stream.Position = 0; // Reset the stream position
+
+                // Return the stream as a FileStreamResult
+                return stream.ToArray();
+            }
+            else
+            {
+                throw new KeyNotFoundException("Blob not found");
+            }
+
+        }
+
+        public static Uri GetDocTempUrl(AppSettings appSettings, string filename)
+        {
+            string connectionString = appSettings.AzureStorageBlobConnectionString!;
+            string containerName = appSettings.AzureStorageBlobContainerName!;
+            string blobName = filename;
+
+            Uri blobUri = GetBlobUri(connectionString, containerName, blobName);
+            string sasToken = GenerateSasToken(connectionString, containerName, blobName);
+
+            // Create a temporary URL by combining the blob URI and SAS token
+            Uri temporaryUrl = new(blobUri, sasToken);
+
+            return temporaryUrl;
+        }
+
+        public static Uri GetBlobUri(string connectionString, string containerName, string blobName)
+        {
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            return blobClient.Uri;
+        }
+
+        public static string GenerateSasToken(string connectionString, string containerName, string blobName)
+        {
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            var sasBuilder = new BlobSasBuilder
+            {
+                BlobContainerName = containerClient.Uri.ToString(), // Use the container URI
+                BlobName = blobClient.Name,
+                Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow,
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(30), // Adjust the expiration time as needed
+            };
+
+            sasBuilder.SetPermissions(BlobSasPermissions.Read); // Set the permissions as needed
+
+            var sasToken = sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(containerClient.AccountName, "ZAv7rjRE2jJNrP1FVaRiPg1u9kMvs1GMbdPKd2LeWewLMNqJ2aVUug+zBCblL7CYs7WJktNantKsfWi2wtFcXg=="));
+
+            return sasToken.ToString();
+        }
+
+        public static string GetFileContentType(string filePath)
+        {
+            string Extension = Path.GetExtension(filePath).ToLower();
+            string ContentType = Extension switch
+            {
+                FileExtensionConstants.FILE_EXTENSION_PDF => "application/pdf",
+                FileExtensionConstants.FILE_EXTENSION_TXT => "text/plain",
+                FileExtensionConstants.FILE_EXTENSION_PNG => "image/png",
+                FileExtensionConstants.FILE_EXTENSION_JPG => "image/jpeg",
+                FileExtensionConstants.FILE_EXTENSION_JPEG => "image/jpeg",
+                FileExtensionConstants.FILE_EXTENSION_XLS => "application/vnd.ms-excel",
+                FileExtensionConstants.FILE_EXTENSION_XLSX => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                FileExtensionConstants.FILE_EXTENSION_CSV => "text/csv",
+                FileExtensionConstants.FILE_EXTENSION_HTML => "text/html",
+                FileExtensionConstants.FILE_EXTENSION_XML => "text/xml",
+                FileExtensionConstants.FILE_EXTENSION_ZIP => "application/zip",
+                _ => "application/octet-stream",
+            };
+            return ContentType;
+        }
+
 
     }
 }

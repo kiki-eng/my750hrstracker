@@ -2,6 +2,7 @@
 {
     public enum DocumentFor
     {
-        ActivityLog
+        ActivityLog,
+        Template
     }
 }

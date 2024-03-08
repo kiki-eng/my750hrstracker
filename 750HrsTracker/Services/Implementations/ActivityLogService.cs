@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 using _750HrsTracker.Enums;
 using System.IO;
 using _750HrsTracker.Extensions;
+using Microsoft.AspNetCore.StaticFiles;
+using _750HrsTracker.Helpers.Constants;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -184,5 +186,39 @@ namespace _750HrsTracker.Services.Implementations
 
 
         }
+
+        public async Task<ResponseHandler<Base64FileModel>> DownloadActivityLogImportTemplateAsync()
+        {
+            ResponseHandler<Base64FileModel> response = new();
+
+            var directoryName = LogCategoryConstants.TemplatesDirectory + "/" + LogCategoryConstants.LogImportTemplateFileName;
+            byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, directoryName);
+
+            Base64FileModel fileModel = new()
+            {
+                ContentType = GetMimeType(LogCategoryConstants.LogImportTemplateFileName),
+                FileExtension = Path.GetExtension(LogCategoryConstants.LogImportTemplateFileName),
+                Data = Convert.ToBase64String(fileBytes),
+                FileName = LogCategoryConstants.LogImportTemplateFileName
+            };
+
+            response.Success = true;
+            response.Message = "File retrieved successfully";
+            response.Data = fileModel;
+            return response;
+        }
+
+        private string GetMimeType(string fileName)
+        {
+            // Make Sure Microsoft.AspNetCore.StaticFiles Nuget Package is installed
+            var provider = new FileExtensionContentTypeProvider();
+            string contentType;
+            if (!provider.TryGetContentType(fileName, out contentType!))
+            {
+                contentType = "application/octet-stream";
+            }
+            return contentType;
+        }
+
     }
 }

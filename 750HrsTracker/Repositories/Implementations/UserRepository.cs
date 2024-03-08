@@ -126,9 +126,9 @@ namespace _750HrsTracker.Repositories.Implementations
             return updated.Entity;
         }
 
-        public async Task<User> ResetPasswordAsync(string emailAddress, string newPassword, string resetToken)
+        public async Task<User> ResetPasswordAsync(string newPassword, string resetToken)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailAddress && u.ResetToken == resetToken && u.ResetTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token"); 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.ResetToken == resetToken && u.ResetTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token"); 
                       
 
             user.PasswordHash = Encryption.HashPassword(newPassword);

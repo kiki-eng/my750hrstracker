@@ -172,23 +172,13 @@ namespace _750HrsTracker.Services.Implementations
         {
             ResponseHandler<string> response = new ResponseHandler<string>();
             try
-            {
-                string emailAddress, resetToken;
-                try
+            { 
+                if(request.Password != request.ConfirmPassword)
                 {
-                    string decoded = Encryption.Base64EncodeDecode(request.ResetToken!, "decode")!;
-
-                    string[] splitted = decoded.Split('|');
-
-                    emailAddress = splitted[0];
-                    resetToken = splitted[1];
-
+                    throw new ApplicationException("Password and password confirmation must match.");
                 }
-                catch (Exception ex)
-                {
-                    throw new ApplicationException("invalid token ::: " + ex.Message);
-                }
-                var user = await _userRepository.ResetPasswordAsync(emailAddress, request.Password!, resetToken);
+
+                var user = await _userRepository.ResetPasswordAsync(request.Password!, request.ResetToken!);
 
                 if (user == null)
                 {

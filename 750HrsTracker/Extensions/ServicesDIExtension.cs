@@ -39,7 +39,7 @@ namespace _750HrsTracker.Extensions
             services.AddTransient<IAdminService, AdminService>();
             services.TryAddScoped<IPermissionService, PermissionService>();
             services.TryAddScoped<ITeamService,TeamService>();
-
+            services.TryAddScoped<IDocumentService, DocumentService>(); 
 
 
             services.AddSingleton<SessionProvider>();

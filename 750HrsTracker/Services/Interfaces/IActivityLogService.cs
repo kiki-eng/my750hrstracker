@@ -17,5 +17,8 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<List<GetActivityLogResponse>>> SearchActivityLogAsync(string keyword);
         Task<ResponseHandler<GetActivityLogResponse>> UpdateActivityLogAsync(Guid id, UpdateActivityLogRequest request);
         Task<ResponseHandler<string>> DeleteActivityLogAsync(Guid id);
+        Task<ResponseHandler<Base64FileModel>> DownloadActivityLogImportTemplateAsync();
+
+
     }
 }
