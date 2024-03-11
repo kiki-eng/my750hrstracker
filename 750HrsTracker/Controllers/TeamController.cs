@@ -69,7 +69,8 @@ namespace _750HrsTracker.Controllers
             => Ok(await _teamService.GetPendingUserInvitationsAsync());
         
         [HttpGet("get-users")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<PendingUserInvitationResponse>>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetUserResponse>>))]
+
         public async Task<IActionResult> GetTeamUsersAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamUsersAsync(filter, Request.Path));
 
