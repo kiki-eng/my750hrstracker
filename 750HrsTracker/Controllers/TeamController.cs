@@ -70,12 +70,11 @@ namespace _750HrsTracker.Controllers
         
         [HttpGet("get-users")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetUserResponse>>))]
-
         public async Task<IActionResult> GetTeamUsersAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamUsersAsync(filter, Request.Path));
 
 
-        [HttpGet("make-spouse")]
+        [HttpPost("make-spouse")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
         public async Task<IActionResult> GetTeamUsersAsync(MakeSpouseRequest request)
             => Ok(await _teamService.MaKeSpouseRequestAsync(request));

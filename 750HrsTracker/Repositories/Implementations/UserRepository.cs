@@ -243,6 +243,18 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
 
+        public async Task<User> UpdateUserAsync(Guid id, User user)
+        {
+            User existingUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id) ?? throw new KeyNotFoundException("User not found");
+          
+            existingUser.FirstTime = user.FirstTime;
+            existingUser.Lastname = user.Lastname;
+
+            var updated = _context.Users.Update(existingUser);
+
+            return existingUser;
+        }
+        
         public async Task<User> UpdateUserSecurityAsync(Guid id, User user)
         {
             User existingUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id) ?? throw new KeyNotFoundException("User not found");

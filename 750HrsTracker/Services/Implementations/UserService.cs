@@ -341,9 +341,23 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
-        public Task<ResponseHandler<GetUserResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
+        public async Task<ResponseHandler<GetUserResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+
+                var user = await _userRepository.UpdateUserAsync(userId, _mapper.Map<User>(request));
+
+                response.Success = true;
+                response.Message = "User updated successfully";
+                response.Data = _mapper.Map<GetUserResponse>(user);
+                return response;
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public async Task<ResponseHandler<UpdateUserSecurityRequest>> UpdateUserSecurityAsync(Guid userId, UpdateUserSecurityRequest request)
