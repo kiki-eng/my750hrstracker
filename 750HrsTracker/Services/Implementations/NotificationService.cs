@@ -133,17 +133,17 @@ namespace _750HrsTracker.Services.Implementations
                         You have been invited by {request.InviterName} to join {request.TeamName} on {appName}.
                     </p>
                     <p class=""message-body"">
-                        Click the button below to accept the invitation.
+                       Copy to token below to accept the invitation.
                     </p>
                 </div>
-
-                <div class=""button-holder"">
-                    <a class=""btn"" style=""color: #F5F4F9"" href=""{request.InvitationLink}"" target=""_blank"">Accept Invitation</a>
+                <br/>
+                <div>
+                    <b>{request.InvitationCode}</b>
                 </div>
             ";
             try
             {
-                var sent = await _emailService.SendMail(request.RecipientEmail!, "750HrsTracker: New User Onboarded!", html);
+                var sent = await _emailService.SendMail(request.RecipientEmail!, "750HrsTracker: New User Invitation!", html);
                 return sent;
             }
             catch

@@ -10,7 +10,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<Role> DeleteRoleAsync(Guid teamId, Guid roleId);
         Task<Role> UpdateRolePermissionsAsync(Guid teamId, Guid roleId, Guid currentUserId, List<Permission> permissions);
         Task<UserInvitation> InviteUserAsync(Guid teamId, Guid userId, string inviteeEmail, Guid roleId);
-        Task<UserInvitation> ValidateInvitationAsync(string inviteeEmail, string invitationCode);
+        Task<UserInvitation> ValidateInvitationAsync(string invitationCode);
         Task<bool> IsInvitedUserConfirmed(string inviteeEmail);
         Task<User> CreateInvitedUserAsync(User user, string invitationCode);
         Task<List<UserInvitation>> GetPendingUserInvitationsAsync(Guid teamId);

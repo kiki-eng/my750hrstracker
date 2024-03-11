@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Options;
 using System.Data;
+using System.Net.Mail;
 using System.Security.Claims;
 
 namespace _750HrsTracker.Repositories.Implementations
@@ -211,9 +212,9 @@ namespace _750HrsTracker.Repositories.Implementations
             return savedInvitation.Entity;           
         }
 
-        public async Task<UserInvitation> ValidateInvitationAsync(string inviteeEmail, string invitationCode)
+        public async Task<UserInvitation> ValidateInvitationAsync(string invitationCode)
         {
-            var invitationDetails = await _context.UserInvitations.FirstOrDefaultAsync(i => i.Email == inviteeEmail && i.Code == invitationCode) ?? throw new ApplicationException("Invalid invitation");
+            var invitationDetails = await _context.UserInvitations.FirstOrDefaultAsync(i => i.Code == invitationCode) ?? throw new ApplicationException("Invalid invitation");
 
 
             if (invitationDetails.ExpiresAt < DateTime.Now)
@@ -228,20 +229,25 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             var invitationDetails = await _context.UserInvitations.FirstOrDefaultAsync(i => i.Email == inviteeEmail);
 
-            return await _context.Users.AnyAsync(u => u.Email == invitationDetails!.Email && u.EmailConfirmed);
+            return invitationDetails != null && await _context.Users.AnyAsync(u => u.Email == invitationDetails!.Email && u.EmailConfirmed);
+
            
         }
         public async Task<User> CreateInvitedUserAsync(User user, string invitationCode)
         {
-            EntityEntry<User> updatedUser = null!;
+            User updatedUser = null!;
 
             // validate code 
-            var invitationDetails = await _context.UserInvitations.FirstOrDefaultAsync(u => u.Email == user.Email && u.Code == invitationCode) ?? throw new ApplicationException("Invalid Invitation");
+            var invitationDetails = await _context.UserInvitations.FirstOrDefaultAsync(u => u.Code == invitationCode) ?? throw new ApplicationException("Invalid Invitation");
 
             if (invitationDetails.ExpiresAt < DateTime.Now)
             {
                 throw new ApplicationException("Invitation code expired. Contact your inviter to get a new invitation link");
             }
+
+            user.Email = invitationDetails.Email;
+            var address = new MailAddress(user.Email!);
+            user.UserName = $"{address.User}_{Utility.RandomString(4)}";
 
             var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == invitationDetails.TeamId) ?? throw new ApplicationException("Invalid team invitation");
 
@@ -265,6 +271,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 userTeam.UserId = userExists.Id;
                 userRoles.UserId = userExists.Id;
 
+                updatedUser = userExists;
             }
             else
             {
@@ -278,6 +285,8 @@ namespace _750HrsTracker.Repositories.Implementations
 
                 userTeam.UserId = newUser.Id;
                 userRoles.UserId = newUser.Id;
+
+                updatedUser = newUser;
             }
 
 
@@ -286,7 +295,7 @@ namespace _750HrsTracker.Repositories.Implementations
             _context.UserInvitations.Remove(invitationDetails);
             await _context.SaveChangesAsync();
 
-            return updatedUser.Entity;
+            return updatedUser;
         }
 
         public async Task<List<UserInvitation>> GetPendingUserInvitationsAsync(Guid teamId)

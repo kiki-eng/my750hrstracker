@@ -137,15 +137,13 @@ namespace _750HrsTracker.Services.Implementations
 
 
             var invitationDetails = await _teamRepository.InviteUserAsync((Guid)Session.TeamId!, (Guid)Session.UserId!, request.EmailAddress!, request.RoleId);
-            string dataToEncrypt = $"{invitationDetails.Email}|{invitationDetails.Code}";
-            var encryptedCode = Encryption.Base64EncodeDecode(dataToEncrypt);
+           
             var invitationNotificationRequest = new InvitationNotificationRequest()
             {
                 RecipientEmail = invitationDetails.Email,
-                InvitationCode = encryptedCode,
+                InvitationCode = invitationDetails.Code,
                 InviterName = invitationDetails.InviterName,
                 InviterEmail = invitationDetails.InviterEmail,
-                InvitationLink = string.Concat(_appSettings.AppBaseUrl, $"/user-invite/{encryptedCode}"),
                 TeamName = invitationDetails.TeamName,
                 Origin = _appSettings.NotificationOrigin,
                 OriginIpAddress = Utility.GetRequestIPAddress(httpRequest)
@@ -159,38 +157,25 @@ namespace _750HrsTracker.Services.Implementations
         public async Task<ResponseHandler<string>> ValidateInvitationAsync(ValidateInvitationRequest request)
         {
             var response = new ResponseHandler<string>();
-            string decrypted = Encryption.Base64EncodeDecode(request.InvitationCode!, "decode")!;
-            string[] splitted = decrypted!.Split('|');
-            string inviteeEmail = splitted[0];
-            string invitationCode = splitted[1];
 
-            await _teamRepository.ValidateInvitationAsync(inviteeEmail, invitationCode);
+            await _teamRepository.ValidateInvitationAsync(request!.InvitationCode!);
 
             response.Success = true;
-            response.Message = "Invitation code validation successfully";
+            response.Message = "Invitation code validated successfully";
             return response;
         }
         public async Task<ResponseHandler<string>> CreateInvitedUserAsync(CreateInvitedUserRequest request)
         {
-            var response = new ResponseHandler<string>();
-            string decrypted = Encryption.Base64EncodeDecode(request.InvitationCode!, "decode")!;
+            var response = new ResponseHandler<string>();           
 
-            string[] splitted = decrypted.Split('|');
-
-            string inviteeEmail = splitted[0];
-            string invitationCode = splitted[1];
-
-            var address = new MailAddress(inviteeEmail);
             var user = new User()
             {
                 Firstname = request.FirstName,
                 Lastname = request.LastName,
-                Email = inviteeEmail,
-                UserName = $"{address.User}_{Utility.RandomString(4)}",
                 PasswordHash = Encryption.HashPassword(request.Password!),
             };
 
-            var newUser = await _teamRepository.CreateInvitedUserAsync(user, invitationCode);
+            var newUser = await _teamRepository.CreateInvitedUserAsync(user, request.InvitationCode!);
 
 
             response.Success = true;
