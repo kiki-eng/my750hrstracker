@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace _750HrsTracker.Models
 {
@@ -8,7 +9,6 @@ namespace _750HrsTracker.Models
     {
         public string? Firstname { get; set; }   
         public string? Lastname { get; set; }
-
         public bool IsActive { get; set; }
         public bool FirstTime { get; set; }
         public bool SendLoginNotification { get; set; }
@@ -32,6 +32,8 @@ namespace _750HrsTracker.Models
         public ICollection<ActivityLog>? LogsCreated { get; set; }
 
 
+        [NotMapped]
+        public bool IsOwnerSpouse { get; set; } 
         public User()
         {
             CreatedAt = DateTime.Now;

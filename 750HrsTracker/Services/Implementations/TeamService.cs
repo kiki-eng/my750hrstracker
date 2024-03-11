@@ -5,6 +5,7 @@ using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Providers;
+using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
@@ -199,6 +200,39 @@ namespace _750HrsTracker.Services.Implementations
                 RoleName = pi.RoleName!,
                 InvitedAt = pi.CreatedAt
             }).ToList();
+
+            return response;
+        }
+
+        public async Task<PagedResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync(PaginationFilter filter, string route)
+        {
+            var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var users = await _teamRepository.GetTeamUsersAsync((Guid)Session.TeamId!, filter);
+
+            var pagedData = (users.Records!.Select(sn => _mapper.Map<GetUserResponse>(sn))).ToList();
+
+            PagedResponseHandler<List<GetUserResponse>> response =
+                PaginationHelper.CreatePagedResponse(pagedData, validFilters, users.TotalCount, _uriService, route);
+
+            response.Success = true;
+            response.Message = "All users retrieved successfully";
+            return response;
+        }
+
+        public Task<ResponseHandler<string>> DeactivateAccountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ResponseHandler<GetUserResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request)
+        {
+            ResponseHandler<GetUserResponse> response = new();
+
+            var teamSpouse = await _teamRepository.MakeSpouseAsync((Guid)Session.TeamId!, request.UserId);
+
+            response.Success = true;
+            response.Message = "User has been made spouse";
+            response.Data = _mapper.Map<GetUserResponse>(teamSpouse);
 
             return response;
         }

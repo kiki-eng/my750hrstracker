@@ -1,8 +1,10 @@
 ﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -303,6 +305,70 @@ namespace _750HrsTracker.Repositories.Implementations
             var invitations = await _context.UserInvitations.Where(ui => ui.TeamId == teamId).ToListAsync();
 
             return invitations!;
+        }
+
+        public async Task<RepositoryResponseHandler<User>> GetTeamUsersAsync(Guid teamId, PaginationFilter filter)
+        {
+            var team = await _context.Teams.Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User).FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
+
+            var users = team.TeamUsers!.Select(tu => new User
+            {
+                Firstname = tu.User!.Firstname,
+                Lastname = tu.User!.Lastname,
+                Email = tu.User!.Email,
+                IsOwnerSpouse = tu.IsOwnerSpouse,
+                IsActive = tu.User!.IsActive,
+            });
+
+            var records = users.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToList();
+            var totalCount = users.Count();
+
+            return new RepositoryResponseHandler<User>()
+            {
+                TotalCount = totalCount,
+                Records = records
+            };
+
+        }
+
+        public async Task<Team> DeleteTeamAsync(Guid teamId)
+        {
+            var team = await _context.Teams
+                .Include(t => t.ActivityLogs)
+                .Include(t => t.Properties)
+                .Include(t => t.PropertyTeamUsers)
+                .Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User)
+                .FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
+
+            _context.Team_User.RemoveRange(team.TeamUsers!);
+            _context.ActivityLogs.RemoveRange(team.ActivityLogs!);
+            _context.Properties.RemoveRange(team.Properties!);
+            _context.PropertyTeamUsers.RemoveRange(team.PropertyTeamUsers!);
+
+            await _context.SaveChangesAsync();
+
+            return team;
+
+        }
+
+        public async Task<User> MakeSpouseAsync(Guid teamId, Guid userId)
+        {
+            var teamUser = await _context.Team_User.Include(tu => tu.User).FirstOrDefaultAsync(tu => tu.TeamId == teamId && tu.UserId == userId) ?? throw new KeyNotFoundException("User does not belong to team");
+
+            var existingUser = await _context.Team_User.FirstOrDefaultAsync(tu => tu.TeamId == teamId && tu.IsOwnerSpouse);
+
+            if(existingUser != null)
+            {
+                throw new ApplicationException("Team already has a spouse");
+            }
+
+            teamUser.IsOwnerSpouse = true;
+
+            _context.Team_User.Update(teamUser);
+            await _context.SaveChangesAsync();
+
+            return teamUser.User!;
+
         }
 
         // === user invitation end === //

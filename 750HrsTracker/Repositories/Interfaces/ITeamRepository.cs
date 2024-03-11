@@ -1,4 +1,6 @@
-﻿using _750HrsTracker.Models;
+﻿using _750HrsTracker.Filters;
+using _750HrsTracker.Models;
+using _750HrsTracker.Models.ResponseWrappers;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
@@ -14,5 +16,8 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<bool> IsInvitedUserConfirmed(string inviteeEmail);
         Task<User> CreateInvitedUserAsync(User user, string invitationCode);
         Task<List<UserInvitation>> GetPendingUserInvitationsAsync(Guid teamId);
+        Task<RepositoryResponseHandler<User>> GetTeamUsersAsync(Guid teamId, PaginationFilter filter);
+        Task<Team> DeleteTeamAsync(Guid teamId);
+        Task<User> MakeSpouseAsync(Guid teamId, Guid userId);
     }
 }

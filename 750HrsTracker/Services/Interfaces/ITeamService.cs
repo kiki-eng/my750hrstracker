@@ -16,5 +16,9 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<string>> ValidateInvitationAsync(ValidateInvitationRequest request);
         Task<ResponseHandler<string>> CreateInvitedUserAsync(CreateInvitedUserRequest request);
         Task<ResponseHandler<List<PendingUserInvitationResponse>>> GetPendingUserInvitationsAsync();
+        Task<PagedResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync(PaginationFilter filter, string route);
+        Task<ResponseHandler<GetUserResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request);
+        Task<ResponseHandler<string>> DeactivateAccountAsync();
+
     }
 }
