@@ -12,7 +12,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<ActivityLogDocument> AttachLogDocumentAsync(ActivityLogDocument activityLogDocument);
         Task AttachLogPropertyAsync(List<ActivityLogProperty> activityLogProperties);
 
-        Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, AvailablePropertyType propertyType);
+        Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType);
 
     }
 }
