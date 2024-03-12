@@ -108,6 +108,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 totalTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
 
                 response.TotalRepsHours = totalTimeInSeconds / 3600;
+                response.LogHours = counts;
             }
             else
             {
@@ -120,8 +121,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 response.TotalRepsHours = totalTimeInSeconds / 3600;
             }
 
-            response.PropertyType = propertyType;
-
+            response.PropertyType = propertyType;           
             response.RecentLogs = logs.Take(5).Select(l => new GetActivityLogResponse()
             {
                 Id = l.Id,

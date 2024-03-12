@@ -6,7 +6,7 @@ namespace _750HrsTracker.DTOs.Responses
     {
         public decimal TotalRepsHours { get; set; }
         public AvailablePropertyType PropertyType { get; set; }
-        public LogTypeCounts? LogHours { get; set; }
+        public List<LogTypeCounts>? LogHours { get; set; }
         public List<GetActivityLogResponse>? RecentLogs { get; set; }
     }
     public class LogTypeCounts
