@@ -150,7 +150,10 @@ namespace _750HrsTracker.Repositories.Implementations
             {
                 throw new ApplicationException("Incorrect email or password");
             }
-
+            if (!exists.IsActive)
+            {
+                throw new ApplicationException("Cannot login now, contact admin");
+            }
             return exists;
         }
 
