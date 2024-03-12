@@ -17,6 +17,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> CreateInvitedUserAsync(User user, string invitationCode);
         Task<List<UserInvitation>> GetPendingUserInvitationsAsync(Guid teamId);
         Task<RepositoryResponseHandler<User>> GetTeamUsersAsync(Guid teamId, PaginationFilter filter);
+        Task<List<User>> GetTeamUsersAsync(Guid teamId);
         Task<Team> DeleteTeamAsync(Guid teamId);
         Task<User> MakeSpouseAsync(Guid teamId, Guid userId);
     }

@@ -177,7 +177,7 @@ namespace _750HrsTracker.Services.Implementations
         public async Task<ResponseHandler<GetDashboardResponse>> GetDashboardDataAsync(AvailablePropertyType availablePropertyType)
         {
             ResponseHandler<GetDashboardResponse> response = new();
-            GetDashboardResponse responseData = await _activityLogRepository.GetRecentActivityLogsAsync((Guid) Session.TeamId!, (Guid)Session.UserId,  availablePropertyType);
+            GetDashboardResponse responseData = await _activityLogRepository.GetRecentActivityLogsAsync((Guid) Session.TeamId!, (Guid)Session.UserId!,  availablePropertyType);
 
             response.Success = true;
             response.Message = "Dashboard data retrieved successfully";

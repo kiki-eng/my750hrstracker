@@ -218,6 +218,19 @@ namespace _750HrsTracker.Services.Implementations
             response.Message = "All users retrieved successfully";
             return response;
         }
+        
+        
+        public async Task<ResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync()
+        {
+            ResponseHandler<List<GetUserResponse>> response = new();
+
+            var users = await _teamRepository.GetTeamUsersAsync((Guid)Session.TeamId!);
+
+            response.Success = true;
+            response.Message = "All users retrieved successfully";
+            response.Data = users.Select(u => _mapper.Map<GetUserResponse>(u)).ToList();
+            return response;
+        }
 
         public Task<ResponseHandler<string>> DeactivateAccountAsync()
         {

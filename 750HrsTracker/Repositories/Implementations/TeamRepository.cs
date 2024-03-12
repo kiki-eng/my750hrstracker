@@ -313,6 +313,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var users = team.TeamUsers!.Select(tu => new User
             {
+                Id = tu.User!.Id,
                 Firstname = tu.User!.Firstname,
                 Lastname = tu.User!.Lastname,
                 Email = tu.User!.Email,
@@ -328,6 +329,23 @@ namespace _750HrsTracker.Repositories.Implementations
                 TotalCount = totalCount,
                 Records = records
             };
+
+        }
+         public async Task<List<User>> GetTeamUsersAsync(Guid teamId)
+        {
+            var team = await _context.Teams.Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User).FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
+
+            var users = team.TeamUsers!.Select(tu => new User
+            {
+                Id = tu.User!.Id,
+                Firstname = tu.User!.Firstname,
+                Lastname = tu.User!.Lastname,
+                Email = tu.User!.Email,
+                IsOwnerSpouse = tu.IsOwnerSpouse,
+                IsActive = tu.User!.IsActive,
+            }).ToList();
+
+            return users;
 
         }
 
