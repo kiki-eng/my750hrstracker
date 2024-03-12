@@ -389,6 +389,20 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
 
+        public async Task<User> ActivateDeactivateUsersAsync(Guid teamId, Guid userId)
+        {
+
+            var teamUser = await _context.Team_User.Include(tu => tu.User).FirstOrDefaultAsync(tu => tu.TeamId == teamId && tu.UserId == userId) ?? throw new KeyNotFoundException("User does not belong to team");
+
+            teamUser.IsActive = !teamUser.IsActive;
+
+            _context.Team_User.Update(teamUser);
+            await _context.SaveChangesAsync();
+
+            return teamUser.User!;
+
+        }
+
         // === user invitation end === //
     }
 }

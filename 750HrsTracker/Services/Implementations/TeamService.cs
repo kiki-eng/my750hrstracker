@@ -249,6 +249,19 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
         }
+        
+        public async Task<ResponseHandler<GetUserResponse>> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
+        {
+            ResponseHandler<GetUserResponse> response = new();
+
+            var teamSpouse = await _teamRepository.ActivateDeactivateUsersAsync((Guid)Session.TeamId!, request.UserId);
+
+            response.Success = true;
+            response.Message = "User has been updated";
+            response.Data = _mapper.Map<GetUserResponse>(teamSpouse);
+
+            return response;
+        }
     }
 
 }

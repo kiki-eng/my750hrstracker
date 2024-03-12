@@ -7,6 +7,7 @@
         public Guid UserId { get; set; }
         public User? User { get; set; }
         public bool IsOwnerSpouse { get; set; }
+        public bool IsActive { get; set; }
 
     }
 }

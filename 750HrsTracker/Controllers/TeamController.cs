@@ -81,8 +81,13 @@ namespace _750HrsTracker.Controllers
 
         [HttpPost("make-spouse")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
-        public async Task<IActionResult> GetTeamUsersAsync(MakeSpouseRequest request)
+        public async Task<IActionResult> MaKeSpouseRequestAsync(MakeSpouseRequest request)
             => Ok(await _teamService.MaKeSpouseRequestAsync(request));
+        
+        [HttpPatch("activate-deactivate-user")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        public async Task<IActionResult> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
+            => Ok(await _teamService.ActivateDeactivateUsersAsync(request));
 
     }
 }

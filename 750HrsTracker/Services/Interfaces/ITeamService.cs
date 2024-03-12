@@ -19,6 +19,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<PagedResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync(PaginationFilter filter, string route);
         Task<ResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync();
         Task<ResponseHandler<GetUserResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request);
+        Task<ResponseHandler<GetUserResponse>> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
         Task<ResponseHandler<string>> DeactivateAccountAsync();
 
     }
