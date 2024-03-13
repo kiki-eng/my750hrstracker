@@ -526,7 +526,7 @@ namespace _750HrsTracker.Persistence.Seeds
                         activityData.ActivityLogSubCategories = activity.SubCategories.Select(sc => new ActivityLogSubCategory
                         {
                             Name = sc.Name,
-                            Slug = Utility.GenerateSlug(sc.Name!),
+                            Slug = Utility.GenerateSlug(sc.Name!),                            
 
                         }).ToList();
                     }

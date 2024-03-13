@@ -9,15 +9,15 @@ namespace _750HrsTracker.Filters
         public Guid Member { get; set; }
         public bool AllSupportingDocument {  get; set; }
         public bool HasSupportingDocument {  get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public ActivityLogFilter()
         {
             
         }
 
-        public ActivityLogFilter(string activity, string property, string member, bool allSupportingDocument, bool hasSupportingDocument, DateTime startDate, DateTime endDate )
+        public ActivityLogFilter(string activity, string property, string member, bool allSupportingDocument, bool hasSupportingDocument, DateTime? startDate, DateTime? endDate )
         {
             Property = string.IsNullOrEmpty(property) || !IsValidGuid(property) ? Guid.Empty : Guid.Parse(property);
             Activity = string.IsNullOrEmpty(activity) || !IsValidGuid(activity) ? Guid.Empty : Guid.Parse(activity);

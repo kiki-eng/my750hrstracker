@@ -207,14 +207,20 @@ namespace _750HrsTracker.Repositories.Implementations
 
                 }
             }
+            if (activityLogFilter.StartDate != null || activityLogFilter.EndDate != null)
+            {
 
-            var startDate = activityLogFilter.StartDate;
-            var endDate = activityLogFilter.EndDate;
+                var startDate = activityLogFilter.StartDate == null ? new DateTime(1970, 1, 1).Add(new TimeSpan(0, 0, 0)) : (DateTime)activityLogFilter.StartDate;
 
-            activityLogFilter.StartDate = new DateTime(startDate.Year, startDate.Month, startDate.Day).Add(new TimeSpan(0, 0, 0));
-            activityLogFilter.EndDate = new DateTime(endDate.Year, endDate.Month, endDate.Day).Add(new TimeSpan(23, 59, 59));
+                var today = DateTime.Today;
+                var endDate = activityLogFilter.EndDate == null ? new DateTime(today.Year, today.Month, today.Day).Add(new TimeSpan(23,59,59)) : (DateTime)activityLogFilter.EndDate;
 
-            query = query.Where(al => al.CreatedAt >= startDate && al.CreatedAt <= endDate);
+                activityLogFilter.StartDate = new DateTime(startDate.Year, startDate.Month, startDate.Day).Add(new TimeSpan(0, 0, 0));
+                activityLogFilter.EndDate = new DateTime(endDate.Year, endDate.Month, endDate.Day).Add(new TimeSpan(23, 59, 59));
+
+                query = query.Where(al => al.CreatedAt >= startDate && al.CreatedAt <= endDate);
+            }
+
 
 
 
