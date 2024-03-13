@@ -112,10 +112,13 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(PaginationFilter filter, string route)
+        public async Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, string route)
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var properties = await _activityLogRepository.GetAllPaginatedAsync(p => p.TeamId == Session.TeamId!, filter);
+            var validActivityLogFilters = new ActivityLogFilter(activityLogFilter.Activity.ToString(), activityLogFilter.Property.ToString(), activityLogFilter.Member.ToString(), 
+                activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.StartDate, activityLogFilter.EndDate);
+
+            var properties = await _activityLogRepository.GetAllLogsAsync((Guid) Session.TeamId!, validFilters, validActivityLogFilters);
 
 
             var pagedData = (properties.Records!.Select(sn => _mapper.Map<GetActivityLogResponse>(sn))).ToList();

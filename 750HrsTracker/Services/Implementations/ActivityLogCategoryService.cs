@@ -111,6 +111,22 @@ namespace _750HrsTracker.Services.Implementations
             response.Message = "All log categories retrieved successfully";
             return response;
         }
+        
+        public async Task<ResponseHandler<List<GetLogCategoryResponse>>> GetAllActivityLogCategoryAsync()
+        {
+          
+            var logCategories = await _logCategoryRepository.GetLogCategories();
+
+            var responseData = (logCategories.Select(sn => MappedResponse(sn))).ToList();
+
+            ResponseHandler<List<GetLogCategoryResponse>> response = new()
+            {
+                Success = true,
+                Message = "All log categories retrieved successfully",
+                Data = responseData
+            };
+            return response;
+        }
 
         public async Task<ResponseHandler<List<GetActivityLogCategoryResponse>>> SearchActivityLogCategoryAsync(string keyword)
         {
@@ -134,6 +150,61 @@ namespace _750HrsTracker.Services.Implementations
             response.Success = true;
             response.Message = "Log category updated successfully";
             response.Data = _mapper.Map<GetActivityLogCategoryResponse>(updatedLogCategory);
+
+            return response;
+        }
+
+        private GetLogCategoryResponse MappedResponse(ActivityLogCategory logCategory)
+        {
+            var response = new GetLogCategoryResponse
+            {
+                Id = logCategory.Id,
+                Name = logCategory.Name,
+                PropertyType = (AvailablePropertyType)logCategory.AvailablePropertyType!,
+                CreatedAt = logCategory.CreatedAt
+            };
+
+            if (logCategory.ActivityLogActivities != null || logCategory.ActivityLogActivities!.Count > 0)
+            {
+                List<GetActivityLogActivityResponse> getActivityLogActivityResponses = new List<GetActivityLogActivityResponse>();
+
+                foreach(var activity in  logCategory.ActivityLogActivities)
+                {
+                    GetActivityLogActivityResponse logActivityResponse = new GetActivityLogActivityResponse()
+                    {
+                        Name = activity.Name,
+                        Id = activity.Id,
+                        Slug = activity.Slug,
+                        PropertyType =(AvailablePropertyType)activity.AvailablePropertyType!,
+                        CreatedAt = activity.CreatedAt
+                            
+                    };
+
+                    if (activity.ActivityLogSubCategories != null || activity.ActivityLogSubCategories!.Count > 0)
+                    {
+                        List<GetLogActivitySubCategoryResponse> tasks = new List<GetLogActivitySubCategoryResponse>();
+
+                        foreach (var sc in activity.ActivityLogSubCategories)
+                        {
+                            GetLogActivitySubCategoryResponse subCategory = new GetLogActivitySubCategoryResponse()
+                            {
+                                Name = sc.Name,
+                                Id = sc.Id,
+                                Slug = activity.Slug,
+                            };
+
+
+                            tasks.Add(subCategory);
+                        }
+
+                        logActivityResponse.Tasks = tasks;
+                    }
+
+                    getActivityLogActivityResponses.Add(logActivityResponse);
+                }
+
+                response.Activities = getActivityLogActivityResponses;
+            }
 
             return response;
         }

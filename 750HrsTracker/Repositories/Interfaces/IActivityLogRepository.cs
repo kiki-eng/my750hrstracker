@@ -1,8 +1,10 @@
 ﻿using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
+using _750HrsTracker.Filters;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.ResponseWrappers;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
@@ -11,6 +13,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<ActivityLog> UpdateAsync(Guid id, Guid teamId, ActivityLog property);
         Task<ActivityLogDocument> AttachLogDocumentAsync(ActivityLogDocument activityLogDocument);
         Task AttachLogPropertyAsync(List<ActivityLogProperty> activityLogProperties);
+        Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(Guid teamId, PaginationFilter filter, ActivityLogFilter activityLogFilter);
 
         Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType);
 

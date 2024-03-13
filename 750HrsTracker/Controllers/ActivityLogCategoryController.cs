@@ -29,6 +29,11 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetActivityLogCategoryResponse>>))]
         public async Task<IActionResult> GetAllActivityLogCategoryAsync([FromQuery] PaginationFilter filter)
             => Ok(await _logCategoryService.GetAllActivityLogCategoryAsync(filter, Request.Path));
+        
+        [HttpGet("list")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetLogCategoryResponse>>))]
+        public async Task<IActionResult> GetAllActivityLogCategoryAsync()
+            => Ok(await _logCategoryService.GetAllActivityLogCategoryAsync());
 
 
         [HttpGet("search")]

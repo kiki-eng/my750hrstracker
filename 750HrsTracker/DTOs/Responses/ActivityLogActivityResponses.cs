@@ -8,6 +8,7 @@ namespace _750HrsTracker.DTOs.Responses
         public string? Name { get; set; }
         public string? Slug { get; set; }
         public AvailablePropertyType PropertyType { get; set; }
+        public List<GetLogActivitySubCategoryResponse>? Tasks { get; set; }
     }
 
     public class GetLogActivitySubCategoryResponse : BaseEntity

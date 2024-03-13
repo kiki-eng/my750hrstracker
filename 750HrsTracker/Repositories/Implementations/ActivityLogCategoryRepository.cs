@@ -26,5 +26,10 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return updated.Entity;
         }
+
+        public async Task<List<ActivityLogCategory>> GetLogCategories()
+        {
+            return await _context.ActivityLogCategories.Include(ac => ac.ActivityLogActivities)!.ThenInclude(al => al.ActivityLogSubCategories).ToListAsync();
+        }
     }
 }

@@ -1,12 +1,15 @@
 ﻿using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
+using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace _750HrsTracker.Repositories.Implementations
 {
@@ -161,6 +164,75 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return updated.Entity;
 
+        }
+
+        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(Guid teamId, PaginationFilter filter, ActivityLogFilter activityLogFilter)
+        {
+
+            IQueryable<ActivityLog> query = _context.ActivityLogs.Where(al => al.TeamId == teamId);
+
+            if (activityLogFilter.Activity != Guid.Empty)
+            {
+               query = query.Where(al => al.ActivityLogActivityId == activityLogFilter.Activity);
+            }
+            
+            if(activityLogFilter.Member != Guid.Empty)
+            {
+                query = query.Where(al => al.ActivityById == activityLogFilter.Member);
+            }
+            
+            if(activityLogFilter.Property != Guid.Empty)
+            {
+                query = query.Include(al => al.ActivityLogProperties).
+                    ThenInclude(al => al.Property)
+                    .Where(al => al.ActivityLogProperties.Any(alp => alp.PropertyId == activityLogFilter.Property));
+            }
+            else
+            {
+                query = query.Include(al => al.ActivityLogProperties);
+            }
+
+            if (activityLogFilter.AllSupportingDocument)
+            {
+                query = query.Include(al => al.ActivityLogDocuments);
+            }else
+            {
+                if (activityLogFilter.HasSupportingDocument)
+                {
+                    query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments != null &&  al.ActivityLogDocuments.Count > 0);
+                }
+                else
+                {
+                    query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments == null);
+
+                }
+            }
+
+            var startDate = activityLogFilter.StartDate;
+            var endDate = activityLogFilter.EndDate;
+
+            activityLogFilter.StartDate = new DateTime(startDate.Year, startDate.Month, startDate.Day).Add(new TimeSpan(0, 0, 0));
+            activityLogFilter.EndDate = new DateTime(endDate.Year, endDate.Month, endDate.Day).Add(new TimeSpan(23, 59, 59));
+
+            query = query.Where(al => al.CreatedAt >= startDate && al.CreatedAt <= endDate);
+
+
+
+            var records = await query
+                .Include(al => al.ActivityBy)
+                .Include(al => al.ActivityLogActivity)
+                .OrderByDescending(al => al.CreatedAt)
+                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+
+            var totalCount = await query.CountAsync();
+
+            RepositoryResponseHandler<ActivityLog> response = new RepositoryResponseHandler<ActivityLog>
+            {
+                Records = records,
+                TotalCount = totalCount
+            };
+
+            return response;
         }
     }
 }

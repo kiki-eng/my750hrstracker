@@ -28,6 +28,6 @@ namespace _750HrsTracker.Models.ActivityLogModels
         public AvailablePropertyType PropertyType { get; set; }
         public ActivityLogType LogType { get; set; }
         public ICollection<ActivityLogDocument>? ActivityLogDocuments { get; set; }
-        public ICollection<ActivityLogProperty>? ActivityLogProperties { get; set; }
+        public ICollection<ActivityLogProperty> ActivityLogProperties { get; set; }
     }
 }

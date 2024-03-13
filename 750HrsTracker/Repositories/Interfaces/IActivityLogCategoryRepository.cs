@@ -5,5 +5,6 @@ namespace _750HrsTracker.Repositories.Interfaces
     public interface IActivityLogCategoryRepository : IGenericRepository<ActivityLogCategory>
     {
         Task<ActivityLogCategory> UpdateAsync(Guid id,  ActivityLogCategory activityLogCategory);
+        Task<List<ActivityLogCategory>> GetLogCategories();
     }
 }

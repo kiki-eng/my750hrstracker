@@ -68,7 +68,8 @@ namespace _750HrsTracker.Repositories.Implementations
             };
 
             return response;
-        }
+        }        
+        
         public async Task<TEntity> GetSingleOrDefaultAsync(Guid id)
         {
             var data = await _context.Set<TEntity>().FindAsync(id);
