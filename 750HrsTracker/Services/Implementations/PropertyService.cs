@@ -83,6 +83,21 @@ namespace _750HrsTracker.Services.Implementations
             response.Message = "All properties retrieved successfully";
             return response;
         }
+        
+        
+        public async Task<ResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync()
+        {
+           
+            var properties = await _propertyRepository.GetAllAsync(p => p.TeamId == Session.TeamId!);
+
+            ResponseHandler<List<GetPropertyResponse>> response = new()
+            {
+                Success = true,
+                Message = "All properties retrieved successfully",
+                Data = properties!.Select(sn => _mapper.Map<GetPropertyResponse>(sn)).ToList()
+            };
+            return response;
+        }
 
         public async Task<ResponseHandler<GetPropertyResponse>> GetPropertyAsync(Guid id)
         {

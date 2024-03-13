@@ -130,12 +130,15 @@ namespace _750HrsTracker.Repositories.Implementations
                 Id = l.Id,
                 Name = l.Name,
                 Category = l.ActivityLogCategory!.Name,
+                Activity = l.ActivityLogActivity!.Name,
+                
                 HoursSpent = l.HoursSpent,
                 MinutesSpent = l.MinutesSpent,
                 SecondsSpent = l.SecondsSpent,
                 ActivityDate = l.ActivityDate,
                 ActivityBy = new GetUserResponse() 
                 { 
+                    Id = l.ActivityBy!.Id,
                     FirstName = l.ActivityBy!.Firstname,
                     LastName = l.ActivityBy!.Lastname,
                     Email = l.ActivityBy!.Email
@@ -195,17 +198,15 @@ namespace _750HrsTracker.Repositories.Implementations
             if (activityLogFilter.AllSupportingDocument)
             {
                 query = query.Include(al => al.ActivityLogDocuments);
-            }else
+            }
+            else if (activityLogFilter.HasSupportingDocument)
             {
-                if (activityLogFilter.HasSupportingDocument)
-                {
-                    query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments != null &&  al.ActivityLogDocuments.Count > 0);
-                }
-                else
-                {
-                    query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments == null);
+                query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments != null &&  al.ActivityLogDocuments.Count > 0);
+            }
+            else if (!activityLogFilter.HasSupportingDocument)
+            {
+                query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments == null);
 
-                }
             }
             if (activityLogFilter.StartDate != null || activityLogFilter.EndDate != null)
             {

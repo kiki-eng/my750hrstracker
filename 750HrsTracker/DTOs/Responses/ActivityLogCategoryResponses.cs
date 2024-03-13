@@ -15,4 +15,13 @@ namespace _750HrsTracker.DTOs.Responses
         public AvailablePropertyType PropertyType { get; set; }
         public List<GetActivityLogActivityResponse>? Activities { get; set; }
     }
+
+    public class GetTimeAndLogCategoryResponse
+    {
+        public string? LogType { get; set; }
+        public ActivityLogType LogTypeValue { get; set; }
+        public List<GetLogCategoryResponse>? Categories { get; set; }
+
+    }
+    
 }

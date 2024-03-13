@@ -31,7 +31,7 @@ namespace _750HrsTracker.Controllers
             => Ok(await _logCategoryService.GetAllActivityLogCategoryAsync(filter, Request.Path));
         
         [HttpGet("list")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetLogCategoryResponse>>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetTimeAndLogCategoryResponse>>))]
         public async Task<IActionResult> GetAllActivityLogCategoryAsync()
             => Ok(await _logCategoryService.GetAllActivityLogCategoryAsync());
 

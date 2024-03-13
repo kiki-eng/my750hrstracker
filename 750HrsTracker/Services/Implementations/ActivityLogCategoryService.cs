@@ -112,14 +112,29 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
         
-        public async Task<ResponseHandler<List<GetLogCategoryResponse>>> GetAllActivityLogCategoryAsync()
+        public async Task<ResponseHandler<List<GetTimeAndLogCategoryResponse>>> GetAllActivityLogCategoryAsync()
         {
           
             var logCategories = await _logCategoryRepository.GetLogCategories();
 
-            var responseData = (logCategories.Select(sn => MappedResponse(sn))).ToList();
+            var mappedCategories = (logCategories.Select(sn => MappedResponse(sn))).ToList();
 
-            ResponseHandler<List<GetLogCategoryResponse>> response = new()
+            List<GetTimeAndLogCategoryResponse> responseData = new List<GetTimeAndLogCategoryResponse>()
+            {
+                new GetTimeAndLogCategoryResponse
+                {
+                    LogType = ActivityLogType.REAL_ESTATE.ToString().Replace("_", " "),
+                    LogTypeValue = ActivityLogType.REAL_ESTATE,
+                    Categories = mappedCategories
+                },
+                new GetTimeAndLogCategoryResponse()
+                {
+                    LogType = ActivityLogType.NON_REAL_ESTATE.ToString().Replace("_", " "),
+                    LogTypeValue = ActivityLogType.NON_REAL_ESTATE,
+                }
+            };
+
+            ResponseHandler<List<GetTimeAndLogCategoryResponse>> response = new()
             {
                 Success = true,
                 Message = "All log categories retrieved successfully",

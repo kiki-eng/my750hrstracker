@@ -10,7 +10,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<GetActivityLogCategoryResponse>> AddActivityLogCategoryAsync(AddActivityLogCategoryRequest request);
         Task<ResponseHandler<GetActivityLogCategoryResponse>> GetActivityLogCategoryAsync(Guid id);
         Task<PagedResponseHandler<List<GetActivityLogCategoryResponse>>> GetAllActivityLogCategoryAsync(PaginationFilter filter, string route);
-        Task<ResponseHandler<List<GetLogCategoryResponse>>> GetAllActivityLogCategoryAsync();
+        Task<ResponseHandler<List<GetTimeAndLogCategoryResponse>>> GetAllActivityLogCategoryAsync();
         Task<ResponseHandler<List<GetActivityLogCategoryResponse>>> SearchActivityLogCategoryAsync(string keyword);
         Task<ResponseHandler<GetActivityLogCategoryResponse>> UpdateActivityLogCategoryAsync(Guid id, UpdateActivityLogCategoryRequest request);
         Task<ResponseHandler<string>> DeleteActivityLogCategoryAsync(Guid id);

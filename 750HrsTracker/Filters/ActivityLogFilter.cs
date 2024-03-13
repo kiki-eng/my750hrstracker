@@ -17,7 +17,7 @@ namespace _750HrsTracker.Filters
             
         }
 
-        public ActivityLogFilter(string activity, string property, string member, bool allSupportingDocument, bool hasSupportingDocument, DateTime? startDate, DateTime? endDate )
+        public ActivityLogFilter(string activity, string property, string member, bool allSupportingDocument, bool hasSupportingDocument, DateTime? startDate = null, DateTime? endDate = null)
         {
             Property = string.IsNullOrEmpty(property) || !IsValidGuid(property) ? Guid.Empty : Guid.Parse(property);
             Activity = string.IsNullOrEmpty(activity) || !IsValidGuid(activity) ? Guid.Empty : Guid.Parse(activity);

@@ -39,6 +39,12 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             var query = _context.Set<TEntity>();
             return await Task.Run(() => query);
+        } 
+        
+        public async Task<IQueryable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var query = _context.Set<TEntity>().Where(predicate);
+            return await Task.Run(() => query);
         }
         public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter)
         {

@@ -36,6 +36,11 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetAllPropertiesAsync([FromQuery] PaginationFilter filter)
             => Ok(await _propertyService.GetAllPropertiesAsync(filter, Request.Path));
         
+        [HttpGet("list")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetPropertyResponse>>))]
+        public async Task<IActionResult> GetAllPropertiesAsync()
+            => Ok(await _propertyService.GetAllPropertiesAsync());
+        
         
         [HttpGet("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetPropertyResponse>>))]

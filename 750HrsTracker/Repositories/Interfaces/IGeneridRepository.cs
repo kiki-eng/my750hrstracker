@@ -7,6 +7,7 @@ namespace _750HrsTracker.Repositories.Interfaces
     public interface IGenericRepository<TEntity> where TEntity : class
     {
         Task<IQueryable<TEntity>> GetAllAsync();
+        Task<IQueryable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> AddAsync(TEntity entity);
         Task AddRangeAsync(List<TEntity> entities);
