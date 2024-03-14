@@ -47,11 +47,14 @@ namespace _750HrsTracker.Services.Implementations
             // Convert Base64 string to byte array
             List<Base64FormFile> files = new();
 
-            foreach(var ff in request.SupportingDocuments!)
-            {               
-                byte[] fileBytes = Convert.FromBase64String(ff.Data!);
-                var base64FormFile = new Base64FormFile(ff.FileName!, ff.ContentType!, fileBytes);
-                files.Add(base64FormFile);
+            if(request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
+            {
+                foreach (var ff in request.SupportingDocuments!)
+                {
+                    byte[] fileBytes = Convert.FromBase64String(ff.Data!);
+                    var base64FormFile = new Base64FormFile(ff.FileName!, ff.ContentType!, fileBytes);
+                    files.Add(base64FormFile);
+                }
             }
 
 
@@ -65,19 +68,20 @@ namespace _750HrsTracker.Services.Implementations
 
             var activityLog = await _activityLogRepository.AddAsync(requestData);
 
-            foreach(var f in files)
+            if(request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
             {
-                ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
-
-                if (documentUploadResponse != null)
+                foreach (var f in files)
                 {
-                    documentUploadResponse!.ActivityLogId = activityLog.Id;
-                    await _activityLogRepository.AttachLogDocumentAsync(documentUploadResponse!);
+                    ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
 
+                    if (documentUploadResponse != null)
+                    {
+                        documentUploadResponse!.ActivityLogId = activityLog.Id;
+                        await _activityLogRepository.AttachLogDocumentAsync(documentUploadResponse!);
+                    }
                 }
             }
 
-           
 
             List<ActivityLogProperty> properties = new(); 
             foreach(var propertyId in request.PropertiesIds!)
@@ -116,7 +120,7 @@ namespace _750HrsTracker.Services.Implementations
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var validActivityLogFilters = new ActivityLogFilter(activityLogFilter.Activity.ToString(), activityLogFilter.Property.ToString(), activityLogFilter.Member.ToString(), 
-                activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.StartDate, activityLogFilter.EndDate);
+                activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.WithDocuments, activityLogFilter.StartDate, activityLogFilter.EndDate);
 
             var properties = await _activityLogRepository.GetAllLogsAsync((Guid) Session.TeamId!, validFilters, validActivityLogFilters);
 

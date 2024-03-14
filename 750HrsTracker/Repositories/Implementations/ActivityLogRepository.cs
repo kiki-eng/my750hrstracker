@@ -78,9 +78,9 @@ namespace _750HrsTracker.Repositories.Implementations
                             var totalGroupedHours = categoryGroup.Sum(l => l.HoursSpent);
                             var totalGroupedMinutes = categoryGroup.Sum(l => l.MinutesSpent);
                             var totalGroupedSeconds = categoryGroup.Sum(l => l.HoursSpent);
-                            var totalGroupedTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
+                            var totalGroupedTimeInSeconds = (totalGroupedHours * 3600) + (totalGroupedMinutes * 60) + totalGroupedSeconds;
 
-                            getCategoryHoursCount.Hours = totalTimeInSeconds / 3600;
+                            getCategoryHoursCount.Hours = totalGroupedTimeInSeconds / 3600;
 
                             categoryHoursCounts.Add(getCategoryHoursCount);
                         }
@@ -195,18 +195,23 @@ namespace _750HrsTracker.Repositories.Implementations
                 query = query.Include(al => al.ActivityLogProperties);
             }
 
-            if (activityLogFilter.AllSupportingDocument)
+            if (activityLogFilter.WithDocuments)
             {
-                query = query.Include(al => al.ActivityLogDocuments);
-            }
-            else if (activityLogFilter.HasSupportingDocument)
-            {
-                query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments != null &&  al.ActivityLogDocuments.Count > 0);
-            }
-            else if (!activityLogFilter.HasSupportingDocument)
-            {
-                query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments == null);
-
+                if (activityLogFilter.AllSupportingDocument)
+                {
+                    query = query.Include(al => al.ActivityLogDocuments);
+                }
+                else
+                {
+                    if (activityLogFilter.HasSupportingDocument)
+                    {
+                        query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments != null && al.ActivityLogDocuments.Count > 0);
+                    }
+                    else 
+                    {
+                        query = query.Include(al => al.ActivityLogDocuments).Where(al => al.ActivityLogDocuments == null);
+                    }
+                }
             }
             if (activityLogFilter.StartDate != null || activityLogFilter.EndDate != null)
             {
