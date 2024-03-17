@@ -250,10 +250,10 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             User existingUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id) ?? throw new KeyNotFoundException("User not found");
           
-            existingUser.FirstTime = user.FirstTime;
+            existingUser.Firstname = user.Firstname;
             existingUser.Lastname = user.Lastname;
 
-            var updated = _context.Users.Update(existingUser);
+            var updated = _context.Users.Update(existingUser); 
 
             return existingUser;
         }

@@ -102,7 +102,31 @@ namespace _750HrsTracker.Repositories.Implementations
 
 
                 }
+                
+                if(!counts.Any(lg => lg.LogType!.Equals(ActivityLogType.REAL_ESTATE.ToString())))
+                {
+                    LogTypeCounts realEstateCount = new()
+                    {
+                        LogType = ActivityLogType.REAL_ESTATE.ToString(),                       
+                        TotalHours = 0,
+                    };
+                    var logCategories = await _context.ActivityLogCategories.ToListAsync();
 
+                    realEstateCount.Categories = logCategories.Select(lg => new GetCategoryHoursCount { Name = lg.Name, Hours = 0 }).ToList();                        
+                       
+                    counts.Add(realEstateCount);
+                }
+                
+                if(!counts.Any(lg => lg.LogType!.Equals(ActivityLogType.NON_REAL_ESTATE.ToString())))
+                {
+                    LogTypeCounts nonRealEstateCount = new()
+                    {
+                        LogType = ActivityLogType.NON_REAL_ESTATE.ToString(),
+                        TotalHours = 0,
+                    };
+
+                    counts.Add(nonRealEstateCount);
+                }
                 var materialLogs = logs.Where(l => l.ActivityLogCategory != null && l.ActivityLogCategory.Slug == LogCategoryConstants.MaterialParticipationSlug).ToList();
                 
                 totalHours = materialLogs.Sum(l => l.HoursSpent);

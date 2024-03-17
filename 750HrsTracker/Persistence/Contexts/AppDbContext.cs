@@ -74,7 +74,7 @@ namespace _750HrsTracker.Persistence.Contexts
                 entity.HasOne(e => e.Team).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.ActivityLogActivity).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogActivityId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.ActivityLogCategory).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.NoAction);
-                entity.HasMany(e => e.ActivityLogDocuments).WithOne(e => e.ActivityLog).HasForeignKey(e => e.ActivityLogId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(e => e.ActivityLogDocuments).WithOne(e => e.ActivityLog).HasForeignKey(e => e.ActivityLogId).OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<ActivityLogActivity>(entity =>

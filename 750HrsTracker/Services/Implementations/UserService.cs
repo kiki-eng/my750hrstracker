@@ -347,7 +347,7 @@ namespace _750HrsTracker.Services.Implementations
             {
                 ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
 
-                var user = await _userRepository.UpdateUserAsync(userId, _mapper.Map<User>(request));
+                var user = await _userRepository.UpdateUserAsync(userId, new User { Firstname = request.Firstname, Lastname = request.Lastname});
 
                 response.Success = true;
                 response.Message = "User updated successfully";
