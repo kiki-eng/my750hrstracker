@@ -25,5 +25,8 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
         Task<ResponseHandler<string>> VerifyEmailAsync(VerifyEmailRequest request);
         Task<ResponseHandler<string>> ResendVerifyEmailAsync(ResendVerifyEmailRequest request, HttpRequest httpRequest);
+
+        Task<ResponseHandler<UpdateProfilePictureRequest>> UpdatetUserProfilePictureAsync(Guid userId, UpdateProfilePictureRequest request);
+        Task<ResponseHandler<Base64FileModel>> GetUserProfilePictureAsync(Guid userId);
     }
 }

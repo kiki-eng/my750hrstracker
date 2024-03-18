@@ -1,8 +1,13 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
+using _750HrsTracker.Extensions;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
+using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.ResponseWrappers;
+using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
@@ -10,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Net.Mail;
 
 namespace _750HrsTracker.Services.Implementations
@@ -81,6 +87,24 @@ namespace _750HrsTracker.Services.Implementations
 
                 User user = await _userRepository.GetUserAsync(Guid.Parse(userId)) ?? throw new KeyNotFoundException("user not found");
                 var responseData = _mapper.Map<GetUserResponse>(user);
+
+                var userProfilePic = await _userRepository.GetProfilePictureAsync(user.Id);
+
+                if(userProfilePic != null)
+                {
+                    byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, userProfilePic.RemoteDirectoryName!);
+
+                    Base64FileModel fileModel = new()
+                    {
+                        ContentType = Utility.GetMimeType(userProfilePic.DocumentName!),
+                        FileExtension = Path.GetExtension(userProfilePic.DocumentName!),
+                        Data = Convert.ToBase64String(fileBytes),
+                        FileName = userProfilePic.DocumentName,
+                    };
+
+                    responseData.ProfilePic = fileModel;
+                }
+
                 responseData.DefaulTeamId = user.DefaultTeamId;
                 response.Success = true;
                 response.Message = "User retrieved successfully";
@@ -91,6 +115,34 @@ namespace _750HrsTracker.Services.Implementations
             {
                 throw;
             }
+        }
+
+        public async Task<ResponseHandler<Base64FileModel>> GetUserProfilePictureAsync(Guid userId)
+        {
+            ResponseHandler<Base64FileModel> response = new();
+            Base64FileModel responseData = new();
+
+            var userProfilePic = await _userRepository.GetProfilePictureAsync(userId);
+
+            if (userProfilePic != null)
+            {
+                byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, userProfilePic.RemoteDirectoryName!);
+
+                Base64FileModel fileModel = new()
+                {
+                    ContentType = Utility.GetMimeType(userProfilePic.DocumentName!),
+                    FileExtension = Path.GetExtension(userProfilePic.DocumentName!),
+                    Data = Convert.ToBase64String(fileBytes),
+                    FileName = userProfilePic.DocumentName,
+                };
+
+                responseData = fileModel;
+            }
+            
+            response.Success = true;
+            response.Message = "User profile picture retrieved successfully";
+            response.Data = responseData;
+            return response;
         }
 
         public async Task<ResponseHandler<string>> RecoverPasswordAsync(RecoverPasswordRequest request, HttpRequest httpRequest)
@@ -352,6 +404,60 @@ namespace _750HrsTracker.Services.Implementations
                 response.Success = true;
                 response.Message = "User updated successfully";
                 response.Data = _mapper.Map<GetUserResponse>(user);
+                return response;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        
+        public async Task<ResponseHandler<UpdateProfilePictureRequest>> UpdatetUserProfilePictureAsync(Guid userId, UpdateProfilePictureRequest request)
+        {
+            try
+            {
+                ResponseHandler<UpdateProfilePictureRequest> response = new ResponseHandler<UpdateProfilePictureRequest>();
+
+                var user = await _userRepository.GetUserAsync(userId) ?? throw new ApplicationException("User not found");
+                // Convert Base64 string to byte array
+                Base64FormFile file = new Base64FormFile();
+
+                if (request.ProfilePicture != null)
+                {
+                    var profilePic = request.ProfilePicture;
+                    byte[] fileBytes = Convert.FromBase64String(profilePic.Data!);
+                    file = new Base64FormFile(profilePic.FileName!, profilePic.ContentType!, fileBytes);                   
+                }
+
+
+                if (request.ProfilePicture != null)
+                {
+                    var fileType = file.ContentType;
+
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+
+                    var fileName = user.Id.ToString().ToLower() + extension;
+
+                    var documentUploadResponse = await Storage.UploadDocumentAsync(_appSettings, file, DocumentFor.ProfilePicture, fileName);
+
+                    if (documentUploadResponse != null)
+                    {
+                        UserProfilePicture userProfilePicture = new()
+                        {
+                            UserId = user.Id,
+                            RemoteDirectoryName = documentUploadResponse.DirectoryName,
+                            DocumentPath = documentUploadResponse.FileAbsoluteUri,
+                            DocumentExtension = extension,
+                            DocumentName = fileName,
+                            DocumentType = fileType,
+                            
+                        };
+                        await _userRepository.UpdateProfilePictureAsync(userProfilePicture!);
+                    }
+                }
+
+                response.Success = true;
+                response.Message = "User profile pic updated successfully";
                 return response;
             }
             catch

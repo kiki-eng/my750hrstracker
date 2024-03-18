@@ -30,6 +30,7 @@ namespace _750HrsTracker.Persistence.Contexts
         public DbSet<TeamSubscription> TeamSubscriptions { get; set; }
         public DbSet<SubscriptionPermission> SubscriptionPermissions { get; set; }
         public DbSet<UserInvitation> UserInvitations { get; set; }
+        public DbSet<UserProfilePicture> UserProfilePictures { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -72,13 +73,18 @@ namespace _750HrsTracker.Persistence.Contexts
                 entity.HasOne(e => e.ActivityBy).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityById).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.CreatedBy).WithMany(e => e.LogsCreated).HasForeignKey(e => e.CreatedById).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Team).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.NoAction);
-                entity.HasOne(e => e.ActivityLogActivity).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogActivityId).OnDelete(DeleteBehavior.NoAction);
-                entity.HasOne(e => e.ActivityLogCategory).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasMany(e => e.ActivityLogDocuments).WithOne(e => e.ActivityLog).HasForeignKey(e => e.ActivityLogId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<ActivityLogCategory>(entity =>
+            {
+                entity.HasMany(e => e.ActivityLogs).WithOne(e => e.ActivityLogCategory).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.Cascade);
+
             });
 
             builder.Entity<ActivityLogActivity>(entity =>
             {
+                entity.HasMany(e => e.ActivityLogs).WithOne(e => e.ActivityLogActivity).HasForeignKey(e => e.ActivityLogActivityId).OnDelete(DeleteBehavior.Cascade);
                 entity.HasMany(e => e.ActivityLogSubCategories).WithOne(e => e.LogActivity).HasForeignKey(e => e.LogActivityId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.ActivityLogCategory).WithMany(e => e.ActivityLogActivities).HasForeignKey(e => e.ActivityLogCategoryId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasIndex(e => e.Slug).IsUnique();
@@ -117,6 +123,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<User>(b =>
             {
                 b.ToTable("Users");
+                b.HasOne(u => u.ProfilePicture).WithOne(u => u.User).HasForeignKey<UserProfilePicture>(u => u.UserId);
             });
 
             builder.Entity<UserClaims>(b =>

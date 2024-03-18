@@ -3,6 +3,7 @@
     public enum DocumentFor
     {
         ActivityLog,
-        Template
+        Template,
+        ProfilePicture
     }
 }

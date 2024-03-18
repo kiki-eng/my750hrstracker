@@ -131,7 +131,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 
                 totalHours = materialLogs.Sum(l => l.HoursSpent);
                 totalMinutes = materialLogs.Sum(l => l.MinutesSpent);
-                totalSeconds = materialLogs.Sum(l => l.HoursSpent);
+                totalSeconds = materialLogs.Sum(l => l.SecondsSpent);
                 totalTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
 
                 response.TotalRepsHours = totalTimeInSeconds / 3600;
@@ -193,10 +193,20 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
 
-        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(Guid teamId, PaginationFilter filter, ActivityLogFilter activityLogFilter)
+        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(Guid teamId, PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType)
         {
 
             IQueryable<ActivityLog> query = _context.ActivityLogs.Where(al => al.TeamId == teamId);
+
+            if(propertyType == AvailablePropertyType.STR)
+            {
+                query = query.Where(al => al.PropertyType == propertyType);
+            }
+            
+            if(propertyType == AvailablePropertyType.LTR)
+            {
+                query = query.Where(al => al.PropertyType == propertyType);
+            }
 
             if (activityLogFilter.Activity != Guid.Empty)
             {

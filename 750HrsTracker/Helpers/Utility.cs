@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.Models;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +13,18 @@ namespace _750HrsTracker.Helpers
 {
     public class Utility
     {
+        public static string GetMimeType(string fileName)
+        {
+            // Make Sure Microsoft.AspNetCore.StaticFiles Nuget Package is installed
+            var provider = new FileExtensionContentTypeProvider();
+            string contentType;
+            if (!provider.TryGetContentType(fileName, out contentType!))
+            {
+                contentType = "application/octet-stream";
+            }
+            return contentType;
+        }
+
         public static string ValidateAndFixUrl(string inputUrl)
         {
             // Check if the URL starts with "http://" or "https://"

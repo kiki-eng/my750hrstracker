@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.Enums;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
+using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Models.Misc;
 using _750HrsTracker.Persistence.Contexts;
@@ -303,6 +304,21 @@ namespace _750HrsTracker.Repositories.Implementations
             }
 
             return roles;
+        }
+
+        public async Task<UserProfilePicture> UpdateProfilePictureAsync(UserProfilePicture picture)
+        {
+            var added = await _context.UserProfilePictures.AddAsync(picture);
+            await _context.SaveChangesAsync();
+
+            return added.Entity;
+        }
+
+        public async Task<UserProfilePicture> GetProfilePictureAsync(Guid userId)
+        {
+            var userProfilePic = await _context.UserProfilePictures.FirstOrDefaultAsync(upp => upp.UserId == userId);
+
+            return userProfilePic!;
         }
     }
 }

@@ -116,13 +116,13 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, string route)
+        public async Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter, string route)
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var validActivityLogFilters = new ActivityLogFilter(activityLogFilter.Activity.ToString(), activityLogFilter.Property.ToString(), activityLogFilter.Member.ToString(), 
                 activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.WithDocuments, activityLogFilter.StartDate, activityLogFilter.EndDate);
 
-            var properties = await _activityLogRepository.GetAllLogsAsync((Guid) Session.TeamId!, validFilters, validActivityLogFilters);
+            var properties = await _activityLogRepository.GetAllLogsAsync((Guid) Session.TeamId!, validFilters, validActivityLogFilters, propertyType);
 
 
             var pagedData = (properties.Records!.Select(sn => _mapper.Map<GetActivityLogResponse>(sn))).ToList();
@@ -203,7 +203,7 @@ namespace _750HrsTracker.Services.Implementations
 
             Base64FileModel fileModel = new()
             {
-                ContentType = GetMimeType(LogCategoryConstants.LogImportTemplateFileName),
+                ContentType = Utility.GetMimeType(LogCategoryConstants.LogImportTemplateFileName),
                 FileExtension = Path.GetExtension(LogCategoryConstants.LogImportTemplateFileName),
                 Data = Convert.ToBase64String(fileBytes),
                 FileName = LogCategoryConstants.LogImportTemplateFileName
@@ -215,17 +215,7 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        private string GetMimeType(string fileName)
-        {
-            // Make Sure Microsoft.AspNetCore.StaticFiles Nuget Package is installed
-            var provider = new FileExtensionContentTypeProvider();
-            string contentType;
-            if (!provider.TryGetContentType(fileName, out contentType!))
-            {
-                contentType = "application/octet-stream";
-            }
-            return contentType;
-        }
+       
 
     }
 }

@@ -6,6 +6,11 @@
         private readonly string _contentType;
         private readonly byte[] _fileContent;
 
+        public Base64FormFile()
+        {
+            
+        }
+
         public Base64FormFile(string fileName, string contentType, byte[] fileContent)
         {
             _fileName = fileName;

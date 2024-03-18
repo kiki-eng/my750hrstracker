@@ -107,6 +107,12 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Update user details
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [Authorize]
         [Route("{userId}")]
         [HttpPatch]
@@ -125,6 +131,12 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Update user security setup e.g Notification on Login
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [Authorize]
         [Route("{userId}/update-security")]
         [HttpPatch]
@@ -217,6 +229,38 @@ namespace _750HrsTracker.Controllers
 
             return Ok(response);
         }
+
+        /// <summary>
+        /// Update user profile pic
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Authorize]
+        [Route("{userId}/update-profile-pic")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateProfilePictureRequest>))]
+        public async Task<IActionResult> UpdatetUserProfilePictureAsync(Guid userId, UpdateProfilePictureRequest request)
+        {
+            ResponseHandler<UpdateProfilePictureRequest> response = await _userService.UpdatetUserProfilePictureAsync(userId, request);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Get user profile pic
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Authorize]
+        [Route("{userId}/profile-pic")]
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
+        public async Task<IActionResult> UpdatetUserProfilePictureAsync(Guid userId)
+            => Ok(await _userService.GetUserProfilePictureAsync(userId));
 
 
     }

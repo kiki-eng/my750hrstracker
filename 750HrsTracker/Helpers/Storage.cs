@@ -47,6 +47,7 @@ namespace _750HrsTracker.Helpers
                 {
                     DocumentFor.ActivityLog => "activity-logs/" + teamId + "/" + fileName,
                     DocumentFor.Template => $"{LogCategoryConstants.TemplatesDirectory}/{fileName}",
+                    DocumentFor.ProfilePicture => $"profile-pics/{fileName}",
                     _ => throw new ApplicationException("Invalid document type"),
                 };
 

@@ -27,6 +27,12 @@ namespace _750HrsTracker.DTOs.Requests
         public string? Lastname { get; set;}
         
     }
+    
+    public class UpdateProfilePictureRequest 
+    {
+        public Base64FileModel? ProfilePicture { get; set; }
+        
+    }
 
 
     public class RecoverPasswordRequest

@@ -1,4 +1,6 @@
-﻿namespace _750HrsTracker.DTOs.Responses
+﻿using _750HrsTracker.DTOs.Requests;
+
+namespace _750HrsTracker.DTOs.Responses
 {
     public class SignInResponse
     {
@@ -25,6 +27,7 @@
         public bool SendLoginNotification { get; set; }
         public bool TwoFactorEnabled { get; set; }
         public DateTime CreatedAt { get; set; }
+        public Base64FileModel? ProfilePic { get; set; }
     }
 
     public class InviteUserResponse

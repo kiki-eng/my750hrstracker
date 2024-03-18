@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Interfaces;
@@ -31,8 +32,8 @@ namespace _750HrsTracker.Controllers
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetActivityLogResponse>>))]
-        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter)
-            => Ok(await _activityLogService.GetAllActivityLogAsync(filter, activityLogFilter, Request.Path));
+        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] AvailablePropertyType propertyType, [FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter)
+            => Ok(await _activityLogService.GetAllActivityLogAsync(propertyType, filter, activityLogFilter, Request.Path));
 
 
         [HttpGet("search")]

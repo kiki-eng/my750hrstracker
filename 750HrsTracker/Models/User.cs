@@ -12,9 +12,7 @@ namespace _750HrsTracker.Models
         public bool IsActive { get; set; }
         public bool FirstTime { get; set; }
         public bool SendLoginNotification { get; set; }
-
         public string? DefaultTeamId { get; set; }
-
         public DateTime CreatedAt{ get; set; }
         public DateTime ModifiedAt{ get; set; }
 
@@ -24,6 +22,8 @@ namespace _750HrsTracker.Models
         public DateTime? VerificationTokenExpires { get; set; }
         public DateTime? LastPasswordResetAt { get; set; }
 
+        public Guid? ProfilePictureId { get; set; }
+        public UserProfilePicture? ProfilePicture { get; set; }
 
         public ICollection<AvailableProperty>? PropertiesCreated { get; set; }
         public ICollection<TeamUser>? UserTeams { get; set; }
