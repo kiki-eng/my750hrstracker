@@ -262,6 +262,14 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdatetUserProfilePictureAsync(Guid userId)
             => Ok(await _userService.GetUserProfilePictureAsync(userId));
 
+        
+        [Authorize]
+        [Route("{userId}/profile-pic")]
+        [HttpDelete]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
+        public async Task<IActionResult> RemoveProfilePictureAsync(Guid userId)
+            => Ok(await _userService.RemoveProfilePictureAsync(userId));
+
 
     }
 }

@@ -232,9 +232,15 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public Task<ResponseHandler<string>> DeactivateAccountAsync()
+        public async Task<ResponseHandler<string>> DeactivateAccountAsync()
         {
-            throw new NotImplementedException();
+            var deactivatedAccount = await _teamRepository.DeleteTeamAsync((Guid)Session.TeamId!, (Guid)Session.UserId!);
+
+            return new ResponseHandler<string>()
+            {
+                Success = true,
+                Message = "Account deleted successfully",
+            };
         }
 
         public async Task<ResponseHandler<GetUserResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request)

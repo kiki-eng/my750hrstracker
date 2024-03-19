@@ -22,5 +22,6 @@ namespace _750HrsTracker.Repositories.Interfaces
 
         Task<UserProfilePicture> UpdateProfilePictureAsync(UserProfilePicture picture);
         Task<UserProfilePicture> GetProfilePictureAsync(Guid userId);
+        Task<UserProfilePicture> RemoveProfilePictureAsync(Guid userId);
     }
 }

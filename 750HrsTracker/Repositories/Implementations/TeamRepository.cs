@@ -332,7 +332,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
          public async Task<List<User>> GetTeamUsersAsync(Guid teamId)
-        {
+         {
             var team = await _context.Teams.Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User).FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
 
             var users = team.TeamUsers!.Select(tu => new User
@@ -347,21 +347,32 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return users;
 
-        }
+         }
 
-        public async Task<Team> DeleteTeamAsync(Guid teamId)
+        public async Task<Team> DeleteTeamAsync(Guid teamId, Guid currentUserId)
         {
             var team = await _context.Teams
-                .Include(t => t.ActivityLogs)
+                .Include(t => t.ActivityLogs)!.ThenInclude(t => t.ActivityLogProperties)
                 .Include(t => t.Properties)
                 .Include(t => t.PropertyTeamUsers)
                 .Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User)
                 .FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
 
+            if(currentUserId != team.OwnerId)
+            {
+                throw new ApplicationException("User cannot perform this operation.");
+            }
+
+            var users = await _context.Users.Include(u => u.UserTeams).Where(u => u.UserTeams!.Where(ut => ut.TeamId == team.Id).ToList().Count == 1).ToListAsync();
+
+
             _context.Team_User.RemoveRange(team.TeamUsers!);
+            _context.Users.RemoveRange(users!);
+            _context.ActivityLogs.RemoveRange(team.ActivityLogs!);
             _context.ActivityLogs.RemoveRange(team.ActivityLogs!);
             _context.Properties.RemoveRange(team.Properties!);
             _context.PropertyTeamUsers.RemoveRange(team.PropertyTeamUsers!);
+            _context.Teams.Remove(team);
 
             await _context.SaveChangesAsync();
 

@@ -320,5 +320,16 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return userProfilePic!;
         }
+
+        public async Task<UserProfilePicture> RemoveProfilePictureAsync(Guid userId)
+        {
+            var userProfilePic = await _context.UserProfilePictures.FirstOrDefaultAsync(upp => upp.UserId == userId) ?? throw new KeyNotFoundException("User profile pic not found");
+
+            var deleted = _context.UserProfilePictures.Remove(userProfilePic);
+            await _context.SaveChangesAsync();
+
+            return deleted.Entity;
+
+        }
     }
 }

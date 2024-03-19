@@ -2,6 +2,7 @@
 using _750HrsTracker.Models.Misc;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -40,22 +41,31 @@ namespace _750HrsTracker.Extensions
                            {
 
                                var userId = Guid.Parse(principal.Claims.First(x => x.Type == "Id").Value);
-                               var user = userService.GetUserAsync(userId).Result;
-                               if (user == null)
+                               try
                                {
-                                   // return unauthorized if user no longer exists
+                                   var user = userService.GetUserAsync(userId).Result;
+                                   if (user == null)
+                                   {
+                                       // return unauthorized if user no longer exists
+                                       context.Fail("Unathorized");
+                                       rhe.message = "Unauthorized";
+                                       //response.WriteAsync(JsonConvert.SerializeObject(rhe));
+                                       return Task.CompletedTask;
+                                   }
+                                   context.Success();
+                                   return Task.CompletedTask;
+                               }catch(Exception ex) 
+                               {
                                    context.Fail("Unathorized");
-                                   rhe.message = "Unauthorized";
-                                   response.WriteAsync(JsonConvert.SerializeObject(rhe));
+                                   rhe.message = $"{ex.Message}";
                                    return Task.CompletedTask;
                                }
-                               context.Success();
-                               return Task.CompletedTask;
+                              
                            }
 
                            context.Fail("Invalid token");
                            rhe.message = "Invalid token";
-                           response.WriteAsync(JsonConvert.SerializeObject(rhe));
+                           //response.WriteAsync(JsonConvert.SerializeObject(rhe));
                            return Task.CompletedTask;
                        }
 

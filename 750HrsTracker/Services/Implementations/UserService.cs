@@ -180,6 +180,17 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
+        public async Task<ResponseHandler<string>> RemoveProfilePictureAsync(Guid userId)
+        {
+           var deleted = await _userRepository.RemoveProfilePictureAsync(userId);
+
+            return new ResponseHandler<string>()
+            {
+                Success = true,
+                Message = "Profile pic successfully removed"
+            };
+        }
+
         public async Task<ResponseHandler<string>> ResendVerifyEmailAsync(ResendVerifyEmailRequest request, HttpRequest httpRequest)
         {
             try
