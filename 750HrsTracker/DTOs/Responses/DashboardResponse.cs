@@ -8,6 +8,9 @@ namespace _750HrsTracker.DTOs.Responses
         public AvailablePropertyType PropertyType { get; set; }
         public List<LogTypeCounts>? LogHours { get; set; }
         public List<GetActivityLogResponse>? RecentLogs { get; set; }
+        public List<UserHoursModel>? UserHours { get; set; }
+
+
     }
     public class LogTypeCounts
     {
@@ -19,8 +22,24 @@ namespace _750HrsTracker.DTOs.Responses
     }
     public class GetCategoryHoursCount
     {
+        public Guid Id { get; set; }
         public string? Name { get; set; }
         public decimal Hours { get; set; }
+        public List<UserHoursModel>? UserHours { get; set; } 
     }
     
+    public class GetHoursResponse
+    {
+        public decimal? TotalStrHours { get; set; }
+        public List<UserHoursModel>? UserHours { get; set; }
+    }
+
+    public class UserHoursModel
+    {
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public decimal Hours { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool IsSpouse { get; set; }
+    }
 }

@@ -2,12 +2,14 @@
 using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers.Constants;
+using _750HrsTracker.Models;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Utilities;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -39,6 +41,9 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             GetDashboardResponse response = new();
 
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.Id == teamId) ?? throw new ApplicationException("Team not found") ;
+            var adminUsers = _context.Users.ToList().Where(u => u.Id == (Guid)team.OwnerId! || u.IsOwnerSpouse ).ToList();
+
             var logs = await _context.ActivityLogs.Include(al => al.ActivityLogActivity).Include(al => al.ActivityLogCategory)
                 .Where(al => al.PropertyType == propertyType && al.TeamId == teamId).OrderByDescending(al => al.CreatedAt).ToListAsync();
 
@@ -61,28 +66,41 @@ namespace _750HrsTracker.Repositories.Implementations
                    
                     LogTypeCounts logTypeCount = new()
                     {
-                            LogType = group.Key.ToString(),
-
+                        LogType = group.Key.ToString(),
                     };
                 
                     if (group.Key == ActivityLogType.REAL_ESTATE)
                     {
-                        var categoryGroups = group.GroupBy(l => l.ActivityLogCategoryId);
-                            
-                        List < GetCategoryHoursCount > categoryHoursCounts = new List<GetCategoryHoursCount>();
-                        foreach (var categoryGroup in categoryGroups)
+                        List<GetCategoryHoursCount> categoryHoursCounts = new List<GetCategoryHoursCount>();
+                        var categories = await _context.ActivityLogCategories.ToListAsync();
+                        foreach (var category in categories)
                         {
-                            GetCategoryHoursCount getCategoryHoursCount = new GetCategoryHoursCount();
-                            getCategoryHoursCount.Name = categoryGroup.First().ActivityLogCategory!.Name;
+                            var cat = logs.Where(l => l.LogType == ActivityLogType.REAL_ESTATE && l.ActivityLogCategoryId == category.Id).ToList();
+                            GetCategoryHoursCount getCategoryHoursCount = new()
+                            {
+                                Name = category.Name,
+                                Id = category.Id
+                            };
 
-                            var totalGroupedHours = categoryGroup.Sum(l => l.HoursSpent);
-                            var totalGroupedMinutes = categoryGroup.Sum(l => l.MinutesSpent);
-                            var totalGroupedSeconds = categoryGroup.Sum(l => l.HoursSpent);
-                            var totalGroupedTimeInSeconds = (totalGroupedHours * 3600) + (totalGroupedMinutes * 60) + totalGroupedSeconds;
+                            if (cat.Count > 0)
+                            {
+                                var totalGroupedHours = cat.Sum(l => l.HoursSpent);
+                                var totalGroupedMinutes = cat.Sum(l => l.MinutesSpent);
+                                var totalGroupedSeconds = cat.Sum(l => l.HoursSpent);
+                                var totalGroupedTimeInSeconds = (totalGroupedHours * 3600) + (totalGroupedMinutes * 60) + totalGroupedSeconds;
 
-                            getCategoryHoursCount.Hours = totalGroupedTimeInSeconds / 3600;
+                                getCategoryHoursCount.Hours = totalGroupedTimeInSeconds / 3600;
+                            }
+
+                           
+
+                            if (category.Slug == LogCategoryConstants.MaterialParticipationSlug)
+                            {
+                                
+                            }
 
                             categoryHoursCounts.Add(getCategoryHoursCount);
+
                         }
 
                         logTypeCount.Categories = categoryHoursCounts;
@@ -112,8 +130,13 @@ namespace _750HrsTracker.Repositories.Implementations
                     };
                     var logCategories = await _context.ActivityLogCategories.ToListAsync();
 
-                    realEstateCount.Categories = logCategories.Select(lg => new GetCategoryHoursCount { Name = lg.Name, Hours = 0 }).ToList();                        
-                       
+                    realEstateCount.Categories = logCategories.Select(lg => new GetCategoryHoursCount { 
+                        Id = lg.Id, 
+                        Name = lg.Name, 
+                        Hours = 0,  
+                        UserHours = lg.Slug == LogCategoryConstants.MaterialParticipationSlug ? GetUserHoursAsync(team, adminUsers, new List<ActivityLog>()) : null}
+                    ).ToList();                        
+                    
                     counts.Add(realEstateCount);
                 }
                 
@@ -128,6 +151,9 @@ namespace _750HrsTracker.Repositories.Implementations
                     counts.Add(nonRealEstateCount);
                 }
                 var materialLogs = logs.Where(l => l.ActivityLogCategory != null && l.ActivityLogCategory.Slug == LogCategoryConstants.MaterialParticipationSlug).ToList();
+
+               
+                
                 
                 totalHours = materialLogs.Sum(l => l.HoursSpent);
                 totalMinutes = materialLogs.Sum(l => l.MinutesSpent);
@@ -136,16 +162,27 @@ namespace _750HrsTracker.Repositories.Implementations
 
                 response.TotalRepsHours = totalTimeInSeconds / 3600;
                 response.LogHours = counts;
+
             }
             else
             {
-                logs = logs.Where(l => l.ActivityById == currentUserId).ToList();
-                totalHours = logs.Sum(l => l.HoursSpent);
-                totalMinutes = logs.Sum(l => l.MinutesSpent);
-                totalSeconds = logs.Sum(l => l.HoursSpent);
+                var userLogs = logs.Where(l => l.ActivityById == currentUserId).ToList();
+                totalHours = userLogs.Sum(l => l.HoursSpent);
+                totalMinutes = userLogs.Sum(l => l.MinutesSpent);
+                totalSeconds = userLogs.Sum(l => l.HoursSpent);
                 totalTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
 
+
+                var users = await _context.Team_User.Include(tu => tu.User).Where(tu => tu.TeamId == team.Id).ToListAsync();
+
                 response.TotalRepsHours = totalTimeInSeconds / 3600;
+                response.UserHours = GetUserHoursAsync(team, users.Select(u => new User
+                {
+                    Id = u.UserId,
+                    Firstname = u.User!.Firstname,
+                    Lastname = u.User!.Lastname,
+                    IsOwnerSpouse = u.User.IsOwnerSpouse
+                }).ToList(), logs);
             }
 
             response.PropertyType = propertyType;           
@@ -173,6 +210,32 @@ namespace _750HrsTracker.Repositories.Implementations
 
             
             return response;
+        }
+
+        private List<UserHoursModel> GetUserHoursAsync(Team team, List<User> adminUsers, List<ActivityLog> logs)
+        {
+            List<UserHoursModel> userHours = new();
+            foreach (var user in adminUsers)
+            {
+                UserHoursModel model = new UserHoursModel
+                {
+                    Id = user.Id,
+                    Name = $"{user.Firstname} {user.Lastname}",
+                    IsSpouse = user.IsOwnerSpouse,
+                    IsAdmin = user.Id == team.OwnerId
+                };
+                var userLogs = logs.Where(ml => ml.ActivityById == user.Id).ToList();
+                var totalHours = userLogs.Sum(l => l.HoursSpent);
+                var totalMinutes = userLogs.Sum(l => l.MinutesSpent);
+                var totalSeconds = userLogs.Sum(l => l.SecondsSpent);
+                var totalTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
+
+                model.Hours = totalTimeInSeconds / 3600;
+
+                userHours.Add(model);
+            }
+
+            return userHours;
         }
 
         public async Task<ActivityLog> UpdateAsync(Guid id, Guid teamId, ActivityLog activityLog)
