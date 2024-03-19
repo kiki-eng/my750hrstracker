@@ -79,7 +79,8 @@ namespace _750HrsTracker.Repositories.Implementations
                             GetCategoryHoursCount getCategoryHoursCount = new()
                             {
                                 Name = category.Name,
-                                Id = category.Id
+                                Id = category.Id,
+                                Slug = category.Slug,
                             };
 
                             if (cat.Count > 0)
@@ -96,7 +97,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
                             if (category.Slug == LogCategoryConstants.MaterialParticipationSlug)
                             {
-                                
+                                getCategoryHoursCount.UserHours = GetUserHoursAsync(team, adminUsers, cat);
                             }
 
                             categoryHoursCounts.Add(getCategoryHoursCount);
@@ -133,6 +134,7 @@ namespace _750HrsTracker.Repositories.Implementations
                     realEstateCount.Categories = logCategories.Select(lg => new GetCategoryHoursCount { 
                         Id = lg.Id, 
                         Name = lg.Name, 
+                        Slug = lg.Slug,
                         Hours = 0,  
                         UserHours = lg.Slug == LogCategoryConstants.MaterialParticipationSlug ? GetUserHoursAsync(team, adminUsers, new List<ActivityLog>()) : null}
                     ).ToList();                        

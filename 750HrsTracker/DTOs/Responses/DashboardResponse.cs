@@ -24,6 +24,7 @@ namespace _750HrsTracker.DTOs.Responses
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
+        public string? Slug { get; set; }
         public decimal Hours { get; set; }
         public List<UserHoursModel>? UserHours { get; set; } 
     }
