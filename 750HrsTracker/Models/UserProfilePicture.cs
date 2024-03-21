@@ -2,7 +2,7 @@
 {
     public class UserProfilePicture : BaseEntity
     {
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         public User? User { get; set; }
         public string? DocumentPath { get; set; }
         public string? DocumentName { get; set; }

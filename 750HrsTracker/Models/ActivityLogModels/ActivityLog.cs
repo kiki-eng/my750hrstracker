@@ -11,7 +11,7 @@ namespace _750HrsTracker.Models.ActivityLogModels
         public int MinutesSpent { get; set; }
         public int SecondsSpent { get; set; }
         public string? Description { get; set; }
-        public Guid TeamId { get; set; }
+        public Guid? TeamId { get; set; }
         public Team? Team { get; set; }
         public Guid ActivityById { get; set; }
         public User? ActivityBy { get; set; }

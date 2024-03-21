@@ -22,10 +22,10 @@ namespace _750HrsTracker.Models
         public string? Longitude { get; set; }
         public string? Latitude { get; set; }   
 
-        public Guid CreatedById {  get; set; } 
+        public Guid? CreatedById {  get; set; } 
         public User? CreatedBy { get; set; }
 
-        public Guid TeamId { get; set; }
+        public Guid? TeamId { get; set; }
         public Team? Team { get; set; }
 
         public ICollection<PropertyTeamUser>? PropertyTeamUsers { get; set; }

@@ -16,6 +16,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<TEntity> GetSingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
         Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity> SoftDeleteAsync(Expression<Func<TEntity, bool>> predicate);
 
         Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter);
         Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter);

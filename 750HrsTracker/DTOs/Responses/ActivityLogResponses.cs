@@ -1,4 +1,6 @@
-﻿namespace _750HrsTracker.DTOs.Responses
+﻿using _750HrsTracker.DTOs.Requests;
+
+namespace _750HrsTracker.DTOs.Responses
 {
     public class GetActivityLogResponse
     {
@@ -15,5 +17,6 @@
 
         public GetUserResponse? ActivityBy {  get; set; }
         public List<GetPropertyResponse>? Properties { get; set; }   
+        public List<Base64FileModel>? SupportingDocuments { get; set; }
     }
 }

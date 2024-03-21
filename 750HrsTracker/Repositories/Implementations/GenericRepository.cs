@@ -4,6 +4,7 @@ using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace _750HrsTracker.Repositories.Implementations
 {
@@ -124,6 +125,28 @@ namespace _750HrsTracker.Repositories.Implementations
             var property = Expression.Property(parameter, columnName);
             var lambda = Expression.Lambda<Func<TEntity, Guid>>(property, parameter);
             return lambda.Compile();
+        }
+        
+        public async Task<TEntity> SoftDeleteAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var entity = await _context.Set<TEntity>().FirstOrDefaultAsync(predicate) ?? throw new KeyNotFoundException("Entity to soft delete not found");
+            PropertyInfo isDeletedProp = typeof(TEntity).GetProperty("IsDeleted")!;
+            PropertyInfo deletedAtProp = typeof(TEntity).GetProperty("DeletedAt")!;
+
+            if (isDeletedProp != null && deletedAtProp != null)
+            {
+                isDeletedProp.SetValue(entity, true);
+                deletedAtProp.SetValue(entity, DateTime.Now);
+            }
+            else
+            {
+                throw new ArgumentException("Entity does not contain soft delete fields.");
+            }
+
+            var updated = _context.Set<TEntity>().Update(entity);
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
         }
     }
 }

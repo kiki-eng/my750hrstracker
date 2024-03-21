@@ -37,6 +37,10 @@ namespace _750HrsTracker.Persistence.Contexts
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Team>(entity =>
+            {
+                entity.HasQueryFilter(e => !e.IsDeleted);
+            });
 
             builder.Entity<TeamUser>(entity =>
             {

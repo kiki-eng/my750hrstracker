@@ -7,6 +7,7 @@
         public string? DocumentType { get; set;}
         public string? DocumentExtension { get; set;}
         public string? RemoteDirectoryName { get; set; }
+        
 
         public Guid ActivityLogId { get; set; }
         public ActivityLog? ActivityLog { get; set; }

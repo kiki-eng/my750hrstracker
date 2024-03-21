@@ -180,7 +180,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 response.TotalRepsHours = totalTimeInSeconds / 3600;
                 response.UserHours = GetUserHoursAsync(team, users.Select(u => new User
                 {
-                    Id = u.UserId,
+                    Id = (Guid)u.UserId!,
                     Firstname = u.User!.Firstname,
                     Lastname = u.User!.Lastname,
                     IsOwnerSpouse = u.User.IsOwnerSpouse
@@ -344,6 +344,11 @@ namespace _750HrsTracker.Repositories.Implementations
             };
 
             return response;
+        }
+
+        public async Task<List<ActivityLogDocument>> GetDocumentsAsync(Guid logId)
+        {
+            return await _context.ActivityLogDocuments.Where(ald => ald.ActivityLogId == logId).ToListAsync();
         }
     }
 }

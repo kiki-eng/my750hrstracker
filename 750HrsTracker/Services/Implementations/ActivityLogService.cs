@@ -17,6 +17,8 @@ using System.IO;
 using _750HrsTracker.Extensions;
 using Microsoft.AspNetCore.StaticFiles;
 using _750HrsTracker.Helpers.Constants;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.Diagnostics;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -108,7 +110,7 @@ namespace _750HrsTracker.Services.Implementations
         {
             ResponseHandler<string> response = new();
 
-            var activityLog = await _activityLogRepository.DeleteAsync(p => p.Id == id && p.TeamId == Session.TeamId);
+            var activityLog = await _activityLogRepository.SoftDeleteAsync(p => p.Id == id && p.TeamId == Session.TeamId);
 
             response.Success = true;
             response.Message = "Activity log deleted successfully";
@@ -139,16 +141,43 @@ namespace _750HrsTracker.Services.Implementations
         {
             ResponseHandler<GetActivityLogResponse> response = new();
 
-            var ActivityLog = await _activityLogRepository.GetSingleOrDefaultAsync(p => p.Id == id && p.TeamId == Session.TeamId);
+            var activityLog = await _activityLogRepository.GetSingleOrDefaultAsync(p => p.Id == id && p.TeamId == Session.TeamId);
 
-            if (ActivityLog == null)
+            if (activityLog == null)
             {
                 throw new KeyNotFoundException("Activity log not found");
             };
 
+            var responseData = _mapper.Map<GetActivityLogResponse>(activityLog);
+
+
+            var documents = await  _activityLogRepository.GetDocumentsAsync(activityLog.Id);
+            List<Base64FileModel> supportDocuments = new();
+
+            if (documents != null && documents.Count > 0)
+            {
+                foreach( var document in documents)
+                {
+                    byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, document.RemoteDirectoryName!);
+
+                    Base64FileModel fileModel = new()
+                    {
+                        ContentType = Utility.GetMimeType(document.DocumentName!),
+                        FileExtension = Path.GetExtension(document.DocumentName!),
+                        Data = Convert.ToBase64String(fileBytes),
+                        FileName = document.DocumentName,
+                    };
+
+                    supportDocuments.Add(fileModel);
+                }
+
+            }
+
+            responseData.SupportingDocuments = supportDocuments;
+
             response.Success = true;
             response.Message = "Activity log retrieved successfully";
-            response.Data = _mapper.Map<GetActivityLogResponse>(ActivityLog);
+            response.Data = responseData;
 
             return response;
 

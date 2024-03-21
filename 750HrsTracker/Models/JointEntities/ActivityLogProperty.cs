@@ -6,7 +6,7 @@ namespace _750HrsTracker.Models.JointEntities
     {
         public Guid PropertyId { get; set; }
         public AvailableProperty? Property { get; set; }
-        public Guid ActivityLogId { get; set; }
+        public Guid? ActivityLogId { get; set; }
         public ActivityLog? ActivityLog { get; set; }
     }
 }

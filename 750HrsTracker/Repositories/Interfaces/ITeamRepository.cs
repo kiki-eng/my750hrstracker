@@ -4,7 +4,7 @@ using _750HrsTracker.Models.ResponseWrappers;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
-    public interface ITeamRepository
+    public interface ITeamRepository : IGenericRepository<Team>
     {
         Task<Role> AddTeamRoleAsync(Guid teamId, string roleName, Guid currentUserId, List<Permission> permissions);
         Task<List<Role>> GetTeamRolesAsync(Guid teamId);
