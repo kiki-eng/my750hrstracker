@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
@@ -68,10 +69,20 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<PagedResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route)
+        public async Task<PagedResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route, AvailablePropertyType propertyType)
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var properties = await _propertyRepository.GetAllPaginatedAsync(p => p.TeamId == Session.TeamId!, filter);
+            RepositoryResponseHandler<AvailableProperty> properties = new();
+
+            if (propertyType == AvailablePropertyType.ALL)
+            {
+                properties = await _propertyRepository.GetAllPaginatedAsync(p => p.TeamId == Session.TeamId!, filter);
+
+            }
+            else
+            {
+                properties = await _propertyRepository.GetAllPaginatedAsync(p => p.TeamId == Session.TeamId! && p.PropertyType == propertyType, filter);
+            }
 
 
             var pagedData = (properties.Records!.Select(sn => _mapper.Map<GetPropertyResponse>(sn))).ToList();
@@ -85,10 +96,21 @@ namespace _750HrsTracker.Services.Implementations
         }
         
         
-        public async Task<ResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync()
+        public async Task<ResponseHandler<List<GetPropertyResponse>>> GetAllPropertiesAsync(AvailablePropertyType propertyType)
         {
-           
-            var properties = await _propertyRepository.GetAllAsync(p => p.TeamId == Session.TeamId!);
+
+            List<AvailableProperty> properties = new();
+            if (propertyType == AvailablePropertyType.ALL)
+            {
+                var props = await _propertyRepository.GetAllAsync(p => p.TeamId == Session.TeamId!);
+                properties = props.ToList();
+            }
+            else
+            {
+                var props = await _propertyRepository.GetAllAsync(p => p.TeamId == Session.TeamId! && p.PropertyType == propertyType);
+                properties = props.ToList();
+            }
+
 
             ResponseHandler<List<GetPropertyResponse>> response = new()
             {

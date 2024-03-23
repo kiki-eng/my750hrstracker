@@ -32,7 +32,8 @@ namespace _750HrsTracker.Controllers
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetActivityLogResponse>>))]
-        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] AvailablePropertyType propertyType, [FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter)
+        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter, 
+            [FromQuery] AvailablePropertyType propertyType = AvailablePropertyType.ALL)
             => Ok(await _activityLogService.GetAllActivityLogAsync(propertyType, filter, activityLogFilter, Request.Path));
 
 

@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Interfaces;
@@ -31,6 +32,11 @@ namespace _750HrsTracker.Controllers
             => Ok(await _logActivityService.GetAllActivityLogActivityAsync(filter, Request.Path));
 
 
+        [HttpGet("list")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetActivityLogActivityResponse>>))]
+        public async Task<IActionResult> GetAllActivityLogActivityAsync([FromQuery] AvailablePropertyType availablePropertyType)
+            => Ok(await _logActivityService.GetAllActivityLogActivityAsync(availablePropertyType));
+        
         [HttpGet("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetActivityLogActivityResponse>>))]
         public async Task<IActionResult> SearchActivityLogActivityAsync([FromQuery] string keyword)

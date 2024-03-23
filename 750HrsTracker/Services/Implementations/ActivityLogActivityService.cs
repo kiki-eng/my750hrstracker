@@ -11,6 +11,7 @@ using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -239,6 +240,31 @@ namespace _750HrsTracker.Services.Implementations
 
             response.Success = true;
             response.Message = "Log activity sub category deleted successfully";
+
+            return response;
+        }
+
+        public async Task<ResponseHandler<List<GetActivityLogActivityResponse>>> GetAllActivityLogActivityAsync(AvailablePropertyType propertyType)
+        {
+            ResponseHandler<List<GetActivityLogActivityResponse>> response = new();
+
+            List<ActivityLogActivity> logActivities = new();
+
+            if (propertyType == AvailablePropertyType.ALL)
+            {
+                logActivities =  _logActivityRepository.GetAllAsync().Result.ToList();
+
+            }
+            else
+            {
+                var activities = await _logActivityRepository.GetAllAsync(la => la.AvailablePropertyType == propertyType);
+                logActivities = activities.ToList();
+            }
+
+
+            response.Success = true;
+            response.Message = "Log activities retrieved successfully";
+            response.Data = logActivities.Select(p => _mapper.Map<GetActivityLogActivityResponse>(p)).ToList();
 
             return response;
         }

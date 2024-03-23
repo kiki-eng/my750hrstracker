@@ -1,6 +1,8 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
+using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Implementations;
 using _750HrsTracker.Services.Interfaces;
@@ -33,13 +35,13 @@ namespace _750HrsTracker.Controllers
         
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetPropertyResponse>>))]
-        public async Task<IActionResult> GetAllPropertiesAsync([FromQuery] PaginationFilter filter)
-            => Ok(await _propertyService.GetAllPropertiesAsync(filter, Request.Path));
+        public async Task<IActionResult> GetAllPropertiesAsync( [FromQuery] PaginationFilter filter, [FromQuery] AvailablePropertyType propertyType = AvailablePropertyType.ALL)
+            => Ok(await _propertyService.GetAllPropertiesAsync(filter, Request.Path, propertyType));
         
         [HttpGet("list")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetPropertyResponse>>))]
-        public async Task<IActionResult> GetAllPropertiesAsync()
-            => Ok(await _propertyService.GetAllPropertiesAsync());
+        public async Task<IActionResult> GetAllPropertiesAsync([FromQuery] AvailablePropertyType propertyType = AvailablePropertyType.ALL)
+            => Ok(await _propertyService.GetAllPropertiesAsync(propertyType));
         
         
         [HttpGet("search")]

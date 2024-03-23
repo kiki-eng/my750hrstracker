@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ResponseWrappers;
 
@@ -10,6 +11,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<GetActivityLogActivityResponse>> AddActivityLogActivityAsync(AddUpdateActivityLogActivityRequest request);
         Task<ResponseHandler<GetActivityLogActivityResponse>> GetActivityLogActivityAsync(Guid id);
         Task<PagedResponseHandler<List<GetActivityLogActivityResponse>>> GetAllActivityLogActivityAsync(PaginationFilter filter, string route);
+        Task<ResponseHandler<List<GetActivityLogActivityResponse>>> GetAllActivityLogActivityAsync(AvailablePropertyType propertyType);
         Task<ResponseHandler<List<GetActivityLogActivityResponse>>> SearchActivityLogActivityAsync(string keyword);
         Task<ResponseHandler<GetActivityLogActivityResponse>> UpdateActivityLogActivityAsync(Guid id, AddUpdateActivityLogActivityRequest request);
         Task<ResponseHandler<string>> DeleteActivityLogActivityAsync(Guid id);

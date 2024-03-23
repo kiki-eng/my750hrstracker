@@ -145,6 +145,7 @@ namespace _750HrsTracker.Services.Implementations
                 InvitationCode = invitationDetails.Code,
                 InviterName = invitationDetails.InviterName,
                 InviterEmail = invitationDetails.InviterEmail,
+                InvitationLink = _appSettings.AppBaseUrl,
                 TeamName = invitationDetails.TeamName,
                 Origin = _appSettings.NotificationOrigin,
                 OriginIpAddress = Utility.GetRequestIPAddress(httpRequest)

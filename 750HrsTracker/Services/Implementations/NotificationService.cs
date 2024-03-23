@@ -133,12 +133,15 @@ namespace _750HrsTracker.Services.Implementations
                         You have been invited by {request.InviterName} to join {request.TeamName} on {appName}.
                     </p>
                     <p class=""message-body"">
-                       Copy to token below to accept the invitation.
+                       Copy to token below and follow the link to access application and accept the invitation.
                     </p>
                 </div>
                 <br/>
                 <div>
                     <b>{request.InvitationCode}</b>
+                </div>
+                <div>
+                   <p> Link => <a href==""{request.InvitationLink}"" target=""_blank"">Visit/Dowload application></a> </p>
                 </div>
             ";
             try

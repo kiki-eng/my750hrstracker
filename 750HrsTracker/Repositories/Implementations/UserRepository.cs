@@ -255,6 +255,7 @@ namespace _750HrsTracker.Repositories.Implementations
             existingUser.Lastname = user.Lastname;
 
             var updated = _context.Users.Update(existingUser); 
+            await _context.SaveChangesAsync();
 
             return existingUser;
         }
@@ -266,6 +267,7 @@ namespace _750HrsTracker.Repositories.Implementations
             existingUser.SendLoginNotification = user.SendLoginNotification;
 
             var updated = _context.Users.Update(existingUser);
+            await _context.SaveChangesAsync();
 
             return existingUser;
         }

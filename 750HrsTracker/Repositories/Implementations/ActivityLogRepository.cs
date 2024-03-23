@@ -326,12 +326,9 @@ namespace _750HrsTracker.Repositories.Implementations
                 query = query.Where(al => al.CreatedAt >= startDate && al.CreatedAt <= endDate);
             }
 
-
-
-
             var records = await query
                 .Include(al => al.ActivityBy)
-                .Include(al => al.ActivityLogActivity)
+                .Include(al => al.ActivityLogActivity).ThenInclude(la => la!.ActivityLogCategory)
                 .OrderByDescending(al => al.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
 

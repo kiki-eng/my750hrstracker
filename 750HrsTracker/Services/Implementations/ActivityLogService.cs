@@ -127,7 +127,7 @@ namespace _750HrsTracker.Services.Implementations
             var properties = await _activityLogRepository.GetAllLogsAsync((Guid) Session.TeamId!, validFilters, validActivityLogFilters, propertyType);
 
 
-            var pagedData = (properties.Records!.Select(sn => _mapper.Map<GetActivityLogResponse>(sn))).ToList();
+            var pagedData = (properties.Records!.Select(sn => MappedResponse(sn))).ToList();
 
             PagedResponseHandler<List<GetActivityLogResponse>> response =
                 PaginationHelper.CreatePagedResponse(pagedData, validFilters, properties.TotalCount, _uriService, route);
@@ -245,6 +245,21 @@ namespace _750HrsTracker.Services.Implementations
         }
 
        
+        private GetActivityLogResponse MappedResponse(ActivityLog activityLog)
+        {
+            var response = _mapper.Map<GetActivityLogResponse>(activityLog);
 
+            if(activityLog.ActivityLogActivity != null)
+            {
+                response.Activity = activityLog.ActivityLogActivity.Name;
+            }
+            
+            if(activityLog.ActivityLogActivity != null && activityLog.ActivityLogActivity.ActivityLogCategory != null)
+            {
+                response.Category = activityLog.ActivityLogActivity.ActivityLogCategory.Name;
+            }
+
+            return response;
+        }
     }
 }
