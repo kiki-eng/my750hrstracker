@@ -247,6 +247,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 throw new ApplicationException("Invitation code expired. Contact your inviter to get a new invitation link");
             }
 
+            user.IsActive = true;
             user.Email = invitationDetails.Email;
             var address = new MailAddress(user.Email!);
             user.UserName = $"{address.User}_{Utility.RandomString(4)}";
