@@ -29,6 +29,7 @@ namespace _750HrsTracker.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Authorize(Policy = "Permission.Dashboard.View")]
         [HttpGet("get-data")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetDashboardResponse>))]
         public async Task<IActionResult> GetDashboardDataAsync([FromQuery] AvailablePropertyType propertyType)

@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Helpers.Constants;
+﻿using _750HrsTracker.Helpers;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -61,7 +62,11 @@ namespace _750HrsTracker.PermissionManagement
                     }
 
                 }
+
             }
+
+            //throw new ForbiddenAccessException("Sorry! You don't have access to this resource.");
+
         }
     }
 }

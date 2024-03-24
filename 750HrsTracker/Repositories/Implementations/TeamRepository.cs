@@ -420,6 +420,27 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
 
+        public async Task<User> UpdateUserRoleAsync(Guid teamId, Guid userId, Guid roleId)
+        {
+            var teamUser = await _context.Team_User.Include(tu => tu.User).FirstOrDefaultAsync(tu => tu.TeamId == teamId && tu.UserId == userId) 
+                ?? throw new KeyNotFoundException("User does not belong to team");
+
+            var teamRoles = await GetTeamRolesAsync((Guid)teamUser.TeamId!);
+
+            var role = teamRoles.FirstOrDefault(tr => tr.Id.Equals(roleId)) ?? throw new ApplicationException("Invalid role selection") ;
+
+            var userTeamRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.TeamId == (Guid)teamUser.TeamId! && ur.UserId == (Guid)teamUser.UserId!) 
+                ?? throw new ApplicationException("Cannot assign role to user");
+
+            userTeamRole.RoleId = role.Id;
+            _context.UserRoles.Update(userTeamRole);
+            await _context.SaveChangesAsync();
+
+
+            return teamUser.User!;
+
+        }
+
         // === user invitation end === //
     }
 }

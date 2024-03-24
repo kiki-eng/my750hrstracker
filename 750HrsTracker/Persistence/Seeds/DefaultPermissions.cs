@@ -36,6 +36,34 @@ namespace _750HrsTracker.Persistence.Seeds
                 //Property
                 new Permission { Module = "Property", Name = "Create"},
                 new Permission { Module = "Property", Name = "View"},
+                new Permission { Module = "Property", Name = "Update"},
+                new Permission { Module = "Property", Name = "Delete"},
+                new Permission { Module = "Property", Name = "AssignToUsers"},
+                
+                
+                //Activity Log
+                new Permission { Module = "ActivityLog", Name = "Create"},
+                new Permission { Module = "ActivityLog", Name = "View"},
+                new Permission { Module = "ActivityLog", Name = "Update"},
+                new Permission { Module = "ActivityLog", Name = "Delete"},
+                new Permission { Module = "ActivityLog", Name = "Import"},
+
+                // Dashboard
+                new Permission { Module = "Dashboard", Name = "View"},
+
+
+
+                // Team
+                new Permission { Module = "Team", Name = "AddRole"},
+                new Permission { Module = "Team", Name = "GetRole"},
+                new Permission { Module = "Team", Name = "UpdateRole"},
+                new Permission { Module = "Team", Name = "DeleteRole"},
+                new Permission { Module = "Team", Name = "InviteUser"},
+                new Permission { Module = "Team", Name = "GetUsers"},
+                new Permission { Module = "Team", Name = "MakeSpouse"},
+                new Permission { Module = "Team", Name = "ActivateDeactivate"},
+                new Permission { Module = "Team", Name = "DeleteAccount"},
+
             };
 
 
@@ -46,6 +74,9 @@ namespace _750HrsTracker.Persistence.Seeds
                 var exists = await context.Permissions.FirstOrDefaultAsync(p => p.Module!.ToLower() == permission.Module!.ToLower() && p.Name!.ToLower() == permission.Name!.ToLower());
                 if (exists == null)
                 {
+                    permission.Value = PermissionConstants.Permission + "." + permission.Module + "." + permission.Name;
+                    permission.Slug = $"{PermissionConstants.Permission}_{permission.Module!}_{permission.Name!}".ToLower();
+                    permission.Type = PermissionConstants.Permission;
                     await permissionsRepository.AddAsync(permission);
                 }
                 else
@@ -67,7 +98,15 @@ namespace _750HrsTracker.Persistence.Seeds
             var rolesRepository = new RoleRepository(context);
             var basicPermission = new List<string>
             {
-                "Permission.Property.Create","Permission.Property.View",
+                "Permission.Property.Create",
+                "Permission.Property.View", 
+                "Permission.ActivityLog.Create",
+                "Permission.ActivityLog.View",
+                "Permission.ActivityLog.Update",
+            };
+            var auditorPermissions = new List<string>
+            {
+                "Permission.ActivityLog.View", "Permission.Dashboard.View"
             };
 
             var permissions = await context.Permissions.ToListAsync();
@@ -80,11 +119,24 @@ namespace _750HrsTracker.Persistence.Seeds
                     var basicPerms = permissions.Where(p => basicPermission.Contains(p.Value!)).ToList();
 
                     await roleManager.SeedClaimsForRole(r, basicPerms, context);
-
                 }
-                if (r.Name == Roles.Owner.ToString() || r.Name == Roles.Admin.ToString())
+
+                if(r.Name == Roles.Auditor.ToString())
+                {
+                    var auditorPerms = permissions.Where(p => auditorPermissions.Contains(p.Value!)).ToList();
+
+                    await roleManager.SeedClaimsForRole(r, auditorPerms, context);
+                }
+
+                if (r.Name == Roles.Owner.ToString())
                 {
                     await roleManager.SeedClaimsForRole(r, permissions, context);
+                }
+                if (r.Name == Roles.Admin.ToString())
+                {
+                    var adminPermissions = permissions.Where(p => p.Value! != $"{PermissionConstants.Permission}.Team.DeleteAccount").ToList();
+
+                    await roleManager.SeedClaimsForRole(r, adminPermissions, context);
                 }
                 
             }
@@ -98,7 +150,7 @@ namespace _750HrsTracker.Persistence.Seeds
 
             foreach (var permission in permissions)
             {
-                if (!allClaims.Any(a => a.Type == PermissionConstants.Permission && permissions.Any(p => p.Value == a.Value!)))
+                if (!allClaims.Any(a => a.Type == PermissionConstants.Permission && permission.Value == a.Value!))
                 {
                     await roleManager.AddClaimAsync(role, new Claim(PermissionConstants.Permission, permission.Value!));
                 }

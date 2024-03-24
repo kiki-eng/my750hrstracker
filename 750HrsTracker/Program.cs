@@ -64,11 +64,12 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
     });
 });
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddServicesFromExtension();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddCustomAuthentication(builder.Configuration.GetSection("ApplicationConfiguration").Get<AppSettings>());
 builder.Services.AddAuthorization();
+builder.Services.AddServicesFromExtension();
+
 
 
 var app = builder.Build();

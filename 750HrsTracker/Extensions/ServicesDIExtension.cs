@@ -1,9 +1,11 @@
 ﻿using _750HrsTracker.Filters;
+using _750HrsTracker.PermissionManagement;
 using _750HrsTracker.Providers;
 using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Implementations;
 using _750HrsTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace _750HrsTracker.Extensions
@@ -44,6 +46,9 @@ namespace _750HrsTracker.Extensions
 
             services.AddSingleton<SessionProvider>();
             services.AddScoped<SessionFilter>();
+
+            services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+            services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 
             return services;

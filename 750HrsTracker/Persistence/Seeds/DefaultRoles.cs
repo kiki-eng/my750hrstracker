@@ -34,6 +34,14 @@ namespace _750HrsTracker.Persistence.Seeds
                     CreatedBy = "system",
                     RoleType = RoleType.team,
                     Default = true
+                },
+                new Role()
+                {
+                    Name = Roles.Auditor.ToString(),
+                    Slug = Roles.Auditor.ToString().ToLower(),
+                    CreatedBy = "system",
+                    RoleType = RoleType.team,
+                    Default = true
                 }
             };
 

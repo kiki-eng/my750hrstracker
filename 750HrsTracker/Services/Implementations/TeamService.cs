@@ -269,6 +269,18 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
         }
+
+        public async Task<ResponseHandler<string>> UpdateUserRoleAsync(UpdateUserRoleRequest request)
+        {
+            ResponseHandler<string> response = new();
+
+            var updatedUser = await _teamRepository.UpdateUserRoleAsync((Guid)Session.TeamId!, request.UserId, request.RoleId);
+
+            response.Success = true;
+            response.Message = "User role has been updated";
+
+            return response;
+        }
     }
 
 }

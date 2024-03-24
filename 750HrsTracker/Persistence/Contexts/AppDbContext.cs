@@ -153,7 +153,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<UserRoles>(b =>
             {
                 b.ToTable("UserRoles");
-                b.HasKey(ur => new { ur.UserId, ur.RoleId, ur.TeamId });
+                b.HasKey(ur => new { ur.UserId, ur.TeamId });
             });
             
             builder.Entity<RolePermission>(b =>

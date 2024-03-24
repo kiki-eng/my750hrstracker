@@ -4,7 +4,8 @@
     {
         Admin, 
         Owner,
-        Basic
+        Basic,
+        Auditor
     }
 
     public enum RoleType

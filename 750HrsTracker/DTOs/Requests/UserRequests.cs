@@ -112,4 +112,10 @@ namespace _750HrsTracker.DTOs.Requests
         public Guid UserId { get; set; }
     }
     
+    public class UpdateUserRoleRequest
+    {
+        public Guid UserId { get; set; }
+        public Guid RoleId { get; set; }
+    }
+    
 }

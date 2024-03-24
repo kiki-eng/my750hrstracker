@@ -20,6 +20,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync();
         Task<ResponseHandler<GetUserResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request);
         Task<ResponseHandler<GetUserResponse>> ActivateDeactivateUsersAsync(MakeSpouseRequest request);
+        Task<ResponseHandler<string>> UpdateUserRoleAsync(UpdateUserRoleRequest request);
         Task<ResponseHandler<string>> DeactivateAccountAsync();
 
     }

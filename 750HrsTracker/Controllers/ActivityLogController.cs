@@ -23,13 +23,13 @@ namespace _750HrsTracker.Controllers
             _activityLogService = activityLogService;
         }
 
-
+        [Authorize(Policy = "Permission.ActivityLog.Create")]
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
         public async Task<IActionResult> AddActivityLogAsync(AddActivityLogRequest request)
            => Ok(await _activityLogService.AddActivityLogAsync(request));
 
-
+        [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetActivityLogResponse>>))]
         public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter, 
@@ -37,32 +37,38 @@ namespace _750HrsTracker.Controllers
             => Ok(await _activityLogService.GetAllActivityLogAsync(propertyType, filter, activityLogFilter, Request.Path));
 
 
+        [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetActivityLogResponse>>))]
         public async Task<IActionResult> SearchActivityLogAsync([FromQuery] string keyword)
             => Ok(await _activityLogService.SearchActivityLogAsync(keyword));
 
+        [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
         public async Task<IActionResult> GetActivityLogAsync(Guid id)
             => Ok(await _activityLogService.GetActivityLogAsync(id));
 
+        [Authorize(Policy = "Permission.ActivityLog.Update")]
         [HttpPatch("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
         public async Task<IActionResult> UpdateActivityLogAsync(Guid id, UpdateActivityLogRequest request)
             => Ok(await _activityLogService.UpdateActivityLogAsync(id, request));
 
 
+        [Authorize(Policy = "Permission.ActivityLog.Delete")]
         [HttpDelete("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> DeleteActivityLogAsync(Guid id)
             => Ok(await _activityLogService.DeleteActivityLogAsync(id));
 
+        [Authorize(Policy = "Permission.ActivityLog.Create")]
         [HttpGet("download-import-template")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
         public async Task<IActionResult> DownloadActivityLogImportTemplateAsync()
             => Ok(await _activityLogService.DownloadActivityLogImportTemplateAsync());       
         
+        [Authorize(Policy = "Permission.ActivityLog.Import")]
         [HttpPost("import")]
         public async Task<IActionResult> ImportActivityLogAsync()
         {
