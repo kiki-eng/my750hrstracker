@@ -437,6 +437,11 @@ namespace _750HrsTracker.Services.Implementations
                 {
                     var profilePic = request.ProfilePicture;
                     byte[] fileBytes = Convert.FromBase64String(profilePic.Data!);
+                    var extension = Path.GetExtension(profilePic.FileName!).ToLower();
+
+                    if (string.IsNullOrEmpty(extension))
+                        throw new ApplicationException("Invalid file name. File name must contain the file extension");
+                    profilePic.FileName = $"{userId}{extension}";
                     file = new Base64FormFile(profilePic.FileName!, profilePic.ContentType!, fileBytes);                   
                 }
 

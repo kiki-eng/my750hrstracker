@@ -8,6 +8,7 @@ using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Data;
@@ -310,10 +311,22 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<UserProfilePicture> UpdateProfilePictureAsync(UserProfilePicture picture)
         {
-            var added = await _context.UserProfilePictures.AddAsync(picture);
+            var user = await _context.UserProfilePictures.FirstOrDefaultAsync(u => u.UserId == picture.UserId);
+            EntityEntry<UserProfilePicture> entityEntry = null;
+
+            if (user == null)
+            {
+                entityEntry = await _context.UserProfilePictures.AddAsync(picture);
+
+            }
+            else
+            {
+                entityEntry = _context.UserProfilePictures.Update(picture);
+
+            }
             await _context.SaveChangesAsync();
 
-            return added.Entity;
+            return entityEntry.Entity;
         }
 
         public async Task<UserProfilePicture> GetProfilePictureAsync(Guid userId)

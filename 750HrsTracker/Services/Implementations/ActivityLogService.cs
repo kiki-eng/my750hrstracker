@@ -148,7 +148,7 @@ namespace _750HrsTracker.Services.Implementations
                 throw new KeyNotFoundException("Activity log not found");
             };
 
-            var responseData = _mapper.Map<GetActivityLogResponse>(activityLog);
+            var responseData = MappedResponse(activityLog);
 
 
             var documents = await  _activityLogRepository.GetDocumentsAsync(activityLog.Id);
