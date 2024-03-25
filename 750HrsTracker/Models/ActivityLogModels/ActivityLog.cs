@@ -25,6 +25,9 @@ namespace _750HrsTracker.Models.ActivityLogModels
         public Guid? ActivityLogCategoryId { get; set; }
         public ActivityLogCategory? ActivityLogCategory { get; set; }
 
+        public Guid? TaskId { get; set; }
+        public ActivityLogSubCategory? Task { get; set; }
+
         public AvailablePropertyType PropertyType { get; set; }
         public ActivityLogType LogType { get; set; }
         public ICollection<ActivityLogDocument>? ActivityLogDocuments { get; set; }

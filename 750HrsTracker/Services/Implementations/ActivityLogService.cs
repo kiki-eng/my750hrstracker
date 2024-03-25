@@ -31,19 +31,21 @@ namespace _750HrsTracker.Services.Implementations
     public class ActivityLogService : BaseService, IActivityLogService
     {
         private readonly IActivityLogRepository _activityLogRepository;
+        private readonly IActivityLogSubCategoryRepository _taskRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
         private readonly AppSettings _appSettings;
 
         public ActivityLogService(IActivityLogRepository activityLogRepository, IMapper mapper, SessionProvider sessionProvider, 
-            IUriService uriService, IUserRepository userRepository, IOptionsSnapshot<AppSettings> appSettings) : base(sessionProvider)
+            IUriService uriService, IUserRepository userRepository, IOptionsSnapshot<AppSettings> appSettings, IActivityLogSubCategoryRepository taskRepository) : base(sessionProvider)
         {
             _activityLogRepository = activityLogRepository;
             _mapper = mapper;
             _uriService = uriService;
             _userRepository = userRepository;
             _appSettings = appSettings.Value;
+            _taskRepository = taskRepository;
         }
 
         public async Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request)
@@ -73,6 +75,18 @@ namespace _750HrsTracker.Services.Implementations
             var activityBy = await _userRepository.GetUserAsync(request.ActivityById);
 
             requestData.ActivityById = activityBy.Id;
+
+            if(request.PropertyType == AvailablePropertyType.LTR && request.TaskId == null)
+            {
+                throw new ApplicationException("Task Id is required for LTR logs");
+            }
+
+            if(request.TaskId != null)
+            {
+                var tasks = await _taskRepository.GetAllAsync(t => t.LogActivityId == request.ActivityLogActivityId);
+                var task = tasks.ToList().FirstOrDefault(t => t.Id ==  request.TaskId) ?? throw new KeyNotFoundException("Invalid task selection");
+                requestData.TaskId = task.Id;
+            }
 
             var activityLog = await _activityLogRepository.AddAsync(requestData);
 

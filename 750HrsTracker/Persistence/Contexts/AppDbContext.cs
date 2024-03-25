@@ -76,6 +76,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<ActivityLog>(entity =>
             {
                 entity.HasQueryFilter(e => !e.IsDeleted);
+
                 entity.HasOne(e => e.ActivityBy).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityById).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.CreatedBy).WithMany(e => e.LogsCreated).HasForeignKey(e => e.CreatedById).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Team).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.NoAction);
@@ -124,6 +125,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<ActivityLogSubCategory>(entity =>
             {
                 entity.HasIndex(e => new {e.Slug, e.LogActivityId}).IsUnique();
+                entity.HasMany(e => e.ActivityLogs).WithOne(e => e.Task).HasForeignKey(e => e.TaskId);
             });
 
             builder.Entity<User>(b =>

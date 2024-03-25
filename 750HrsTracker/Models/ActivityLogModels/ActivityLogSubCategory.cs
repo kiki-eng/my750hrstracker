@@ -9,5 +9,7 @@ namespace _750HrsTracker.Models.ActivityLogModels
 
         public Guid? LogActivityId { get; set; }
         public ActivityLogActivity? LogActivity { get; set; }
+
+        public ICollection<ActivityLog>? ActivityLogs { get; set; }
     }
 }

@@ -15,6 +15,7 @@ namespace _750HrsTracker.DTOs.Requests
         public Guid ActivityById { get; set; }
         public Guid ActivityLogActivityId { get; set; }
         public Guid? ActivityLogCategoryId { get; set; }
+        public Guid? TaskId { get; set; }
 
         public AvailablePropertyType PropertyType { get; set; }
         public ActivityLogType LogType { get; set; }
