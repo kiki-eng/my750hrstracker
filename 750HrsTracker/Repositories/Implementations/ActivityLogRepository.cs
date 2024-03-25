@@ -391,5 +391,14 @@ namespace _750HrsTracker.Repositories.Implementations
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<ActivityLog> GetLogByIdAsync(Guid id, Guid teamId)
+        {
+            return await _context.ActivityLogs.Include(al => al.ActivityLogActivity).ThenInclude(al => al!.ActivityLogCategory)
+                .Include(al => al.Task)
+                .Include(al => al.ActivityLogProperties).ThenInclude(al => al.Property)
+                .Include(al => al.ActivityBy)
+                .FirstOrDefaultAsync(l => l.Id == id && l.TeamId == teamId) ?? throw new KeyNotFoundException("Log not found");
+        }
     }
 }
