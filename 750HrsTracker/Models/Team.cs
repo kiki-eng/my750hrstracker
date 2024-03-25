@@ -25,5 +25,6 @@ namespace _750HrsTracker.Models
         public ICollection<PropertyTeamUser>? PropertyTeamUsers { get; set; }
         public ICollection<ActivityLog>? ActivityLogs { get; set; }
         public ICollection<TeamSubscription>? TeamSubscriptions { get; set; }
+        public ICollection<ActivityLogDocument>? ActivityLogDocuments { get; set; }
     }
 }

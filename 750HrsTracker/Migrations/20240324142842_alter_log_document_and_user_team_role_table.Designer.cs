@@ -12,8 +12,8 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240324105713_updated_user_team_role_keys")]
-    partial class updated_user_team_role_keys
+    [Migration("20240324142842_alter_log_document_and_user_team_role_table")]
+    partial class alter_log_document_and_user_team_role_table
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -209,9 +209,14 @@ namespace _750HrsTracker.Migrations
                     b.Property<string>("RemoteDirectoryName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("TeamId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActivityLogId");
+
+                    b.HasIndex("TeamId");
 
                     b.ToTable("ActivityLogDocuments");
                 });
@@ -503,15 +508,19 @@ namespace _750HrsTracker.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TeamId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "TeamId");
+                    b.Property<Guid?>("TeamId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId", "TeamId", "RoleId")
+                        .IsUnique()
+                        .HasFilter("[TeamId] IS NOT NULL");
 
                     b.ToTable("UserRoles", (string)null);
                 });
@@ -1041,7 +1050,13 @@ namespace _750HrsTracker.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("_750HrsTracker.Models.Team", "Team")
+                        .WithMany("ActivityLogDocuments")
+                        .HasForeignKey("TeamId");
+
                     b.Navigation("ActivityLog");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.ActivityLogModels.ActivityLogSubCategory", b =>
@@ -1309,6 +1324,8 @@ namespace _750HrsTracker.Migrations
 
             modelBuilder.Entity("_750HrsTracker.Models.Team", b =>
                 {
+                    b.Navigation("ActivityLogDocuments");
+
                     b.Navigation("ActivityLogs");
 
                     b.Navigation("Properties");

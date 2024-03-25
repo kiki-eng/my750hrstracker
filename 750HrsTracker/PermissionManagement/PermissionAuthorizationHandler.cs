@@ -1,9 +1,13 @@
-﻿using _750HrsTracker.Helpers;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Helpers;
 using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
+using _750HrsTracker.Models.Misc;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace _750HrsTracker.PermissionManagement
 {
@@ -15,17 +19,19 @@ namespace _750HrsTracker.PermissionManagement
         IServiceProvider _serviceProvider;
         ILogger _logger;
 
-        public PermissionAuthorizationHandler(UserManager<User> userManager, RoleManager<Role> roleManager, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public PermissionAuthorizationHandler(UserManager<User> userManager, RoleManager<Role> roleManager, ILoggerFactory loggerFactory, 
+            IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = loggerFactory.CreateLogger("PMW");
             _serviceProvider = serviceProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            _logger.LogInformation(context.User.ToString());
 
             if (context.User == null)
             {
@@ -64,6 +70,14 @@ namespace _750HrsTracker.PermissionManagement
                 }
 
             }
+            // Set HTTP response when authorization fails
+            //_httpContextAccessor.HttpContext!.Response.StatusCode = StatusCodes.Status403Forbidden;
+            //_httpContextAccessor.HttpContext!.Response.ContentType = "application/json";
+            //await _httpContextAccessor.HttpContext!.Response.WriteAsync("{\"message\": \"Authorization failed.\"}");
+
+            //// Mark authorization as failed
+            context.Succeed(requirement);
+            return;
 
             //throw new ForbiddenAccessException("Sorry! You don't have access to this resource.");
 

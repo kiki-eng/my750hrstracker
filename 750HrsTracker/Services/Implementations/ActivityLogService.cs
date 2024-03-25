@@ -19,6 +19,12 @@ using Microsoft.AspNetCore.StaticFiles;
 using _750HrsTracker.Helpers.Constants;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Diagnostics;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Mvc;
+using System.IO.Compression;
+using System.Net;
+using System;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -79,6 +85,7 @@ namespace _750HrsTracker.Services.Implementations
                     if (documentUploadResponse != null)
                     {
                         documentUploadResponse!.ActivityLogId = activityLog.Id;
+                        documentUploadResponse.TeamId = (Guid)Session.TeamId!;
                         await _activityLogRepository.AttachLogDocumentAsync(documentUploadResponse!);
                     }
                 }
@@ -197,15 +204,73 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<ResponseHandler<GetActivityLogResponse>> UpdateActivityLogAsync(Guid id, UpdateActivityLogRequest request)
+        public async Task<ResponseHandler<GetActivityLogResponse>> UpdateActivityLogAsync(Guid id, AddActivityLogRequest request)
         {
             ResponseHandler<GetActivityLogResponse> response = new();
 
-            var updatedActivityLog = await _activityLogRepository.UpdateAsync(id, (Guid)Session.TeamId!, _mapper.Map<ActivityLog>(request));
+            var existingActivityLog = await _activityLogRepository.GetSingleOrDefaultAsync(id) ?? throw new KeyNotFoundException("Activity log not found");
+           
+            // Convert Base64 string to byte array
+            List<Base64FormFile> files = new();
+
+            if (request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
+            {
+                foreach (var ff in request.SupportingDocuments!)
+                {
+                    byte[] fileBytes = Convert.FromBase64String(ff.Data!);
+                    var base64FormFile = new Base64FormFile(ff.FileName!, ff.ContentType!, fileBytes);
+                    files.Add(base64FormFile);
+                }
+            }
+
+
+            var requestData = _mapper.Map<ActivityLog>(request);
+            requestData.TeamId = (Guid)Session.TeamId!;
+            requestData.CreatedById = (Guid)Session.UserId!;
+
+            var activityBy = await _userRepository.GetUserAsync(request.ActivityById);
+
+            requestData.ActivityById = activityBy.Id;
+
+
+            var activityLog = await _activityLogRepository.UpdateAsync(id, (Guid)Session.TeamId!, requestData);
+
+            List<ActivityLogDocument> docuemnts = new();
+            if (request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
+            {
+                foreach (var f in files)
+                {
+                    ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
+
+                    if (documentUploadResponse != null)
+                    {
+                        documentUploadResponse!.ActivityLogId = activityLog.Id;
+                        documentUploadResponse.TeamId = (Guid)Session.TeamId!;
+
+                        docuemnts.Add(documentUploadResponse!);
+                    }
+                }
+            }
+
+            await _activityLogRepository.UpdateAttachedLogDocumentAsync(existingActivityLog.Id, docuemnts!);
+
+
+            List<ActivityLogProperty> properties = new();
+            foreach (var propertyId in request.PropertiesIds!)
+            {
+                ActivityLogProperty activityLogProperty = new()
+                {
+                    ActivityLogId = activityLog.Id,
+                    PropertyId = propertyId,
+                };
+                properties.Add(activityLogProperty);
+            }
+            await _activityLogRepository.UpdateAttachedLogPropertyAsync(existingActivityLog.Id, properties);
+
 
             response.Success = true;
-            response.Message = "Activity log updated successfully";
-            response.Data = _mapper.Map<GetActivityLogResponse>(updatedActivityLog);
+            response.Message = "Activity log update successfully";
+            response.Data = _mapper.Map<GetActivityLogResponse>(activityLog);
 
             return response;
         }
@@ -244,6 +309,44 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
+        public async Task<ResponseHandler<MemoryStream>> ExportDocumentsAsync()
+        {
+            ResponseHandler<MemoryStream> response = new();
+
+            var documents = await _activityLogRepository.GetDocumentsByTeamIdAsync((Guid)Session.TeamId!);
+
+            if (documents != null && documents.Count > 0)
+            {
+                using MemoryStream zipStream = new();
+                using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, true))
+                {
+                    foreach (var document in documents)
+                    {
+                        byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, document.RemoteDirectoryName!);                       
+
+                        // Add blob content to zip file
+                        ZipArchiveEntry entry = archive.CreateEntry(document.DocumentName!);
+                        using Stream entryStream = entry.Open();
+                        await entryStream.WriteAsync(fileBytes);
+                    }
+                }
+
+                // Reset memory stream position
+                zipStream.Position = 0;
+                response.Success = true;
+                response.Message = "Documents zipped successfully";
+
+            }
+            else
+            {
+
+                response.Success = false;
+                response.Message = "Could not export documents";
+            }
+
+
+            return response;
+        }
        
         private GetActivityLogResponse MappedResponse(ActivityLog activityLog)
         {

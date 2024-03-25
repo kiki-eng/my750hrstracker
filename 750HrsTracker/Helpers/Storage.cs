@@ -16,9 +16,9 @@ namespace _750HrsTracker.Helpers
         {
             var fileType = file.ContentType;
 
-            var extension = Path.GetExtension(file.FileName).ToLower(); 
-
-            var fileName = Utility.UcWords(documentFor.ToString()).Replace(" ", "_").ToString().ToLower() + extension;
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            var name = file.FileName.Split('.')[0];
+            var fileName = Utility.UcWords(name + " " + documentFor.ToString()).Replace(" ", "_").ToString().ToLower() + extension;
 
             var fileUploadResponse = await UploadDocumentAsync(_appSettings, file, documentFor, fileName, teamId.ToString());
 

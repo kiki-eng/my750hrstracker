@@ -47,6 +47,7 @@ namespace _750HrsTracker.Persistence.Seeds
                 new Permission { Module = "ActivityLog", Name = "Update"},
                 new Permission { Module = "ActivityLog", Name = "Delete"},
                 new Permission { Module = "ActivityLog", Name = "Import"},
+                new Permission { Module = "ActivityLog", Name = "ExportDocument"},
 
                 // Dashboard
                 new Permission { Module = "Dashboard", Name = "View"},
@@ -106,7 +107,7 @@ namespace _750HrsTracker.Persistence.Seeds
             };
             var auditorPermissions = new List<string>
             {
-                "Permission.ActivityLog.View", "Permission.Dashboard.View"
+                "Permission.ActivityLog.View", "Permission.Dashboard.View", "Permission.ActivityLog.ExportDocument"
             };
 
             var permissions = await context.Permissions.ToListAsync();

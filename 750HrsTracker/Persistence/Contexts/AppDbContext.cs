@@ -40,6 +40,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<Team>(entity =>
             {
                 entity.HasQueryFilter(e => !e.IsDeleted);
+                entity.HasMany(e => e.ActivityLogDocuments).WithOne(e => e.Team).HasForeignKey(e => e.TeamId);
             });
 
             builder.Entity<TeamUser>(entity =>
@@ -74,6 +75,7 @@ namespace _750HrsTracker.Persistence.Contexts
 
             builder.Entity<ActivityLog>(entity =>
             {
+                entity.HasQueryFilter(e => !e.IsDeleted);
                 entity.HasOne(e => e.ActivityBy).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.ActivityById).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.CreatedBy).WithMany(e => e.LogsCreated).HasForeignKey(e => e.CreatedById).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Team).WithMany(e => e.ActivityLogs).HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.NoAction);
@@ -153,7 +155,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<UserRoles>(b =>
             {
                 b.ToTable("UserRoles");
-                b.HasKey(ur => new { ur.UserId, ur.TeamId });
+                b.HasIndex(ur => new { ur.UserId, ur.TeamId, ur.RoleId }).IsUnique();
             });
             
             builder.Entity<RolePermission>(b =>

@@ -52,7 +52,7 @@ namespace _750HrsTracker.Controllers
         [Authorize(Policy = "Permission.ActivityLog.Update")]
         [HttpPatch("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
-        public async Task<IActionResult> UpdateActivityLogAsync(Guid id, UpdateActivityLogRequest request)
+        public async Task<IActionResult> UpdateActivityLogAsync(Guid id, AddActivityLogRequest request)
             => Ok(await _activityLogService.UpdateActivityLogAsync(id, request));
 
 
@@ -87,6 +87,38 @@ namespace _750HrsTracker.Controllers
             byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
             return File(fileBytes, "application/octet-stream", "750hrsTracker_ActivityLogImportTemplate.csv");
         }
+
+
+        [Authorize(Policy = "Permission.ActivityLog.ExportDocument")]
+        [HttpGet("download-documents")]
+        public async Task<IActionResult> ExportDocumentsAsync()
+        {
+            var zipStreamResponse = await _activityLogService.ExportDocumentsAsync();
+
+            if (!zipStreamResponse.Success)
+            {
+                return BadRequest(zipStreamResponse);
+            }
+
+            // Create HttpResponseMessage with zip file as content
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new StreamContent(zipStreamResponse.Data!);
+            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
+            response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+            {
+                FileName = "blobs.zip"
+            };
+
+            // Return HttpResponseMessage as ActionResult
+            var result = new FileContentResult(await response.Content.ReadAsByteArrayAsync(), response.Content.Headers.ContentType.ToString())
+            {
+                FileDownloadName = "blobs.zip"
+            };
+
+            return result;
+        }
+
+
 
 
 

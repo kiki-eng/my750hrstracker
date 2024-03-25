@@ -244,6 +244,7 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             var existingActivityLog = await _context.ActivityLogs.FirstOrDefaultAsync(p => p.Id == id && p.TeamId == teamId) ?? throw new KeyNotFoundException("Activity log not found");
 
+            existingActivityLog.Name = activityLog.Name;
             existingActivityLog.ActivityDate = activityLog.ActivityDate;
             existingActivityLog.HoursSpent = activityLog.HoursSpent;
             existingActivityLog.MinutesSpent = activityLog.MinutesSpent;
@@ -346,6 +347,39 @@ namespace _750HrsTracker.Repositories.Implementations
         public async Task<List<ActivityLogDocument>> GetDocumentsAsync(Guid logId)
         {
             return await _context.ActivityLogDocuments.Where(ald => ald.ActivityLogId == logId).ToListAsync();
+        }
+        
+        public async Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId)
+        {
+            return await _context.ActivityLogDocuments.Where(ald => ald.TeamId == teamId).ToListAsync();
+        }
+
+        public async Task UpdateAttachedLogDocumentAsync(Guid activityLogId, List<ActivityLogDocument> activityLogDocuments)
+        {
+            var existingDocuments = await _context.ActivityLogDocuments.Where(ald => ald.ActivityLogId == activityLogId).ToListAsync();
+
+            if(existingDocuments.Count > 0)
+            {
+                _context.ActivityLogDocuments.RemoveRange(existingDocuments);
+            }
+
+            await _context.ActivityLogDocuments.AddRangeAsync(activityLogDocuments);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAttachedLogPropertyAsync(Guid activityLogId, List<ActivityLogProperty> activityLogProperties)
+        {
+            var existingProperties = await _context.ActivityLogProperties.Where(alp => alp.ActivityLogId.Equals(activityLogId)).ToListAsync();  
+
+            if(existingProperties.Count > 0)
+            {
+                _context.ActivityLogProperties.RemoveRange(existingProperties);
+            }
+
+            await _context.ActivityLogProperties.AddRangeAsync(activityLogProperties);
+
+            await _context.SaveChangesAsync();
         }
     }
 }
