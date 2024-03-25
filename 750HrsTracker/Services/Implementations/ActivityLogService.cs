@@ -246,6 +246,17 @@ namespace _750HrsTracker.Services.Implementations
 
             requestData.ActivityById = activityBy.Id;
 
+            if (request.PropertyType == AvailablePropertyType.LTR && request.TaskId == null)
+            {
+                throw new ApplicationException("Task Id is required for LTR logs");
+            }
+
+            if (request.TaskId != null)
+            {
+                var tasks = await _taskRepository.GetAllAsync(t => t.LogActivityId == request.ActivityLogActivityId);
+                var task = tasks.ToList().FirstOrDefault(t => t.Id == request.TaskId) ?? throw new KeyNotFoundException("Invalid task selection");
+                requestData.TaskId = task.Id;
+            }
 
             var activityLog = await _activityLogRepository.UpdateAsync(id, (Guid)Session.TeamId!, requestData);
 
