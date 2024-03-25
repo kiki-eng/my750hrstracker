@@ -12,6 +12,7 @@ namespace _750HrsTracker.Services.Interfaces
     {
         Task<ResponseHandler<GetDashboardResponse>> GetDashboardDataAsync(AvailablePropertyType availablePropertyType);
         Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request);
+        Task<ResponseHandler<GetActivityLogResponse>> AddSTRActivityLogAsync(BaseAddActivityLogRequest request);
         Task<ResponseHandler<GetActivityLogResponse>> GetActivityLogAsync(Guid id);
         Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter, string route);
         Task<ResponseHandler<List<GetActivityLogResponse>>> SearchActivityLogAsync(string keyword);

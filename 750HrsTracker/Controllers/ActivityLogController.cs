@@ -28,6 +28,12 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
         public async Task<IActionResult> AddActivityLogAsync(AddActivityLogRequest request)
            => Ok(await _activityLogService.AddActivityLogAsync(request));
+        
+        [Authorize(Policy = "Permission.ActivityLog.Create")]
+        [HttpPost("add-str-log")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
+        public async Task<IActionResult> AddSTRActivityLogAsync(BaseAddActivityLogRequest request)
+           => Ok(await _activityLogService.AddSTRActivityLogAsync(request));
 
         [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet]

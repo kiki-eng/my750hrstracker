@@ -31,6 +31,7 @@ namespace _750HrsTracker.Services.Implementations
     public class ActivityLogService : BaseService, IActivityLogService
     {
         private readonly IActivityLogRepository _activityLogRepository;
+        private readonly IActivityLogActivityRepository _logActivityRepository;
         private readonly IActivityLogSubCategoryRepository _taskRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
@@ -38,7 +39,8 @@ namespace _750HrsTracker.Services.Implementations
         private readonly AppSettings _appSettings;
 
         public ActivityLogService(IActivityLogRepository activityLogRepository, IMapper mapper, SessionProvider sessionProvider, 
-            IUriService uriService, IUserRepository userRepository, IOptionsSnapshot<AppSettings> appSettings, IActivityLogSubCategoryRepository taskRepository) : base(sessionProvider)
+            IUriService uriService, IUserRepository userRepository, IOptionsSnapshot<AppSettings> appSettings, 
+            IActivityLogSubCategoryRepository taskRepository, IActivityLogActivityRepository logActivityRepository) : base(sessionProvider)
         {
             _activityLogRepository = activityLogRepository;
             _mapper = mapper;
@@ -46,6 +48,7 @@ namespace _750HrsTracker.Services.Implementations
             _userRepository = userRepository;
             _appSettings = appSettings.Value;
             _taskRepository = taskRepository;
+            _logActivityRepository = logActivityRepository;
         }
 
         public async Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request)
@@ -76,26 +79,109 @@ namespace _750HrsTracker.Services.Implementations
 
             requestData.ActivityById = activityBy.Id;
 
-            
+            var activities = await _logActivityRepository.GetAllAsync(a => a.AvailablePropertyType == request.PropertyType);
 
-            if(request.PropertyType == AvailablePropertyType.LTR && request.TaskId == null)
+            if(activities.Any(a => a.Id == request.ActivityLogActivityId))
             {
-                throw new ApplicationException("Task Id is required for LTR logs");
+                throw new ApplicationException("Invalid activity");
             }
 
-
-
-            if(request.TaskId != null)
+            if(request.PropertyType == AvailablePropertyType.LTR)
             {
-                var tasks = await _taskRepository.GetAllAsync(t => t.LogActivityId == request.ActivityLogActivityId);
-                var task = tasks.ToList().FirstOrDefault(t => t.Id ==  request.TaskId) ?? throw new KeyNotFoundException("Invalid task selection");
-                requestData.TaskId = task.Id;
+                if(request.TaskId == null)
+                {
+                    throw new ApplicationException("Task Id is required for LTR logs");
+                }
+                if (request.TaskId != null)
+                {
+                    var task = await _taskRepository.GetSingleOrDefaultAsync(t => t.Id == request.TaskId && t.LogActivityId == request.ActivityLogActivityId) 
+                        ?? throw new KeyNotFoundException("Invalid task selection");
+                    requestData.TaskId = task.Id;
+                }
             }
-
-            if (request.PropertyType == AvailablePropertyType.STR)
+            else
             {
                 requestData.LogType = ActivityLogType.NONE;
+                requestData.ActivityLogCategoryId = null;
+                requestData.TaskId = null;
             }
+
+            var activityLog = await _activityLogRepository.AddAsync(requestData);
+
+            if(request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
+            {
+                foreach (var f in files)
+                {
+                    ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
+
+                    if (documentUploadResponse != null)
+                    {
+                        documentUploadResponse!.ActivityLogId = activityLog.Id;
+                        documentUploadResponse.TeamId = (Guid)Session.TeamId!;
+                        await _activityLogRepository.AttachLogDocumentAsync(documentUploadResponse!);
+                    }
+                }
+            }
+
+
+            List<ActivityLogProperty> properties = new(); 
+            foreach(var propertyId in request.PropertiesIds!)
+            {
+                ActivityLogProperty activityLogProperty = new() 
+                { 
+                    ActivityLogId = activityLog.Id,
+                    PropertyId = propertyId,
+                };
+                properties.Add(activityLogProperty);
+            }
+            await _activityLogRepository.AttachLogPropertyAsync(properties);
+
+
+            response.Success = true;
+            response.Message = "Activity log added successfully";
+            response.Data = _mapper.Map<GetActivityLogResponse>(activityLog);
+
+            return response;
+        }
+        
+        public async Task<ResponseHandler<GetActivityLogResponse>> AddSTRActivityLogAsync(BaseAddActivityLogRequest request)
+        {
+            ResponseHandler<GetActivityLogResponse> response = new();
+
+            // validate supporting document
+
+            // Convert Base64 string to byte array
+            List<Base64FormFile> files = new();
+
+            if(request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
+            {
+                foreach (var ff in request.SupportingDocuments!)
+                {
+                    byte[] fileBytes = Convert.FromBase64String(ff.Data!);
+                    var base64FormFile = new Base64FormFile(ff.FileName!, ff.ContentType!, fileBytes);
+                    files.Add(base64FormFile);
+                }
+            }
+
+
+            var requestData = _mapper.Map<ActivityLog>(request);
+            requestData.TeamId = (Guid)Session.TeamId!;
+            requestData.CreatedById = (Guid)Session.UserId!;
+
+            var activityBy = await _userRepository.GetUserAsync(request.ActivityById);
+
+            requestData.ActivityById = activityBy.Id;
+
+            var activities = await _logActivityRepository.GetAllAsync(a => a.AvailablePropertyType == request.PropertyType);
+
+            if(activities.Any(a => a.Id == request.ActivityLogActivityId))
+            {
+                throw new ApplicationException("Invalid activity");
+            }
+
+            requestData.LogType = ActivityLogType.NONE;
+            requestData.ActivityLogCategoryId = null;
+            requestData.TaskId = null;
 
             var activityLog = await _activityLogRepository.AddAsync(requestData);
 

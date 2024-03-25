@@ -57,12 +57,14 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<InviteUserResponse>))]
         public async Task<IActionResult> InviteUserAsync(InviteUserRequest request)
             => Ok(await _teamService.InviteUserAsync(request, Request));
-        
+
+        [AllowAnonymous]
         [HttpPost("validate-invitation")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> ValidateInvitationAsync(ValidateInvitationRequest request)
             => Ok(await _teamService.ValidateInvitationAsync(request));
-        
+
+        [AllowAnonymous]
         [HttpPost("create-invited-user")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> CreateInvitedUserAsync(CreateInvitedUserRequest request)
@@ -79,7 +81,8 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetUserResponse>>))]
         public async Task<IActionResult> GetTeamUsersAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamUsersAsync(filter, Request.Path));
-        
+
+        [AllowAnonymous]
         [HttpGet("get-users-once")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetUserResponse>>))]
         public async Task<IActionResult> GetTeamUsersAsync()
