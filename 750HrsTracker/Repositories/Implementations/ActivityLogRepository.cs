@@ -44,7 +44,9 @@ namespace _750HrsTracker.Repositories.Implementations
             var team = await _context.Teams.FirstOrDefaultAsync(t => t.Id == teamId) ?? throw new ApplicationException("Team not found") ;
             var adminUsers = _context.Users.ToList().Where(u => u.Id == (Guid)team.OwnerId! || u.IsOwnerSpouse ).ToList();
 
-            var logs = await _context.ActivityLogs.Include(al => al.ActivityLogActivity).Include(al => al.ActivityLogCategory)
+            var logs = await _context.ActivityLogs.Include(al => al.ActivityLogActivity).ThenInclude(al => al!.ActivityLogCategory)
+                .Include(al => al.Task)
+                .Include(al => al.ActivityLogProperties).ThenInclude(al => al.Property)
                 .Where(al => al.PropertyType == propertyType && al.TeamId == teamId).OrderByDescending(al => al.CreatedAt).ToListAsync();
 
             decimal totalHours = 0;
@@ -194,7 +196,12 @@ namespace _750HrsTracker.Repositories.Implementations
                 Name = l.Name,
                 Category = l.ActivityLogCategory!.Name,
                 Activity = l.ActivityLogActivity!.Name,
-                
+                Task = new GetLogActivitySubCategoryResponse()
+                {
+                    Id = l.Task!.Id,
+                    Name = l.Task!.Name,
+                    Slug = l.Task!.Slug,
+                },
                 HoursSpent = l.HoursSpent,
                 MinutesSpent = l.MinutesSpent,
                 SecondsSpent = l.SecondsSpent,
@@ -289,9 +296,7 @@ namespace _750HrsTracker.Repositories.Implementations
             
             if(activityLogFilter.Property != Guid.Empty)
             {
-                query = query.Include(al => al.ActivityLogProperties).
-                    ThenInclude(al => al.Property)
-                    .Where(al => al.ActivityLogProperties.Any(alp => alp.PropertyId == activityLogFilter.Property));
+                query = query.Where(al => al.ActivityLogProperties.Any(alp => alp.PropertyId == activityLogFilter.Property));
             }
             else
             {
@@ -333,6 +338,8 @@ namespace _750HrsTracker.Repositories.Implementations
             var records = await query
                 .Include(al => al.ActivityBy)
                 .Include(al => al.ActivityLogActivity).ThenInclude(la => la!.ActivityLogCategory)
+                .Include(al => al.ActivityLogProperties).ThenInclude(la => la!.Property)
+                .Include(al => al.Task)
                 .OrderByDescending(al => al.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
 

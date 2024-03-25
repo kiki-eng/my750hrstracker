@@ -295,7 +295,7 @@ namespace _750HrsTracker.Services.Implementations
 
             response.Success = true;
             response.Message = "Activity log update successfully";
-            response.Data = _mapper.Map<GetActivityLogResponse>(activityLog);
+            response.Data = MappedResponse(activityLog);
 
             return response;
         }
@@ -373,18 +373,59 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
        
-        private GetActivityLogResponse MappedResponse(ActivityLog activityLog)
+        public GetActivityLogResponse MappedResponse(ActivityLog activityLog)
         {
             var response = _mapper.Map<GetActivityLogResponse>(activityLog);
 
             if(activityLog.ActivityLogActivity != null)
             {
+                //response.Activity = new GetActivityLogActivityResponse
+                //{
+                //    Name = activityLog.ActivityLogActivity.Name,
+                //    Id = activityLog.ActivityLogActivity.Id
+                //};
+
                 response.Activity = activityLog.ActivityLogActivity.Name;
+            }
+            
+            if(activityLog.Task != null)
+            {
+                response.Task = new GetLogActivitySubCategoryResponse()
+                {
+                    Id = activityLog.Task.Id,
+                    Name = activityLog.Task.Name,
+                    Slug = activityLog.Task.Slug,
+                };
             }
             
             if(activityLog.ActivityLogActivity != null && activityLog.ActivityLogActivity.ActivityLogCategory != null)
             {
+                //response.Category = new GetLogCategoryResponse
+                //{
+                //    Name = activityLog.ActivityLogActivity.ActivityLogCategory.Name,
+                //    Id = activityLog.ActivityLogActivity.ActivityLogCategory.Id,                    
+                //};
+
                 response.Category = activityLog.ActivityLogActivity.ActivityLogCategory.Name;
+            }
+            
+            if(activityLog.ActivityLogProperties != null && activityLog.ActivityLogProperties.Count > 0)
+            {
+                List<GetPropertyResponse> properties = new List<GetPropertyResponse>();
+
+                foreach(var property in activityLog.ActivityLogProperties)
+                {
+                    GetPropertyResponse propertyResponse = new()
+                    {
+                        Name = property.Property!.Name,
+                        Description = property.Property!.Description,
+                        Id = property.Property!.Id,
+                    };
+
+                    properties.Add(propertyResponse);
+                }
+
+                response.Properties = properties; 
             }
 
             return response;
