@@ -8,6 +8,7 @@ using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Utilities;
 using System.Collections.Generic;
@@ -18,9 +19,11 @@ namespace _750HrsTracker.Repositories.Implementations
     public class ActivityLogRepository : GenericRepository<ActivityLog>, IActivityLogRepository
     {
         private readonly AppDbContext _context;
-        public ActivityLogRepository(AppDbContext context) : base(context)
+        private readonly IMapper _mapper;
+        public ActivityLogRepository(AppDbContext context, IMapper mapper) : base(context)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<ActivityLogDocument> AttachLogDocumentAsync(ActivityLogDocument activityLogDocument)
@@ -189,38 +192,72 @@ namespace _750HrsTracker.Repositories.Implementations
                 }).ToList(), logs);
             }
 
-            response.PropertyType = propertyType;           
-            response.RecentLogs = logs.Take(5).Select(l => new GetActivityLogResponse()
-            {
-                Id = l.Id,
-                Name = l.Name,
-                Category = l.ActivityLogCategory!.Name,
-                Activity = l.ActivityLogActivity!.Name,
-                Task = new GetLogActivitySubCategoryResponse()
-                {
-                    Id = l.Task!.Id,
-                    Name = l.Task!.Name,
-                    Slug = l.Task!.Slug,
-                },
-                HoursSpent = l.HoursSpent,
-                MinutesSpent = l.MinutesSpent,
-                SecondsSpent = l.SecondsSpent,
-                ActivityDate = l.ActivityDate,
-                ActivityBy = new GetUserResponse() 
-                { 
-                    Id = l.ActivityBy!.Id,
-                    FirstName = l.ActivityBy!.Firstname,
-                    LastName = l.ActivityBy!.Lastname,
-                    Email = l.ActivityBy!.Email
-                },
-                Description = l.Description,
+            response.PropertyType = propertyType;
 
-            }).ToList();
-
+            var latestFive = logs.Take(5).ToList();
+            
+            response.RecentLogs = logs.Take(5).Select(l => MappedResponse(l)).ToList();
             
             return response;
         }
 
+        private GetActivityLogResponse MappedResponse(ActivityLog activityLog)
+        {
+            var response = _mapper.Map<GetActivityLogResponse>(activityLog);
+
+            if (activityLog.ActivityLogActivity != null)
+            {
+                response.Activity = new GetActivityLogActivityResponse
+                {
+                    Name = activityLog.ActivityLogActivity.Name,
+                    Id = activityLog.ActivityLogActivity.Id
+                };
+
+                //response.Activity = activityLog.ActivityLogActivity.Name;
+            }
+
+            if (activityLog.Task != null)
+            {
+                response.Task = new GetLogActivitySubCategoryResponse()
+                {
+                    Id = activityLog.Task.Id,
+                    Name = activityLog.Task.Name,
+                    Slug = activityLog.Task.Slug,
+                };
+            }
+
+            if (activityLog.ActivityLogActivity != null && activityLog.ActivityLogActivity.ActivityLogCategory != null)
+            {
+                response.Category = new GetActivityLogCategoryResponse
+                {
+                    Name = activityLog.ActivityLogActivity.ActivityLogCategory.Name,
+                    Id = activityLog.ActivityLogActivity.ActivityLogCategory.Id,
+                };
+
+                //response.Category = activityLog.ActivityLogActivity.ActivityLogCategory.Name;
+            }
+
+            if (activityLog.ActivityLogProperties != null && activityLog.ActivityLogProperties.Count > 0)
+            {
+                List<GetPropertyResponse> properties = new List<GetPropertyResponse>();
+
+                foreach (var property in activityLog.ActivityLogProperties)
+                {
+                    GetPropertyResponse propertyResponse = new()
+                    {
+                        Name = property.Property!.Name,
+                        Description = property.Property!.Description,
+                        Id = property.Property!.Id,
+                    };
+
+                    properties.Add(propertyResponse);
+                }
+
+                response.Properties = properties;
+            }
+
+            return response;
+        }
         private List<UserHoursModel> GetUserHoursAsync(Team team, List<User> adminUsers, List<ActivityLog> logs)
         {
             List<UserHoursModel> userHours = new();

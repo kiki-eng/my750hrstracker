@@ -468,19 +468,19 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
        
-        public GetActivityLogResponse MappedResponse(ActivityLog activityLog)
+        private GetActivityLogResponse MappedResponse(ActivityLog activityLog)
         {
             var response = _mapper.Map<GetActivityLogResponse>(activityLog);
 
             if(activityLog.ActivityLogActivity != null)
             {
-                //response.Activity = new GetActivityLogActivityResponse
-                //{
-                //    Name = activityLog.ActivityLogActivity.Name,
-                //    Id = activityLog.ActivityLogActivity.Id
-                //};
+                response.Activity = new GetActivityLogActivityResponse
+                {
+                    Name = activityLog.ActivityLogActivity.Name,
+                    Id = activityLog.ActivityLogActivity.Id
+                };
 
-                response.Activity = activityLog.ActivityLogActivity.Name;
+                //response.Activity = activityLog.ActivityLogActivity.Name;
             }
             
             if(activityLog.Task != null)
@@ -495,13 +495,13 @@ namespace _750HrsTracker.Services.Implementations
             
             if(activityLog.ActivityLogActivity != null && activityLog.ActivityLogActivity.ActivityLogCategory != null)
             {
-                //response.Category = new GetLogCategoryResponse
-                //{
-                //    Name = activityLog.ActivityLogActivity.ActivityLogCategory.Name,
-                //    Id = activityLog.ActivityLogActivity.ActivityLogCategory.Id,                    
-                //};
+                response.Category = new GetActivityLogCategoryResponse
+                {
+                    Name = activityLog.ActivityLogActivity.ActivityLogCategory.Name,
+                    Id = activityLog.ActivityLogActivity.ActivityLogCategory.Id,
+                };
 
-                response.Category = activityLog.ActivityLogActivity.ActivityLogCategory.Name;
+                //response.Category = activityLog.ActivityLogActivity.ActivityLogCategory.Name;
             }
             
             if(activityLog.ActivityLogProperties != null && activityLog.ActivityLogProperties.Count > 0)
