@@ -5,6 +5,7 @@ using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace _750HrsTracker.Services.Interfaces
 {
@@ -20,6 +21,6 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<string>> DeleteActivityLogAsync(Guid id);
         Task<ResponseHandler<Base64FileModel>> DownloadActivityLogImportTemplateAsync();
 
-        Task<ResponseHandler<MemoryStream>> ExportDocumentsAsync();
+        Task<byte[]> ExportDocumentsAsync(ExportDocumentFilter filter);
     }
 }

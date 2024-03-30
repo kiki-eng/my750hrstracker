@@ -20,6 +20,6 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(Guid teamId, PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType);
 
         Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType);
-        Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId);
+        Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId, ExportDocumentFilter filter);
     }
 }

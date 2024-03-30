@@ -97,31 +97,12 @@ namespace _750HrsTracker.Controllers
 
         [Authorize(Policy = "Permission.ActivityLog.ExportDocument")]
         [HttpGet("download-documents")]
-        public async Task<IActionResult> ExportDocumentsAsync()
+        public async Task<IActionResult> ExportDocumentsAsync([FromQuery] ExportDocumentFilter filter)
         {
-            var zipStreamResponse = await _activityLogService.ExportDocumentsAsync();
 
-            if (!zipStreamResponse.Success)
-            {
-                return BadRequest(zipStreamResponse);
-            }
+            var zipBytes = await _activityLogService.ExportDocumentsAsync(filter);
 
-            // Create HttpResponseMessage with zip file as content
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new StreamContent(zipStreamResponse.Data!);
-            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
-            response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-            {
-                FileName = "blobs.zip"
-            };
-
-            // Return HttpResponseMessage as ActionResult
-            var result = new FileContentResult(await response.Content.ReadAsByteArrayAsync(), response.Content.Headers.ContentType.ToString())
-            {
-                FileDownloadName = "blobs.zip"
-            };
-
-            return result;
+            return File(zipBytes, "application/zip", "Log_Documents.zip");
         }
 
 

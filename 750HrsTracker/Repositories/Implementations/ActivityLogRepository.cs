@@ -396,9 +396,16 @@ namespace _750HrsTracker.Repositories.Implementations
             return await _context.ActivityLogDocuments.Where(ald => ald.ActivityLogId == logId).ToListAsync();
         }
         
-        public async Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId)
+        public async Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId, ExportDocumentFilter filter)
         {
-            return await _context.ActivityLogDocuments.Where(ald => ald.TeamId == teamId).ToListAsync();
+            IQueryable<ActivityLogDocument> query = _context.ActivityLogDocuments.Where(ald => ald.TeamId == teamId);
+
+            if(filter.year != null)
+            {
+                query = query.Where(q => q.CreatedAt.Year == Convert.ToInt32(filter.year));
+            }
+            
+            return await query.ToListAsync();
         }
 
         public async Task UpdateAttachedLogDocumentAsync(Guid activityLogId, List<ActivityLogDocument> activityLogDocuments)

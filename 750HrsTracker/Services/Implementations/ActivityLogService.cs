@@ -429,11 +429,11 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<ResponseHandler<MemoryStream>> ExportDocumentsAsync()
+        public async Task<byte[]> ExportDocumentsAsync(ExportDocumentFilter filter)
         {
-            ResponseHandler<MemoryStream> response = new();
+            var validFilter = new ExportDocumentFilter(filter.year!);
 
-            var documents = await _activityLogRepository.GetDocumentsByTeamIdAsync((Guid)Session.TeamId!);
+            var documents = await _activityLogRepository.GetDocumentsByTeamIdAsync((Guid)Session.TeamId!, validFilter);
 
             if (documents != null && documents.Count > 0)
             {
@@ -447,25 +447,40 @@ namespace _750HrsTracker.Services.Implementations
                         // Add blob content to zip file
                         ZipArchiveEntry entry = archive.CreateEntry(document.DocumentName!);
                         using Stream entryStream = entry.Open();
-                        await entryStream.WriteAsync(fileBytes);
+                        await entryStream.WriteAsync(fileBytes, 0 , fileBytes.Length);
                     }
                 }
 
-                // Reset memory stream position
+                // Create HttpResponseMessage with zip file as content
+                //HttpResponseMessage response = new(HttpStatusCode.OK)
+                //{
+                //    Content = new StreamContent(zipStream),
+                //};
+                //response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
+                //response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                //{
+                //    FileName = "blobs.zip"
+                //};
+
+                //// Return HttpResponseMessage as ActionResult
+                //var result = new FileContentResult(await response.Content.ReadAsByteArrayAsync(), response.Content.Headers.ContentType.ToString())
+                //{
+                //    FileDownloadName = "blobs.zip"
+                //};
+
                 zipStream.Position = 0;
-                response.Success = true;
-                response.Message = "Documents zipped successfully";
+
+                byte[] zipBytes = zipStream.ToArray();
+
+                return zipBytes;
 
             }
             else
             {
-
-                response.Success = false;
-                response.Message = "Could not export documents";
+                throw new ApplicationException("Could not export documents");
             }
 
 
-            return response;
         }
        
         private GetActivityLogResponse MappedResponse(ActivityLog activityLog)
