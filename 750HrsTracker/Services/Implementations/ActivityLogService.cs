@@ -174,7 +174,7 @@ namespace _750HrsTracker.Services.Implementations
 
             var activities = await _logActivityRepository.GetAllAsync(a => a.AvailablePropertyType == request.PropertyType);
 
-            if(activities.Any(a => a.Id == request.ActivityLogActivityId))
+            if(!activities.Any(a => a.Id == request.ActivityLogActivityId))
             {
                 throw new ApplicationException("Invalid activity");
             }
