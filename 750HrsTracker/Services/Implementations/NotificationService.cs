@@ -19,42 +19,36 @@ namespace _750HrsTracker.Services.Implementations
         {
 
             string supportEmail = "mailto:support@750hrstracker.com";
+            string appName = "my750HrsTracker";
+
 
             var html = $@"
                   <div id=""message-container"">
-                    <p id=""salutation"">Hi {request.RecipientName},</p>
+                    <p id=""salutation"">Dear {request.RecipientName},</p>
                     <p class=""message-body msg"">
-                        This is to notify you of the successful login to your account.
+                        We've received a sign-in attempt for your my750hrsTracker account. 
+                        If this was you, please disregard this message. However, if you didn't attempt to sign in, please review your account security immediately.
                     </p>
+                    <p>If you believe someone else may have accessed your account, we recommend taking the following steps:</p>
+                    <ul>
+                        <li>Change your password immediately.</li>
+                        <li>Review your account settings for any unauthorized changes.</li>
+                        <li>Contact our support team if you need further assistance or suspect any suspicious activity.</li>
+                    </ul>
 
-                    <div id=""login-details"">
-                        <p>
-                            <span class=""title"">Login Time: </span>
-                            <span class=""info"">{request.LoginTime}</span>
-                        </p>
-                        <p>
-                            <span class=""title"">Location & IP: </span>
-                            <span class=""info"">{request.LocationIp}</span>
-                        </p>
-                        <p>
-                            <span class=""title"">Device Info: </span>
-                            <span class=""info"">{request.DeviceInfo}</span>
-                        </p>
-                    </div>
-                    <p class=""message-body msg"">If you did not attempt login with the device above, reach out to our <a href=""{supportEmail}"">support team</a> immediately to disable your account.</p>
-                </div>
-                <div id=""button-holder"">
-                    <a href=""{supportEmail}"" target=""_blank"" class=""btn"" style=""color: #F5F4F9"">Contact Support</a>
-                </div>
-                <div id=""remark"">
-                    <p>Regards,</p>
-                    <p>750HrsTracker Team</p>
-                </div>
+                    <p>Your security is our priority, and we're here to help ensure your account remains safe and secure.</p>
+                    <p> 
+                        Best Regards. 
+                    </p>
+                    <p> {appName} Team.</p>
+                    <p> Copyright © {DateTime.Now.Year} {appName}. All rights reserved. </p> <p>201 Sand Creek Road, Suite F, Brentwood, CA 94513 </p>
+                    <p>Phone: (925) 350-4963 | Fax: (925) 634-2346</p>
+                </div>               
             ";
 
             try
             {
-                var sent = await _emailService.SendMail(request.RecipientEmail!, "750HrsTracker: Login Notification", html);
+                var sent = await _emailService.SendMail(request.RecipientEmail!, "Action Required: Your my750hrsTracker Sign-In Attempt", html);
                 return sent;
             }
             catch
@@ -67,28 +61,46 @@ namespace _750HrsTracker.Services.Implementations
         public async Task<bool> SendEmailVerificationNotification(EmailVerificationNotificationRequest request, bool isMobileRequest = false)
         {
             string verificationUrl = $"{_appSettings.FrontendBaseUrl}/verify-email/{request.VerifyEmailToken}";
-           
+
+            string appName = "my750HrsTracker";
             var html = $@"
                 <div>
-                    <p>Welcome {request.RecipientName},</p>
-                    <br/>
+                    <p>Dear {request.RecipientName},</p>
                     <p>
-                        You have created a new account with 750HrsTracker.
+                        Welcome to {appName} – your ultimate Real Estate Professional tracking solution! We're thrilled to have you on board.
                     </p>
-                    <br/>
                     <p>
-                        Verify your email and gain full access to the platform by using the code below
+                        To ensure your account's security and activate your {appName} journey, we need to verify your email address. Please enter the 8-digit code provided below in your app:
                     </p>
                     <p>
                         <b>{request.VerifyEmailToken}</b>
                     </p>
+                    <p>
+                        We're dedicated to crafting the finest experience for Real Estate Professionals like you, and we can't wait to embark on this journey together. 
+                        Expect regular updates, helpful tips, and exciting features tailored just for you.
+                    </p>
+                    <p> 
+                        Should you have any questions or need assistance, don't hesitate to reach out. We're here to help.
+                    </p>
+                    <br/>
+                    <p> 
+                        Happy Tracking!
+                    </p>
+                    <p> 
+                        Best Regards. 
+                    </p>
+                    <p> {appName} Team.</p>
+                    <p> Copyright © {DateTime.Now.Year} {appName}. All rights reserved. </p> <p>201 Sand Creek Road, Suite F, Brentwood, CA 94513 </p>
+                    <p>Phone: (925) 350-4963 | Fax: (925) 634-2346</p>
+
+                   
                 </div>
                 <br/>
             ";
 
             try
             {
-                var sent = await _emailService.SendMail(request.RecipientEmail!, "750HrsTracker: Email Verification", html);
+                var sent = await _emailService.SendMail(request.RecipientEmail!, "Welcome to my750hrsTracker - Verify Your Email Address!", html);
                 return sent;
             }
             catch

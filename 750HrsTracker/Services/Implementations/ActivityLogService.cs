@@ -451,23 +451,6 @@ namespace _750HrsTracker.Services.Implementations
                     }
                 }
 
-                // Create HttpResponseMessage with zip file as content
-                //HttpResponseMessage response = new(HttpStatusCode.OK)
-                //{
-                //    Content = new StreamContent(zipStream),
-                //};
-                //response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
-                //response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-                //{
-                //    FileName = "blobs.zip"
-                //};
-
-                //// Return HttpResponseMessage as ActionResult
-                //var result = new FileContentResult(await response.Content.ReadAsByteArrayAsync(), response.Content.Headers.ContentType.ToString())
-                //{
-                //    FileDownloadName = "blobs.zip"
-                //};
-
                 zipStream.Position = 0;
 
                 byte[] zipBytes = zipStream.ToArray();
