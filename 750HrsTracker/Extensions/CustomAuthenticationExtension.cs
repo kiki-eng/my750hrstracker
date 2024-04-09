@@ -54,13 +54,14 @@ namespace _750HrsTracker.Extensions
                                    }
                                    context.Success();
                                    return Task.CompletedTask;
-                               }catch(Exception ex) 
+                               }
+                               catch (Exception ex)
                                {
                                    context.Fail("Unathorized");
                                    rhe.message = $"{ex.Message}";
                                    return Task.CompletedTask;
                                }
-                              
+
                            }
 
                            context.Fail("Invalid token");
@@ -80,7 +81,9 @@ namespace _750HrsTracker.Extensions
                        ValidateIssuerSigningKey = true,
                        ClockSkew = TimeSpan.Zero
                    };
-               });
+               })
+               .AddScheme<CustomPubAccessAuthenticationSchemeOption, CustomPubAccessAuthenticationHandler>
+                    (CustomPubAccessAuthenticationSchemeOption.Name, op => { });
 
             return services;
         }

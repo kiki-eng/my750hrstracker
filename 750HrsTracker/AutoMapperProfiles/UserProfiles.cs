@@ -9,7 +9,7 @@ namespace _750HrsTracker.AutoMapperProfiles
     {
         public UserProfiles()
         {
-            CreateMap<User, GetUserResponse>();
+            CreateMap<User, GetUsersOnlyResponse>();
             CreateMap<User, SignInResponse>();
             CreateMap<User, UserUtilData>();
             CreateMap<User, UpdateUserSecurityRequest>();

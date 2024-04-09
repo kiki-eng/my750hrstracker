@@ -8,11 +8,11 @@ namespace _750HrsTracker.Services.Interfaces
     public interface IUserService
     {
 
-        Task<ResponseHandler<GetUserResponse>> GetUserAsync(Guid userId);
-        Task<ResponseHandler<GetUserResponse>> GetUserByTokenAsync(HttpRequest httpRequest);
+        Task<ResponseHandler<GetUsersOnlyResponse>> GetUserAsync(Guid userId);
+        Task<ResponseHandler<GetUsersOnlyResponse>> GetUserByTokenAsync(HttpRequest httpRequest);
 
         Task<ResponseHandler<UpdateUserSecurityRequest>> UpdateUserSecurityAsync(Guid userId, UpdateUserSecurityRequest request);
-        Task<ResponseHandler<GetUserResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request);
+        Task<ResponseHandler<GetUsersOnlyResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request);
 
 
 

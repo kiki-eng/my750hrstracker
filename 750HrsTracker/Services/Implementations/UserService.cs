@@ -56,18 +56,18 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
-        public async Task<ResponseHandler<GetUserResponse>> GetUserAsync(Guid userId)
+        public async Task<ResponseHandler<GetUsersOnlyResponse>> GetUserAsync(Guid userId)
         {
             try
             {
-                ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+                ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
 
 
                 User user = await _userRepository.GetUserAsync(userId) ?? throw new KeyNotFoundException("user not found");
 
                 response.Success = true;
                 response.Message = "User retrieved successfully";
-                response.Data = _mapper.Map<GetUserResponse>(user);
+                response.Data = _mapper.Map<GetUsersOnlyResponse>(user);
                 return response;
             }
             catch
@@ -76,17 +76,17 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
-        public async Task<ResponseHandler<GetUserResponse>> GetUserByTokenAsync(HttpRequest httpRequest)
+        public async Task<ResponseHandler<GetUsersOnlyResponse>> GetUserByTokenAsync(HttpRequest httpRequest)
         {
             try
             {
-                ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+                ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
 
                 string userId = Utility.GetUserIdFromToken(httpRequest) ?? throw new ApplicationException("Invalid user token");
 
 
                 User user = await _userRepository.GetUserAsync(Guid.Parse(userId)) ?? throw new KeyNotFoundException("user not found");
-                var responseData = _mapper.Map<GetUserResponse>(user);
+                var responseData = MappedResponse(user);
 
                 var userProfilePic = await _userRepository.GetProfilePictureAsync(user.Id);
 
@@ -354,12 +354,12 @@ namespace _750HrsTracker.Services.Implementations
 
                 var savedUser = await _userRepository.SignUpAsync(newUser, newTeam);
 
-                List<GetUserResponse> merchantUsers = new List<GetUserResponse>();              
+                List<GetUsersOnlyResponse> merchantUsers = new List<GetUsersOnlyResponse>();              
 
                 NewUserNotificationRequest newUserNotificationRequest = new NewUserNotificationRequest
                 {
-                    RecipientName = "NA",
-                    RecipientEmail = _appSettings.SystemNotificationReceiver,
+                    RecipientName = _appSettings.SystemNotificationReceiverName,
+                    RecipientEmail = _appSettings.SystemNotificationReceiverEmail,
                     CreationDate = savedUser.CreatedAt,
                     TeamName = newTeam.Name,
                     Link = "",
@@ -404,17 +404,17 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
-        public async Task<ResponseHandler<GetUserResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
+        public async Task<ResponseHandler<GetUsersOnlyResponse>> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
         {
             try
             {
-                ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+                ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
 
                 var user = await _userRepository.UpdateUserAsync(userId, new User { Firstname = request.Firstname, Lastname = request.Lastname});
 
                 response.Success = true;
                 response.Message = "User updated successfully";
-                response.Data = _mapper.Map<GetUserResponse>(user);
+                response.Data = _mapper.Map<GetUsersOnlyResponse>(user);
                 return response;
             }
             catch
@@ -519,6 +519,18 @@ namespace _750HrsTracker.Services.Implementations
             response.Success = true;
             response.Message = "Email verified successfully";
             response.Data = null;
+            return response;
+        }
+
+        private GetUsersOnlyResponse MappedResponse(User user)
+        {
+            var response = _mapper.Map<GetUsersOnlyResponse>(user);
+
+            if (user.Roles != null && user.Roles!.Count > 0)
+            {
+                response.Roles = user.Roles.Select(r => _mapper.Map<GetRolesOnlyResponse>(r)).ToList();
+            }
+
             return response;
         }
     }

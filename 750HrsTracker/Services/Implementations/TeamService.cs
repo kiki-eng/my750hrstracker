@@ -205,14 +205,14 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<PagedResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync(PaginationFilter filter, string route)
+        public async Task<PagedResponseHandler<List<GetUsersOnlyResponse>>> GetTeamUsersAsync(PaginationFilter filter, string route)
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var users = await _teamRepository.GetTeamUsersAsync((Guid)Session.TeamId!, filter);
 
-            var pagedData = (users.Records!.Select(sn => _mapper.Map<GetUserResponse>(sn))).ToList();
+            var pagedData = (users.Records!.Select(sn => MappedResponse(sn))).ToList();
 
-            PagedResponseHandler<List<GetUserResponse>> response =
+            PagedResponseHandler<List<GetUsersOnlyResponse>> response =
                 PaginationHelper.CreatePagedResponse(pagedData, validFilters, users.TotalCount, _uriService, route);
 
             response.Success = true;
@@ -221,15 +221,15 @@ namespace _750HrsTracker.Services.Implementations
         }
         
         
-        public async Task<ResponseHandler<List<GetUserResponse>>> GetTeamUsersAsync()
+        public async Task<ResponseHandler<List<GetUsersOnlyResponse>>> GetTeamUsersAsync()
         {
-            ResponseHandler<List<GetUserResponse>> response = new();
+            ResponseHandler<List<GetUsersOnlyResponse>> response = new();
 
             var users = await _teamRepository.GetTeamUsersAsync((Guid)Session.TeamId!);
 
             response.Success = true;
             response.Message = "All users retrieved successfully";
-            response.Data = users.Select(u => _mapper.Map<GetUserResponse>(u)).ToList();
+            response.Data = users.Select(u => MappedResponse(u)).ToList();
             return response;
         }
 
@@ -244,28 +244,28 @@ namespace _750HrsTracker.Services.Implementations
             };
         }
 
-        public async Task<ResponseHandler<GetUserResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request)
+        public async Task<ResponseHandler<GetUsersOnlyResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request)
         {
-            ResponseHandler<GetUserResponse> response = new();
+            ResponseHandler<GetUsersOnlyResponse> response = new();
 
             var teamSpouse = await _teamRepository.MakeSpouseAsync((Guid)Session.TeamId!, request.UserId);
 
             response.Success = true;
             response.Message = "User has been made spouse";
-            response.Data = _mapper.Map<GetUserResponse>(teamSpouse);
+            response.Data = _mapper.Map<GetUsersOnlyResponse>(teamSpouse);
 
             return response;
         }
         
-        public async Task<ResponseHandler<GetUserResponse>> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
+        public async Task<ResponseHandler<GetUsersOnlyResponse>> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
         {
-            ResponseHandler<GetUserResponse> response = new();
+            ResponseHandler<GetUsersOnlyResponse> response = new();
 
             var teamSpouse = await _teamRepository.ActivateDeactivateUsersAsync((Guid)Session.TeamId!, request.UserId);
 
             response.Success = true;
             response.Message = "User has been updated";
-            response.Data = _mapper.Map<GetUserResponse>(teamSpouse);
+            response.Data = _mapper.Map<GetUsersOnlyResponse>(teamSpouse);
 
             return response;
         }
@@ -278,6 +278,18 @@ namespace _750HrsTracker.Services.Implementations
 
             response.Success = true;
             response.Message = "User role has been updated";
+
+            return response;
+        }
+
+        private GetUsersOnlyResponse MappedResponse(User user)
+        {
+            var response =_mapper.Map<GetUsersOnlyResponse>(user);
+
+            if(user.Roles != null && user.Roles!.Count > 0)
+            {
+                response.Roles = user.Roles.Select(r => _mapper.Map<GetRolesOnlyResponse>(r)).ToList();
+            }
 
             return response;
         }

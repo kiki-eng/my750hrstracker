@@ -4,7 +4,8 @@
     {
         public string? JwtSecret { get; set; }
         public string? AppBaseUrl { get; set; }
-        public string? SystemNotificationReceiver { get; set; }
+        public string? SystemNotificationReceiverEmail { get; set; }
+        public string? SystemNotificationReceiverName { get; set; }
         public string? NotificationOrigin { get; set; }
         public int VerificationTokenValidHours { get; set; }
         public int InvitationTokenExpiresMinutes { get; set; }
@@ -19,6 +20,6 @@
         public string? AzureStorageBlobConnectionString { get; set; }
         public string? AzureStorageBlobContainerName { get; set; }
 
-
+        public string? PublicApiAccessKey { get; set; }
     }
 }

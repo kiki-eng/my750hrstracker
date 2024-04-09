@@ -15,7 +15,7 @@ namespace _750HrsTracker.DTOs.Responses
         public int SecondsSpent { get; set; }
         public string? Description { get; set; }
 
-        public GetUserResponse? ActivityBy {  get; set; }
+        public GetUsersOnlyResponse? ActivityBy {  get; set; }
         public List<GetPropertyResponse>? Properties { get; set; }   
         public List<Base64FileModel>? SupportingDocuments { get; set; }
     }

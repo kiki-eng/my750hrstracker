@@ -12,6 +12,7 @@
         public DateTime ModifiedAt { get; set; }
     }
 
+
     public class UpdateSubscriptionPermissionResponse
     {
         public Guid SubscriptionId { get; set; }

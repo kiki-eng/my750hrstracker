@@ -78,26 +78,26 @@ namespace _750HrsTracker.Controllers
         
         [Authorize(Policy = "Permission.Team.GetUsers")]
         [HttpGet("get-users")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetUserResponse>>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetUsersOnlyResponse>>))]
         public async Task<IActionResult> GetTeamUsersAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamUsersAsync(filter, Request.Path));
 
         [AllowAnonymous]
         [HttpGet("get-users-once")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetUserResponse>>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetUsersOnlyResponse>>))]
         public async Task<IActionResult> GetTeamUsersAsync()
             => Ok(await _teamService.GetTeamUsersAsync());
 
 
         [Authorize(Policy = "Permission.Team.MakeSpouse")]
         [HttpPost("make-spouse")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> MaKeSpouseRequestAsync(MakeSpouseRequest request)
             => Ok(await _teamService.MaKeSpouseRequestAsync(request));
         
         [Authorize(Policy = "Permission.Team.ActivateDeactivate")]
         [HttpPatch("activate-deactivate-user")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
             => Ok(await _teamService.ActivateDeactivateUsersAsync(request));
         
@@ -110,7 +110,7 @@ namespace _750HrsTracker.Controllers
         [Authorize(Policy = "Permission.Team.DeleteAccount")]
         [Authorize]
         [HttpDelete("delete-account")]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> DeactivateAccountAsync()
             => Ok(await _teamService.DeactivateAccountAsync());
 

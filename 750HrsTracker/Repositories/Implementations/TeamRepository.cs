@@ -312,15 +312,26 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             var team = await _context.Teams.Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User).FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
 
-            var users = team.TeamUsers!.Select(tu => new User
+            List<User> users = new();
+
+            foreach (var tu in team.TeamUsers!)
             {
-                Id = tu.User!.Id,
-                Firstname = tu.User!.Firstname,
-                Lastname = tu.User!.Lastname,
-                Email = tu.User!.Email,
-                IsOwnerSpouse = tu.IsOwnerSpouse,
-                IsActive = tu.User!.IsActive,
-            });
+                var user = new User
+                {
+                    Id = tu.User!.Id,
+                    Firstname = tu.User!.Firstname,
+                    Lastname = tu.User!.Lastname,
+                    Email = tu.User!.Email,
+                    IsOwnerSpouse = tu.IsOwnerSpouse,
+                    IsActive = tu.User!.IsActive,
+                };
+
+                var userRoles = await _context.UserRoles.Where(ur => ur.UserId == tu.User!.Id && ur.TeamId == team.Id).ToListAsync();
+                var roleIds = userRoles.Select(r => r.RoleId).ToList();
+                user.Roles = await _context.Roles.Where(r => roleIds.Contains(r.Id)).ToListAsync();
+
+                users.Add(user);
+            }
 
             var records = users.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToList();
             var totalCount = users.Count();
@@ -336,15 +347,27 @@ namespace _750HrsTracker.Repositories.Implementations
          {
             var team = await _context.Teams.Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User).FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
 
-            var users = team.TeamUsers!.Select(tu => new User
+
+            List<User> users = new();
+
+            foreach(var tu in team.TeamUsers!)
             {
-                Id = tu.User!.Id,
-                Firstname = tu.User!.Firstname,
-                Lastname = tu.User!.Lastname,
-                Email = tu.User!.Email,
-                IsOwnerSpouse = tu.IsOwnerSpouse,
-                IsActive = tu.User!.IsActive,
-            }).ToList();
+                var user = new User
+                {
+                    Id = tu.User!.Id,
+                    Firstname = tu.User!.Firstname,
+                    Lastname = tu.User!.Lastname,
+                    Email = tu.User!.Email,
+                    IsOwnerSpouse = tu.IsOwnerSpouse,
+                    IsActive = tu.User!.IsActive,
+                };
+
+                var userRoles = await _context.UserRoles.Where(ur => ur.UserId == tu.User!.Id && ur.TeamId == team.Id).ToListAsync();
+                var roleIds = userRoles.Select(r => r.RoleId).ToList();
+                user.Roles = await _context.Roles.Where(r => roleIds.Contains(r.Id)).ToListAsync();
+
+                users.Add(user);
+            }
 
             return users;
 

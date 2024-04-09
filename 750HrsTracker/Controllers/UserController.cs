@@ -74,10 +74,10 @@ namespace _750HrsTracker.Controllers
         [Authorize]
         [Route("{id}")]
         [HttpGet]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> GetUserAsync(Guid id)
         {
-            ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+            ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
            
             response = await _userService.GetUserAsync(id);
 
@@ -92,10 +92,10 @@ namespace _750HrsTracker.Controllers
         [Authorize]
         [Route("me")]
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> GetUserByTokenAsync()
         {
-            ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+            ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
 
             response = await _userService.GetUserByTokenAsync(Request);
 
@@ -116,10 +116,10 @@ namespace _750HrsTracker.Controllers
         [Authorize]
         [Route("{userId}")]
         [HttpPatch]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserResponse>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
         {
-            ResponseHandler<GetUserResponse> response = new ResponseHandler<GetUserResponse>();
+            ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
            
             response = await _userService.UpdatetUserProfileAsync(userId, request);
 

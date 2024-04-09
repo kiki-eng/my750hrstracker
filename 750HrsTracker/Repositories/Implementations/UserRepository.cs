@@ -58,6 +58,11 @@ namespace _750HrsTracker.Repositories.Implementations
         public async Task<User> GetUserAsync(Guid userId)
         {
             User user = await _context.Users.Include(m => m.UserTeams!).ThenInclude(mu => mu.Team).FirstOrDefaultAsync(m => m.Id == userId) ?? throw new KeyNotFoundException("User not found");
+
+            var userRoles = await _context.UserRoles.Where(ur => ur.UserId == user!.Id && ur.TeamId == Guid.Parse(user.DefaultTeamId!)).ToListAsync();
+            var roleIds = userRoles.Select(r => r.RoleId).ToList();
+            user.Roles = await _context.Roles.Where(r => roleIds.Contains(r.Id)).ToListAsync();
+
             return user;
         }
         public async Task<User> GetUserAsync(Guid userId, Guid teamId)

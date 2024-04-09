@@ -33,7 +33,9 @@ namespace _750HrsTracker.Models
 
 
         [NotMapped]
-        public bool IsOwnerSpouse { get; set; } 
+        public bool IsOwnerSpouse { get; set; }
+        [NotMapped]
+        public List<Role>? Roles { get; set; }
         public User()
         {
             CreatedAt = DateTime.Now;

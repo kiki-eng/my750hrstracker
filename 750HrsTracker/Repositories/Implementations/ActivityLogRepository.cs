@@ -98,12 +98,9 @@ namespace _750HrsTracker.Repositories.Implementations
                                 getCategoryHoursCount.Hours = totalGroupedTimeInSeconds / 3600;
                             }
 
-                           
 
-                            if (category.Slug == LogCategoryConstants.MaterialParticipationSlug)
-                            {
-                                getCategoryHoursCount.UserHours = GetUserHoursAsync(team, adminUsers, cat);
-                            }
+
+                            getCategoryHoursCount.UserHours = GetUserHoursAsync(team, adminUsers, cat);
 
                             categoryHoursCounts.Add(getCategoryHoursCount);
 
@@ -136,13 +133,14 @@ namespace _750HrsTracker.Repositories.Implementations
                     };
                     var logCategories = await _context.ActivityLogCategories.ToListAsync();
 
-                    realEstateCount.Categories = logCategories.Select(lg => new GetCategoryHoursCount { 
-                        Id = lg.Id, 
-                        Name = lg.Name, 
+                    realEstateCount.Categories = logCategories.Select(lg => new GetCategoryHoursCount
+                    {
+                        Id = lg.Id,
+                        Name = lg.Name,
                         Slug = lg.Slug,
-                        Hours = 0,  
-                        UserHours = lg.Slug == LogCategoryConstants.MaterialParticipationSlug ? GetUserHoursAsync(team, adminUsers, new List<ActivityLog>()) : null}
-                    ).ToList();                        
+                        Hours = 0,
+                        UserHours = GetUserHoursAsync(team, adminUsers, new List<ActivityLog>())
+                    }).ToList();                        
                     
                     counts.Add(realEstateCount);
                 }

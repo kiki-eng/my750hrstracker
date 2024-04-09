@@ -6,6 +6,6 @@ namespace _750HrsTracker.DTOs.Responses
     {
         public string? Name { get; set; }
         public Guid? OwnerId { get; set; }
-        public GetUserResponse? Owner { get; set; }
+        public GetUsersOnlyResponse? Owner { get; set; }
     }
 }

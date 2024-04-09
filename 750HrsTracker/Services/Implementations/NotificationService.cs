@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Models.Misc;
 using _750HrsTracker.Services.Interfaces;
 using Microsoft.Extensions.Options;
 
@@ -17,10 +18,7 @@ namespace _750HrsTracker.Services.Implementations
 
         public async Task<bool> SendLoginNotification(LoginNotificationRequest request, bool isMobileRequest = false)
         {
-
-            string supportEmail = "mailto:support@750hrstracker.com";
             string appName = "my750HrsTracker";
-
 
             var html = $@"
                   <div id=""message-container"">
@@ -198,8 +196,47 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
+        public  async Task<bool> SendSupportNotificationAsync(SupportRequest request, bool isMobileRequest = false, string appName = "750HrsTracker")
+        {
+            try
+            { 
 
-       
-        
+                var emailData = new EmailDataUtil
+                {
+                    ReceipientEmail = _appSettings.SystemNotificationReceiverEmail,
+                    ReceipientName = _appSettings.SystemNotificationReceiverName,
+                    SenderEmail = request.Email,
+                    SenderName = $"{request.FirstName} {request.LastName}",
+                    Subject = $"[Action Required]: Support Request - {request.Subject}"
+                };
+
+                var html = $@"
+                     <div>
+                        <p>
+                            {emailData.SenderName} ({emailData.SenderEmail} - {request.PhoneNumber}) has raised a support request with the following details below:
+                        </p>
+                        <p><b>Subject:</b> {request.Subject}</p>
+                        <p><b>Message:</b> {request.Message}</p>
+                    </div>
+                    <br/>
+                    <div>
+                        <p>Best Regards.</p>
+                        <p> {appName} Team.</p>
+                        <p> Copyright © {DateTime.Now.Year} {appName}. All rights reserved. </p> 
+                        <p>201 Sand Creek Road, Suite F, Brentwood, CA 94513 </p>
+                        <p>Phone: (925) 350-4963 | Fax: (925) 634-2346</p>                   
+                    </div>
+                ";
+
+                emailData.MessageHtml = html;
+
+                return await _emailService.SendCustomEmailNotification(emailData);
+
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

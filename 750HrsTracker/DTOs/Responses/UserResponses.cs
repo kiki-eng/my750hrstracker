@@ -14,7 +14,7 @@ namespace _750HrsTracker.DTOs.Responses
         public DateTime TokenExpireAt { get; set; }
     }
 
-    public class GetUserResponse
+    public class GetUsersOnlyResponse
     {
         public Guid Id { get; set; }
         public string? FirstName { get; set; }
@@ -27,6 +27,7 @@ namespace _750HrsTracker.DTOs.Responses
         public bool SendLoginNotification { get; set; }
         public bool TwoFactorEnabled { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<GetRolesOnlyResponse>? Roles { get; set; }
         public Base64FileModel? ProfilePic { get; set; }
     }
 
