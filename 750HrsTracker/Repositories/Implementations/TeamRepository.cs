@@ -456,16 +456,45 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var role = teamRoles.FirstOrDefault(tr => tr.Id.Equals(roleId)) ?? throw new ApplicationException("Invalid role selection") ;
 
-            var userTeamRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.TeamId == (Guid)teamUser.TeamId! && ur.UserId == (Guid)teamUser.UserId!) 
-                ?? throw new ApplicationException("Cannot assign role to user");
 
-            userTeamRole.RoleId = role.Id;
-            _context.UserRoles.Update(userTeamRole);
+          
+
+            var userRoles = await GetUserRolesInTeamAsync(userId, teamId);
+
+            var ownerRole = await _roleManager.FindByNameAsync(Roles.Owner.ToString());
+        
+
+            var otherRoles = await _context.UserRoles.Where(ur => ur.TeamId == teamUser.TeamId
+                                   && ur.UserId == teamUser.UserId && ur.RoleId != ownerRole.Id).ToListAsync();
+
+            _context.UserRoles.RemoveRange(otherRoles);
+
+            List<UserRoles> newUserRoles = new() 
+            {
+                new  UserRoles
+                {
+                    TeamId = teamUser.TeamId,
+                    UserId = (Guid)teamUser.UserId!,
+                    RoleId = role.Id
+                }
+            };
+
+            await _context.UserRoles.AddRangeAsync(newUserRoles);
             await _context.SaveChangesAsync();
 
 
             return teamUser.User!;
 
+        }
+
+        private async Task<List<Guid>> GetUserRolesInTeamAsync(Guid userId, Guid teamId)
+        {
+            var userRoles = await _context.UserRoles.Where(mur => mur.TeamId == teamId &&
+                    mur.UserId == userId).ToListAsync();
+
+            List<Guid> roles = userRoles.Select(ur => ur.RoleId).ToList();         
+
+            return roles;
         }
 
         // === user invitation end === //
