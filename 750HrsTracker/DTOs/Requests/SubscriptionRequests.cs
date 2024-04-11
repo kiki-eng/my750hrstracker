@@ -7,6 +7,11 @@
         public int GracePeriodMinutes { get; set; }
     }
 
+    public class UpdateSubscriptionFeaturesRequest
+    {
+        public List<string>? Features { get; set;}
+    }
+    
     public class UpdateSubscriptionPermissionRequest
     {
         public List<SubscriptionPermissionRequest>? Permissions { get; set;}

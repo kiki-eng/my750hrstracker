@@ -4,6 +4,7 @@ using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace _750HrsTracker.Repositories.Implementations
 {
@@ -74,6 +75,20 @@ namespace _750HrsTracker.Repositories.Implementations
             await _context.SaveChangesAsync();  
 
             return await _context.SubscriptionPermissions.Where(sp => sp.SubscriptionId == subscription.Id).ToListAsync();
+        }
+
+        public async Task<Subscription> UpdateFeaturesAsync(Guid id, List<string> features)
+        {
+            var subscription = await _context.Subscriptions.FirstOrDefaultAsync(t => t.Id == id)
+               ?? throw new KeyNotFoundException("Subscription not found");
+
+            subscription.Features = JsonConvert.SerializeObject(features);
+
+            var updated = _context.Subscriptions.Update(subscription);
+
+            await _context.SaveChangesAsync();  
+
+            return updated.Entity;
         }
     }
 }

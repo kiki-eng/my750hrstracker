@@ -7,6 +7,7 @@
         public string? Slug { get; set; }
         public decimal Price { get; set; }
         public int GracePeriodMinutes { get; set; }
+        public List<string>? Features { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }

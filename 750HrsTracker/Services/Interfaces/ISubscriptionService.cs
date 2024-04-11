@@ -12,6 +12,8 @@ namespace _750HrsTracker.Services.Interfaces
         Task<PagedResponseHandler<List<GetSubscriptionResponse>>> GetAllSubscriptionAsync(PaginationFilter filter, string route);
         Task<ResponseHandler<List<GetSubscriptionResponse>>> GetAllSubscriptionAsync();
         Task<ResponseHandler<GetSubscriptionResponse>> UpdateSubscriptionAsync(Guid id, AddUpdateSubscriptionRequest request);
+
+        Task<ResponseHandler<string>> UpdateSubscriptionFeaturesAsync(Guid id, List<string> features);
         Task<ResponseHandler<string>> DeleteSubscriptionAsync(Guid id);
 
         Task<ResponseHandler<UpdateSubscriptionPermissionResponse>> UpdateSubscriptionPermissionsAsync(Guid subscriptionId, UpdateSubscriptionPermissionRequest request);

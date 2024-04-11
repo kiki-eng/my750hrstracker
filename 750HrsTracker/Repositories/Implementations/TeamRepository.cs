@@ -162,6 +162,18 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId) ?? throw new KeyNotFoundException("Invalid role selected");
 
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == inviteeEmail); 
+
+            if(existingUser != null)
+            {
+                var isInTeam = await _context.Team_User.FirstOrDefaultAsync(ut => ut.TeamId == team.Id && ut.UserId == existingUser.Id);
+
+                if(isInTeam != null)
+                {
+                    throw new ApplicationException("User already belongs to this team.");
+                }
+            }
+
             var existingInvitation = await _context.UserInvitations.FirstOrDefaultAsync(ui => ui.Email == inviteeEmail && ui.TeamId == team.Id);
             var invitationCode = Utility.GenerateRandomOtp();
 
@@ -227,14 +239,6 @@ namespace _750HrsTracker.Repositories.Implementations
             return invitationDetails;
         }
 
-        public async Task<bool> IsInvitedUserConfirmed(string inviteeEmail)
-        {
-            var invitationDetails = await _context.UserInvitations.FirstOrDefaultAsync(i => i.Email == inviteeEmail);
-
-            return invitationDetails != null && await _context.Users.AnyAsync(u => u.Email == invitationDetails!.Email && u.EmailConfirmed);
-
-           
-        }
         public async Task<User> CreateInvitedUserAsync(User user, string invitationCode)
         {
             User updatedUser = null!;

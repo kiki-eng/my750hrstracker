@@ -124,6 +124,18 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
         }
+
+        public async Task<ResponseHandler<string>> UpdateSubscriptionFeaturesAsync(Guid id, List<string> features)
+        {
+            ResponseHandler<string> response = new();
+
+            _ = await _subscriptionRepository.UpdateFeaturesAsync(id, features);
+
+            response.Success = true;
+            response.Message = "Subscription features updated successfully";
+
+            return response;
+        }
     }
 
 }

@@ -54,5 +54,10 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateSubscriptionPermissionResponse>))]
         public async Task<IActionResult> UpdateSubscriptionPermissionsAsync(Guid id, UpdateSubscriptionPermissionRequest request)
           => Ok(await _subscriptionService.UpdateSubscriptionPermissionsAsync(id, request));
+        
+        [HttpPut("{id}/update-features")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateSubscriptionPermissionResponse>))]
+        public async Task<IActionResult> UpdateSubscriptionFeaturesAsync(Guid id, UpdateSubscriptionFeaturesRequest request)
+          => Ok(await _subscriptionService.UpdateSubscriptionFeaturesAsync(id, request.Features!));
     }
 }

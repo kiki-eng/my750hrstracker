@@ -131,11 +131,6 @@ namespace _750HrsTracker.Services.Implementations
                 throw new ApplicationException("Self invitation is not allowed");
             }
 
-            if (await _teamRepository.IsInvitedUserConfirmed(request.EmailAddress!))
-            {
-                throw new ApplicationException("User already confirmed invitation");
-            }
-
 
             var invitationDetails = await _teamRepository.InviteUserAsync((Guid)Session.TeamId!, (Guid)Session.UserId!, request.EmailAddress!, request.RoleId);
            
