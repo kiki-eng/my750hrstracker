@@ -77,18 +77,20 @@ namespace _750HrsTracker.Services.Implementations
 
             var activityBy = await _userRepository.GetUserAsync(request.ActivityById);
 
-            requestData.ActivityById = activityBy.Id;
+            requestData.ActivityById = activityBy.Id;          
+            
 
-            var activities = await _logActivityRepository.GetAllAsync(a => a.AvailablePropertyType == request.PropertyType);
-
-            if(!activities.Any(a => a.Id == request.ActivityLogActivityId))
+            if(request.PropertyType == AvailablePropertyType.LTR && request.LogType == ActivityLogType.REAL_ESTATE)
             {
-                throw new ApplicationException("Invalid activity");
-            }
 
-            if(request.PropertyType == AvailablePropertyType.LTR)
-            {
-                if(request.TaskId == null)
+                var activities = await _logActivityRepository.GetAllAsync(a => a.AvailablePropertyType == request.PropertyType);
+
+                if (!activities.Any(a => a.Id == request.ActivityLogActivityId))
+                {
+                    throw new ApplicationException("Invalid activity");
+                }
+
+                if (request.TaskId == null)
                 {
                     throw new ApplicationException("Task Id is required for LTR logs");
                 }
@@ -98,6 +100,10 @@ namespace _750HrsTracker.Services.Implementations
                         ?? throw new KeyNotFoundException("Invalid task selection");
                     requestData.TaskId = task.Id;
                 }
+            }
+            else if(request.PropertyType == AvailablePropertyType.LTR && request.LogType == ActivityLogType.NON_REAL_ESTATE)
+            {
+                requestData.ActivityLogActivity = null;
             }
             else
             {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using _750HrsTracker.Persistence.Contexts;
 
@@ -11,9 +12,10 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240425012857_add_admin_table")]
+    partial class add_admin_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,7 @@ namespace _750HrsTracker.Migrations
                     b.Property<DateTime>("ActivityDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ActivityLogActivityId")
+                    b.Property<Guid>("ActivityLogActivityId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ActivityLogCategoryId")
@@ -1145,7 +1147,8 @@ namespace _750HrsTracker.Migrations
                     b.HasOne("_750HrsTracker.Models.ActivityLogModels.ActivityLogActivity", "ActivityLogActivity")
                         .WithMany("ActivityLogs")
                         .HasForeignKey("ActivityLogActivityId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("_750HrsTracker.Models.ActivityLogModels.ActivityLogCategory", "ActivityLogCategory")
                         .WithMany("ActivityLogs")

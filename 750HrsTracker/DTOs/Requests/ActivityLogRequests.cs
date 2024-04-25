@@ -13,14 +13,14 @@ namespace _750HrsTracker.DTOs.Requests
     
     public class BaseAddActivityLogRequest
     {
-        public string? Name { get; set; }
+        //public string? Name { get; set; }
         public DateTime ActivityDate { get; set; }
         public int HoursSpent { get; set; }
         public int MinutesSpent { get; set; }
         public int SecondsSpent { get; set; }
         public string? Description { get; set; }
         public Guid ActivityById { get; set; }
-        public Guid ActivityLogActivityId { get; set; }
+        public Guid? ActivityLogActivityId { get; set; }
         public AvailablePropertyType PropertyType { get; set; }
 
         public List<Guid>? PropertiesIds { get; set; }

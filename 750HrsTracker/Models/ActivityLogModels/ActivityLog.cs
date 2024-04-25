@@ -19,7 +19,7 @@ namespace _750HrsTracker.Models.ActivityLogModels
         public Guid CreatedById { get; set; }
         public User? CreatedBy { get; set; }
 
-        public Guid ActivityLogActivityId { get; set; }
+        public Guid? ActivityLogActivityId { get; set; }
         public ActivityLogActivity? ActivityLogActivity { get; set; }
         
         public Guid? ActivityLogCategoryId { get; set; }
@@ -31,6 +31,6 @@ namespace _750HrsTracker.Models.ActivityLogModels
         public AvailablePropertyType PropertyType { get; set; }
         public ActivityLogType LogType { get; set; }
         public ICollection<ActivityLogDocument>? ActivityLogDocuments { get; set; }
-        public ICollection<ActivityLogProperty> ActivityLogProperties { get; set; }
+        public ICollection<ActivityLogProperty>? ActivityLogProperties { get; set; }
     }
 }

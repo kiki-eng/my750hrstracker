@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.Models;
 using _750HrsTracker.Models.ActivityLogModels;
+using _750HrsTracker.Models.Admin;
 using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Models.SubscriptionModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace _750HrsTracker.Persistence.Contexts
         {            
         }
 
+        public DbSet<Admin> Admins { get; set; } 
         public new DbSet<User> Users { get; set; } 
         public DbSet<Team> Teams { get; set; } 
         public DbSet<TeamUser> Team_User { get; set; } 
@@ -132,6 +134,11 @@ namespace _750HrsTracker.Persistence.Contexts
             {
                 b.ToTable("Users");
                 b.HasOne(u => u.ProfilePicture).WithOne(u => u.User).HasForeignKey<UserProfilePicture>(u => u.UserId);
+            });
+            
+            builder.Entity<Admin>(b =>
+            {
+                b.HasOne(u => u.ProfilePicture).WithOne(u => u.AdminUser).HasForeignKey<AdminProfilePicture>(u => u.AdminId);
             });
 
             builder.Entity<UserClaims>(b =>
