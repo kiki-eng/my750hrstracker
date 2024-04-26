@@ -70,6 +70,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCustomAuthentication(builder.Configuration.GetSection("ApplicationConfiguration").Get<AppSettings>());
 builder.Services.AddAuthorization();
 builder.Services.AddServicesFromExtension();
+builder.Services.AddCors();
 
 
 
@@ -83,7 +84,10 @@ var app = builder.Build();
 //}
 app.UseSwagger();
 app.UseSwaggerUI();
-//app.UseHttpsRedirection();
+app.UseCors(x => x
+    .SetIsOriginAllowed(origin => true)
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 
 
