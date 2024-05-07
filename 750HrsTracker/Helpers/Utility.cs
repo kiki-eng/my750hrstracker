@@ -181,60 +181,47 @@ namespace _750HrsTracker.Helpers
             return codeNumber.ToString("D8");
         }
        
-        public static async Task<HttpResponseMessage?> MakeHttpRequest(object requestData, string baseAddress, string requestUri, HttpMethod method, Dictionary<string, string> headers = null, bool paymentLinkValidation = false)
+        public static async Task<HttpResponseMessage?> MakeHttpRequest(object requestData, string baseAddress, string requestUri, HttpMethod method, Dictionary<string, string> headers = null)
         {
             try
             {
 
                 Uri uri = new Uri(baseAddress);
 
+                using HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(baseAddress);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                if (uri.Scheme == "http" && paymentLinkValidation)
+                if (headers != null)
                 {
-                    var httpClientHandler = new HttpClientHandler();
-                    httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+                    foreach (KeyValuePair<string, string> header in headers)
                     {
-                        return true;
-                    };
-
+                        client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    }
                 }
-
-                using (HttpClient client = new HttpClient())
+                if (method == HttpMethod.Post)
                 {
-                    client.BaseAddress = new Uri(baseAddress);
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                    if (headers != null)
-                    {
-                        foreach (KeyValuePair<string, string> header in headers)
-                        {
-                            client.DefaultRequestHeaders.Add(header.Key, header.Value);
-                        }
-                    }
-                    if (method == HttpMethod.Post)
-                    {
-                        string data = JsonConvert.SerializeObject(requestData);
-                        HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
-                        return await client.PostAsync(requestUri, content);
-                    }
-                    else if (method == HttpMethod.Get)
-                    {
-                        return await client.GetAsync(requestUri);
-                    }
-                    else if (method == HttpMethod.Patch)
-                    {
-                        string data = JsonConvert.SerializeObject(requestData);
-                        HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
-                        return await client.PatchAsync(requestUri, content);
-                    }
-                    else if (method == HttpMethod.Delete)
-                    {
-                        string data = JsonConvert.SerializeObject(requestData);
-                        HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
-                        return await client.DeleteAsync(requestUri);
-                    }
-                    return null;
+                    string data = JsonConvert.SerializeObject(requestData);
+                    HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
+                    return await client.PostAsync(requestUri, content);
                 }
+                else if (method == HttpMethod.Get)
+                {
+                    return await client.GetAsync(requestUri);
+                }
+                else if (method == HttpMethod.Patch)
+                {
+                    string data = JsonConvert.SerializeObject(requestData);
+                    HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
+                    return await client.PatchAsync(requestUri, content);
+                }
+                else if (method == HttpMethod.Delete)
+                {
+                    string data = JsonConvert.SerializeObject(requestData);
+                    HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
+                    return await client.DeleteAsync(requestUri);
+                }
+                return null;
             }
             catch 
             {
