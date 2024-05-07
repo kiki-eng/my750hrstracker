@@ -8,9 +8,7 @@ namespace _750HrsTracker.Helpers
         public static string HashPassword(string toHash)
         {
 
-            string hashedPassword = BC.HashPassword(toHash);
-
-            return hashedPassword;
+            return BC.HashPassword(toHash);
         }
 
         public static bool CompareHashedPassword(string toCompare, string hashed)
