@@ -55,9 +55,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
             existingProperty.Name = property.Name;
             existingProperty.Address = property.Address;
-            existingProperty.Longitude = property.Longitude;
-            existingProperty.Latitude = property.Latitude;
-            existingProperty.Alias = property.Alias;
+            existingProperty.PropertyType = property.PropertyType;
             existingProperty.ModifiedAt = DateTime.Now;
 
             var updated = _context.Properties.Update(existingProperty);

@@ -34,13 +34,14 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IActivityLogActivityRepository _logActivityRepository;
         private readonly IActivityLogSubCategoryRepository _taskRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IPropertyRepository _propertyRepository;
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
         private readonly AppSettings _appSettings;
 
         public ActivityLogService(IActivityLogRepository activityLogRepository, IMapper mapper, SessionProvider sessionProvider, 
             IUriService uriService, IUserRepository userRepository, IOptionsSnapshot<AppSettings> appSettings, 
-            IActivityLogSubCategoryRepository taskRepository, IActivityLogActivityRepository logActivityRepository) : base(sessionProvider)
+            IActivityLogSubCategoryRepository taskRepository, IActivityLogActivityRepository logActivityRepository, IPropertyRepository propertyRepository) : base(sessionProvider)
         {
             _activityLogRepository = activityLogRepository;
             _mapper = mapper;
@@ -49,6 +50,7 @@ namespace _750HrsTracker.Services.Implementations
             _appSettings = appSettings.Value;
             _taskRepository = taskRepository;
             _logActivityRepository = logActivityRepository;
+            _propertyRepository = propertyRepository;
         }
 
         public async Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request)
@@ -77,11 +79,18 @@ namespace _750HrsTracker.Services.Implementations
 
             var activityBy = await _userRepository.GetUserAsync(request.ActivityById);
 
-            requestData.ActivityById = activityBy.Id;          
+            requestData.ActivityById = activityBy.Id;
+
             
 
             if(request.PropertyType == AvailablePropertyType.LTR && request.LogType == ActivityLogType.REAL_ESTATE)
             {
+                var properties = await _propertyRepository.GetAllAsync(p => p.TeamId == (Guid)Session.TeamId && p.PropertyType == request.PropertyType);
+
+                if (!request.PropertiesIds!.Any(p => properties.Select(pp => pp.Id).Contains(p)))
+                {
+                    throw new ApplicationException("Invalid property selection");
+                }
 
                 var activities = await _logActivityRepository.GetAllAsync(a => a.AvailablePropertyType == request.PropertyType);
 
@@ -130,17 +139,20 @@ namespace _750HrsTracker.Services.Implementations
             }
 
 
-            List<ActivityLogProperty> properties = new(); 
-            foreach(var propertyId in request.PropertiesIds!)
+            if(request.PropertiesIds != null && request.PropertiesIds!.Count > 0)
             {
-                ActivityLogProperty activityLogProperty = new() 
-                { 
-                    ActivityLogId = activityLog.Id,
-                    PropertyId = propertyId,
-                };
-                properties.Add(activityLogProperty);
+                List<ActivityLogProperty> properties = new();
+                foreach (var propertyId in request.PropertiesIds!)
+                {
+                    ActivityLogProperty activityLogProperty = new()
+                    {
+                        ActivityLogId = activityLog.Id,
+                        PropertyId = propertyId,
+                    };
+                    properties.Add(activityLogProperty);
+                }
+                await _activityLogRepository.AttachLogPropertyAsync(properties);
             }
-            await _activityLogRepository.AttachLogPropertyAsync(properties);
 
 
             response.Success = true;
