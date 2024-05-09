@@ -189,9 +189,9 @@ namespace _750HrsTracker.Controllers
         [Route("{userId}/change-password")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
-        public async Task<IActionResult> ChangePasswordAsync(Guid merchantUserId, ChangePasswordRequest request)
+        public async Task<IActionResult> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
         {
-            ResponseHandler<string> response = await _userService.ChangePasswordAsync(merchantUserId, request);
+            ResponseHandler<string> response = await _userService.ChangePasswordAsync(userId, request);
             if (!response.Success)
             {
                 return NotFound(response);

@@ -113,6 +113,8 @@ namespace _750HrsTracker.Services.Implementations
             else if(request.PropertyType == AvailablePropertyType.LTR && request.LogType == ActivityLogType.NON_REAL_ESTATE)
             {
                 requestData.ActivityLogActivity = null;
+                requestData.LogType = ActivityLogType.NON_REAL_ESTATE;
+
             }
             else
             {

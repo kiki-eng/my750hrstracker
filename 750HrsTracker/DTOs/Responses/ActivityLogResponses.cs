@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.Enums;
 
 namespace _750HrsTracker.DTOs.Responses
 {
@@ -14,6 +15,7 @@ namespace _750HrsTracker.DTOs.Responses
         public int MinutesSpent { get; set; }
         public int SecondsSpent { get; set; }
         public string? Description { get; set; }
+        public ActivityLogType? LogType { get; set; }
 
         public GetUsersOnlyResponse? ActivityBy {  get; set; }
         public List<GetPropertyResponse>? Properties { get; set; }   
