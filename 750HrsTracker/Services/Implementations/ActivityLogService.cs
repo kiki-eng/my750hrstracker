@@ -328,7 +328,7 @@ namespace _750HrsTracker.Services.Implementations
 
             ResponseHandler<List<GetActivityLogResponse>> response = new();
 
-            var ActivityLog = await _activityLogRepository.SearchEntityAsync(p => p.TeamId == Session.TeamId && p.Name!.ToLower().Contains(keyword.ToLower()));
+            var ActivityLog = await _activityLogRepository.SearchEntityAsync(p => p.TeamId == Session.TeamId && p.Description!.ToLower().Contains(keyword.ToLower()));
 
             response.Success = true;
             response.Message = "Activity logs retrieved successfully";
