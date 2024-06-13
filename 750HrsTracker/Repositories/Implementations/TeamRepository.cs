@@ -166,12 +166,14 @@ namespace _750HrsTracker.Repositories.Implementations
 
             if(existingUser != null)
             {
-                var isInTeam = await _context.Team_User.FirstOrDefaultAsync(ut => ut.TeamId == team.Id && ut.UserId == existingUser.Id);
+                //var isInTeam = await _context.Team_User.FirstOrDefaultAsync(ut => ut.TeamId == team.Id && ut.UserId == existingUser.Id);
 
-                if(isInTeam != null)
-                {
-                    throw new ApplicationException("User already belongs to this team.");
-                }
+                //if(isInTeam != null)
+                //{
+                //    throw new ApplicationException("User already belongs to this team.");
+                //}
+
+                throw new ApplicationException("User with provided email already exists in a team");
             }
 
             var existingInvitation = await _context.UserInvitations.FirstOrDefaultAsync(ui => ui.Email == inviteeEmail && ui.TeamId == team.Id);
