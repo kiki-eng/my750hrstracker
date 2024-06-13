@@ -11,6 +11,10 @@ namespace _750HrsTracker.DTOs.Requests
         public ActivityLogType LogType { get; set; }
     }
     
+    public class ImportActivityLogRequest
+    {
+        public List<Base64FileModel>? SupportingDocuments { get; set; }    
+    }
     public class BaseAddActivityLogRequest
     {
         //public string? Name { get; set; }

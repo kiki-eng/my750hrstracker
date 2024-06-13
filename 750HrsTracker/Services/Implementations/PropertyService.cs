@@ -33,10 +33,14 @@ namespace _750HrsTracker.Services.Implementations
         {
             ResponseHandler<GetPropertyResponse> response = new();
 
+            var properties = await _propertyRepository.GetAllAsync();
+
             var requestData = _mapper.Map<AvailableProperty>(request);
             requestData.TeamId = (Guid)Session.TeamId!;
             requestData.CreatedById = (Guid)Session.UserId!;
+            requestData.Code = $"P-{properties.Count() + 1}";
             var property = await _propertyRepository.AddAsync(requestData);
+
 
             response.Success = true;
             response.Message = "Property added successfully";

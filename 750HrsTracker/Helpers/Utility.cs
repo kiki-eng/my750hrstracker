@@ -1,6 +1,9 @@
-﻿using _750HrsTracker.Models;
+﻿using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Models;
+using _750HrsTracker.Services.Implementations;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic.FileIO;
 using Newtonsoft.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -273,6 +276,43 @@ namespace _750HrsTracker.Helpers
             slug = slug.Replace(" ", "-");
 
             return slug;
+        }
+
+        public static List<FileImportDto> ParseImportedFileAsync(Stream fileStream)
+        {
+            List<FileImportDto> logs = new List<FileImportDto>();
+
+            using (TextFieldParser parser = new TextFieldParser(fileStream))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+
+                while (!parser.EndOfData)
+                {
+                    string[] fields = parser.ReadFields()!;
+
+                    FileImportDto data = new()
+                    {
+                        ActivityDate = fields[0].ToString(),
+                        Description = fields[1].ToString(),
+                        Hours = fields[2].ToString(),
+                        Minutes = fields[3].ToString(),
+                        Seconds = fields[4].ToString(),
+                        Property = fields[5].ToString(),
+                        TeamMemberEmail = fields[6].ToString(),
+                        LogType = fields[7].ToString(),
+                        Material = fields[8].ToString(),
+                        Activity = fields[9].ToString(),
+                        Task = fields[10].ToString(),
+                    };
+
+                    logs.Add(data);
+                }
+            }
+            // remvoe the first item which is the headers of the files
+            logs.Remove(logs.First());
+
+            return logs;
         }
 
     }

@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Net;
 using System;
+using Microsoft.VisualBasic.FileIO;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -37,11 +38,13 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IPropertyRepository _propertyRepository;
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
+        private readonly IActivityLogCategoryService _logCategoryService;
         private readonly AppSettings _appSettings;
 
         public ActivityLogService(IActivityLogRepository activityLogRepository, IMapper mapper, SessionProvider sessionProvider, 
             IUriService uriService, IUserRepository userRepository, IOptionsSnapshot<AppSettings> appSettings, 
-            IActivityLogSubCategoryRepository taskRepository, IActivityLogActivityRepository logActivityRepository, IPropertyRepository propertyRepository) : base(sessionProvider)
+            IActivityLogSubCategoryRepository taskRepository, IActivityLogActivityRepository logActivityRepository, 
+            IPropertyRepository propertyRepository, IActivityLogCategoryService logCategoryService) : base(sessionProvider)
         {
             _activityLogRepository = activityLogRepository;
             _mapper = mapper;
@@ -51,6 +54,7 @@ namespace _750HrsTracker.Services.Implementations
             _taskRepository = taskRepository;
             _logActivityRepository = logActivityRepository;
             _propertyRepository = propertyRepository;
+            _logCategoryService = logCategoryService;
         }
 
         public async Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request)
@@ -543,5 +547,136 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
         }
-    }
+
+        public async Task<ResponseHandler<string>> ImportActivityLogAsync(AvailablePropertyType propertyType,  ImportActivityLogRequest request)
+        {
+
+            ResponseHandler<string> response = new();
+
+            if (request.SupportingDocuments!.Count < 1 || request.SupportingDocuments!.Count > 1)
+            {
+                throw new ApplicationException("You can only upload one file at a time");
+            }
+            
+            if (propertyType.Equals(AvailablePropertyType.ALL))
+            {
+                throw new ApplicationException("Invalid property type");
+            }
+
+            var file = request.SupportingDocuments!.First()!;
+            byte[] fileBytes = Convert.FromBase64String(file.Data!);
+
+            var logData = Utility.ParseImportedFileAsync(new MemoryStream(fileBytes));
+
+            var errors = FileImportValidator.Validate(logData, propertyType);
+
+            if (errors.Count > 0)
+            {
+                throw new RequestValidationException($"Errors importing data. {string.Join("|", errors)}");
+            }
+
+            var logActivities = await _logActivityRepository.GetAllAsync(l => l.AvailablePropertyType == propertyType);
+            var logTypeAndCategories = await _logCategoryService.GetAllActivityLogCategoryAsync();
+
+
+
+            List<ActivityLog> activityLogs = new();
+          
+            // fetch non real estate and real estate data 
+            var realEstateOptions = logTypeAndCategories!.Data!.FirstOrDefault(a => a.LogTypeValue! == ActivityLogType.REAL_ESTATE);
+
+            if (logData.Count < 1)
+            {
+                throw new ApplicationException("No activity log data to process");
+            }
+
+            for (int i = 0; i < logData.Count; i++)
+            {
+                ActivityLog activityLog = new();
+                var data = logData[i];
+
+
+                activityLog.TeamId = (Guid)Session.TeamId!;
+                activityLog.CreatedById = (Guid)Session.UserId!;
+
+                var activityBy = await _userRepository.GetUserByEmailAsync(data.TeamMemberEmail!);
+                activityLog.ActivityById = activityBy.Id;
+
+                if (propertyType == AvailablePropertyType.LTR && data.LogType!.ToUpper() == ActivityLogType.REAL_ESTATE.ToString())
+                {
+                    var property = await _propertyRepository.GetSingleOrDefaultAsync(p => p.Code == data.Property) ?? throw new ApplicationException($"Property on Row {i + 1} not found");
+
+                    var isMaterial = data.Material!.ToLower() == "yes";
+                    GetLogCategoryResponse categoryData = new();
+
+                    if (isMaterial)
+                    {
+                        categoryData = realEstateOptions!.Categories!.FirstOrDefault(c => c.Slug == LogCategoryConstants.MaterialParticipationSlug)!;
+                    }
+                    else
+                    {
+                        categoryData = realEstateOptions!.Categories!.FirstOrDefault(c => c.Slug == LogCategoryConstants.GeneralRealEstateSlug)!;
+                    }
+
+                    // validate activity and task
+                    var activity = categoryData.Activities!.FirstOrDefault(cd => cd.Slug == data.Activity)
+                        ?? throw new ApplicationException($"Activity on Row {i + 1} is not valid");
+
+                    var task = activity.Tasks!.FirstOrDefault(t => t.Slug == data.Task) ?? throw new ApplicationException($"Task on Row {i + 1} is not valid");
+
+                    activityLog.ActivityLogCategoryId = categoryData.Id;
+                    activityLog.ActivityLogActivityId = activity.Id;
+                    activityLog.TaskId = task.Id;
+
+                    activityLog.ActivityLogProperties = new List<ActivityLogProperty>()
+                        {
+                            new ActivityLogProperty
+                            {
+                                Id = property.Id
+                            }
+                        };
+                    activityLog.LogType = ActivityLogType.REAL_ESTATE;
+
+                }
+                else if (propertyType == AvailablePropertyType.LTR && data.LogType!.ToUpper() == ActivityLogType.NON_REAL_ESTATE.ToString())
+                {
+                    activityLog.LogType = ActivityLogType.NON_REAL_ESTATE;
+
+                }
+                else
+                {
+                    var property = await _propertyRepository.GetSingleOrDefaultAsync(p => p.Code == data.Property) ?? throw new ApplicationException($"Property on Row {i + 1} not found");
+                    activityLog.ActivityLogProperties = new List<ActivityLogProperty>()
+                    {
+                        new ActivityLogProperty
+                        {
+                            Id = property.Id
+                        }
+                    };
+                    // validate activity and task
+                    var activity = logActivities.FirstOrDefault(cd => cd.Slug == data.Activity)
+                        ?? throw new ApplicationException($"Activity on Row {i + 1} is not valid");
+
+                    activityLog.LogType = ActivityLogType.NONE;
+
+                }
+                activityLog.PropertyType = propertyType;
+                activityLog.HoursSpent = Convert.ToInt32(data.Hours);
+                activityLog.MinutesSpent = Convert.ToInt32(data.Minutes);
+                activityLog.SecondsSpent = Convert.ToInt32( data.Seconds);
+                activityLog.Description = data.Description;
+
+                activityLogs.Add(activityLog);
+            }
+
+            await _activityLogRepository.AddRangeAsync(activityLogs);   
+
+
+            response.Success = true;
+            response.Message = $"{logData.Count} records uploaded successfully";
+
+            return response;
+
+        }        
+    }   
 }

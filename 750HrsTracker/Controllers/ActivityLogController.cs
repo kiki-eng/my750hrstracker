@@ -28,7 +28,7 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
         public async Task<IActionResult> AddActivityLogAsync(AddActivityLogRequest request)
            => Ok(await _activityLogService.AddActivityLogAsync(request));
-        
+
         [Authorize(Policy = "Permission.ActivityLog.Create")]
         [HttpPost("add-str-log")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
@@ -38,7 +38,7 @@ namespace _750HrsTracker.Controllers
         [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetActivityLogResponse>>))]
-        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter, 
+        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter,
             [FromQuery] AvailablePropertyType propertyType = AvailablePropertyType.ALL)
             => Ok(await _activityLogService.GetAllActivityLogAsync(propertyType, filter, activityLogFilter, Request.Path));
 
@@ -72,27 +72,13 @@ namespace _750HrsTracker.Controllers
         [HttpGet("download-import-template")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
         public async Task<IActionResult> DownloadActivityLogImportTemplateAsync()
-            => Ok(await _activityLogService.DownloadActivityLogImportTemplateAsync());       
-        
+            => Ok(await _activityLogService.DownloadActivityLogImportTemplateAsync());
+
         [Authorize(Policy = "Permission.ActivityLog.Import")]
         [HttpPost("import")]
-        public async Task<IActionResult> ImportActivityLogAsync()
-        {
-            // Path to the template CSV file
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "750hrsTracker_ActivityLogImportTemplate.csv");
-
-            // Check if the file exists
-            if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound();
-            }
-
-            // Return the file as a FileStreamResult
-            //var fileStream = System.IO.File.OpenRead(filePath);
-
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(fileBytes, "application/octet-stream", "750hrsTracker_ActivityLogImportTemplate.csv");
-        }
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> ImportActivityLogAsync([FromQuery] AvailablePropertyType propertyType, ImportActivityLogRequest request)
+            => Ok(await _activityLogService.ImportActivityLogAsync(propertyType, request));
 
 
         [Authorize(Policy = "Permission.ActivityLog.ExportDocument")]
