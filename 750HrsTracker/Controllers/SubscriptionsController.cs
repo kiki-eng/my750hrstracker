@@ -1,9 +1,11 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Extensions;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Implementations;
 using _750HrsTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -12,12 +14,16 @@ namespace _750HrsTracker.Controllers
 {
     [Route("api/subscriptions")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = CustomPubAccessAuthenticationSchemeOption.Name)]
     public class SubscriptionsController : ControllerBase
     {
         private readonly ISubscriptionService _subscriptionService;
-        public SubscriptionsController(ISubscriptionService subscriptionService)
+        private readonly ITeamService _tenantService;
+        public SubscriptionsController(ISubscriptionService subscriptionService, ITeamService tenantService)
         {
             _subscriptionService = subscriptionService;
+            _tenantService = tenantService;
+
         }
 
         [HttpPost]
@@ -59,5 +65,17 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateSubscriptionPermissionResponse>))]
         public async Task<IActionResult> UpdateSubscriptionFeaturesAsync(Guid id, UpdateSubscriptionFeaturesRequest request)
           => Ok(await _subscriptionService.UpdateSubscriptionFeaturesAsync(id, request.Features!));
+
+        [HttpPatch("{id}/update-stripe-price-id")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetSubscriptionResponse>))]
+        public async Task<IActionResult> UpdateSubscriptionPriceAsync(Guid id, UpdateSubscriptionPriceRequest request)
+          => Ok(await _subscriptionService.UpdateSubscriptionPriceAsync(id, request));
+        
+        [HttpPost("stripe/create-checkout-session")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<CreateStripeCheckoutSessionResponse>))]
+        public async Task<IActionResult> CreateStripeCheckoutSessionAsync(CreateStripeCheckoutSessionRequest request)
+          => Ok(await _tenantService.CreateStripeCheckoutSessionAsync(request));
+
+
     }
 }

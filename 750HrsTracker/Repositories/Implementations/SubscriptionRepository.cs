@@ -31,6 +31,20 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return updated.Entity;
         }
+        
+        public async Task<Subscription> UpdatePriceIdAsync(Guid id, Subscription subscription)
+        {
+            var existingSubscription = await _context.Subscriptions.FirstOrDefaultAsync(p => p.Id == id) ?? throw new KeyNotFoundException("Subscription not found");
+
+            existingSubscription.StripePriceId = subscription.StripePriceId;
+            existingSubscription.ModifiedAt = DateTime.Now;
+
+            var updated = _context.Subscriptions.Update(existingSubscription);
+
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
+        }
 
         public async Task<Subscription> GetSubscriptionPermissionsAsync(Guid subscriptionId)
         {
@@ -89,6 +103,14 @@ namespace _750HrsTracker.Repositories.Implementations
             await _context.SaveChangesAsync();  
 
             return updated.Entity;
+        }
+
+        public async Task<Subscription> GetSubscriptionByPriceIdAsync(string priceId)
+        {
+            var subscription = await _context.Subscriptions.FirstOrDefaultAsync(t => t.StripePriceId == priceId)
+                ?? throw new KeyNotFoundException("No subscription available");
+
+            return subscription;
         }
     }
 }

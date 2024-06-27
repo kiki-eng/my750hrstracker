@@ -5,6 +5,7 @@ using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Models.ResponseWrappers;
+using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -487,6 +488,14 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return teamUser.User!;
 
+        }
+
+        public async Task<SubscriptionTransactions> AddTeamSubscriptionTransactionAsync(SubscriptionTransactions subscriptionTransactions)
+        {
+            var added = await _context.SubscriptionTransactions.AddAsync(subscriptionTransactions);
+            await _context.SaveChangesAsync();
+
+            return added.Entity;
         }
 
         private async Task<List<Guid>> GetUserRolesInTeamAsync(Guid userId, Guid teamId)

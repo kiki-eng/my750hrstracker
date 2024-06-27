@@ -175,6 +175,7 @@ namespace _750HrsTracker.Services.Implementations
             {
                 Id = logCategory.Id,
                 Name = logCategory.Name,
+                Slug = logCategory.Slug,
                 PropertyType = (AvailablePropertyType)logCategory.AvailablePropertyType!,
                 CreatedAt = logCategory.CreatedAt
             };

@@ -14,17 +14,14 @@ namespace _750HrsTracker.Helpers
             var actionName = (context.ApiDescription.ActionDescriptor as ControllerActionDescriptor)!.ActionName;
             var controller = (context.ApiDescription.ActionDescriptor as ControllerActionDescriptor)!.ControllerName;
 
-            if (controller.ToLower().StartsWith("public"))
+            operation.Parameters.Add(new OpenApiParameter()
             {
-                operation.Parameters.Add(new OpenApiParameter()
-                {
-                    Name = "pub-access-key",
-                    In = ParameterLocation.Header,
-                    Schema = new OpenApiSchema() { Type = "string" },
-                    Required = true,
-                });
-            }
-            
+                Name = "pub-access-key",
+                In = ParameterLocation.Header,
+                Schema = new OpenApiSchema() { Type = "string" },
+                Required = false,
+            });
+
 
 
         }

@@ -9,5 +9,8 @@
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int GracePeriodMinutes { get; set; }
+
+        public ICollection<SubscriptionTransactions>? SubscriptionTransactions { get; set; }
+
     }
 }

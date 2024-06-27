@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using _750HrsTracker.Persistence.Contexts;
 
@@ -11,9 +12,10 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240625032057_add_table_webhook_notification_log")]
+    partial class add_table_webhook_notification_log
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -820,9 +822,6 @@ namespace _750HrsTracker.Migrations
                     b.Property<string>("StripePriceId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SubscriptionInterval")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Slug")
@@ -860,42 +859,6 @@ namespace _750HrsTracker.Migrations
                     b.HasIndex("PermissionId");
 
                     b.ToTable("SubscriptionPermissions");
-                });
-
-            modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.SubscriptionTransactions", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InitialStripeSessionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("LastActionById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("StripeCustomerId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("TeamSubscriptionSubscriptionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("TeamSubscriptionTeamId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LastActionById");
-
-                    b.HasIndex("TeamSubscriptionSubscriptionId", "TeamSubscriptionTeamId");
-
-                    b.ToTable("SubscriptionTransactions");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.TeamSubscription", b =>
@@ -1469,23 +1432,6 @@ namespace _750HrsTracker.Migrations
                     b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.SubscriptionTransactions", b =>
-                {
-                    b.HasOne("_750HrsTracker.Models.User", "LastActionBy")
-                        .WithMany("SubscriptionTransactions")
-                        .HasForeignKey("LastActionById")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("_750HrsTracker.Models.SubscriptionModels.TeamSubscription", "TeamSubscription")
-                        .WithMany("SubscriptionTransactions")
-                        .HasForeignKey("TeamSubscriptionSubscriptionId", "TeamSubscriptionTeamId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("LastActionBy");
-
-                    b.Navigation("TeamSubscription");
-                });
-
             modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.TeamSubscription", b =>
                 {
                     b.HasOne("_750HrsTracker.Models.SubscriptionModels.Subscription", "Subscription")
@@ -1580,11 +1526,6 @@ namespace _750HrsTracker.Migrations
                     b.Navigation("TeamSubscriptions");
                 });
 
-            modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.TeamSubscription", b =>
-                {
-                    b.Navigation("SubscriptionTransactions");
-                });
-
             modelBuilder.Entity("_750HrsTracker.Models.Team", b =>
                 {
                     b.Navigation("ActivityLogDocuments");
@@ -1611,8 +1552,6 @@ namespace _750HrsTracker.Migrations
                     b.Navigation("PropertiesCreated");
 
                     b.Navigation("PropertyTeamUsers");
-
-                    b.Navigation("SubscriptionTransactions");
 
                     b.Navigation("UserTeams");
                 });

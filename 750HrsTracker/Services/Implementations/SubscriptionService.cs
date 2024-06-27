@@ -9,6 +9,10 @@ using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
+using Microsoft.Extensions.Options;
+using Stripe;
+using Stripe.Checkout;
+using Subscription = _750HrsTracker.Models.SubscriptionModels.Subscription;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -18,13 +22,15 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IPermissionRepository _permissionRepository;
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
+        private readonly AppSettings _appSettings;
         public SubscriptionService(ISubscriptionRepository subscriptionRepository, IPermissionRepository permissionRepository,
-            IMapper mapper, IUriService uriService)
+            IMapper mapper, IUriService uriService, IOptionsSnapshot<AppSettings> appSettings)
         {
             _subscriptionRepository = subscriptionRepository;
             _permissionRepository = permissionRepository;
             _mapper = mapper;
             _uriService = uriService;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<ResponseHandler<GetSubscriptionResponse>> AddSubscriptionAsync(AddUpdateSubscriptionRequest request)
@@ -131,11 +137,28 @@ namespace _750HrsTracker.Services.Implementations
 
             _ = await _subscriptionRepository.UpdateFeaturesAsync(id, features);
 
-            response.Success = true;
+            response.Success = true; 
             response.Message = "Subscription features updated successfully";
 
             return response;
         }
+
+        public async Task<ResponseHandler<GetSubscriptionResponse>> UpdateSubscriptionPriceAsync(Guid id, UpdateSubscriptionPriceRequest request)
+        {
+            ResponseHandler<GetSubscriptionResponse> response = new();
+
+            var requestData = new Subscription { StripePriceId = request.StripePriceId};
+
+            var updatedSubscription = await _subscriptionRepository.UpdatePriceIdAsync(id, requestData);
+
+            response.Success = true;
+            response.Message = "Subscriptions updated successfully";
+            response.Data = _mapper.Map<GetSubscriptionResponse>(updatedSubscription);
+
+            return response;
+        }
+
+       
     }
 
 }

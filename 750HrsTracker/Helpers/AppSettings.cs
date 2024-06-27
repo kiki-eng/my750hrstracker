@@ -21,5 +21,8 @@
         public string? AzureStorageBlobContainerName { get; set; }
 
         public string? PublicApiAccessKey { get; set; }
+        public string? StripeApiSecretKey { get; set; }
+        public string? StripeProductId { get; set; }
+        public string? StripeWebhookSecret { get; set; }
     }
 }

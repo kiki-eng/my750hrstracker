@@ -17,5 +17,8 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<string>> DeleteSubscriptionAsync(Guid id);
 
         Task<ResponseHandler<UpdateSubscriptionPermissionResponse>> UpdateSubscriptionPermissionsAsync(Guid subscriptionId, UpdateSubscriptionPermissionRequest request);
+
+
+        Task<ResponseHandler<GetSubscriptionResponse>> UpdateSubscriptionPriceAsync(Guid id, UpdateSubscriptionPriceRequest request);
     }
 }

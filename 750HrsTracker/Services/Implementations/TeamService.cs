@@ -10,6 +10,7 @@ using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using Stripe.Checkout;
 using System.ComponentModel;
 using System.Net.Mail;
 
@@ -23,9 +24,11 @@ namespace _750HrsTracker.Services.Implementations
         private readonly AppSettings _appSettings;
         private readonly INotificationService _notificationService;
         private readonly IUriService _uriService;
+        private readonly ISubscriptionRepository _subscriptionRepository;
 
         public TeamService(ITeamRepository teamRepository, IMapper mapper, IOptionsSnapshot<AppSettings> appSettings,
-            IUserRepository userRepository, SessionProvider sessionProvider, INotificationService notificationService, IUriService uriService) : base(sessionProvider)
+            IUserRepository userRepository, SessionProvider sessionProvider, INotificationService notificationService, 
+            IUriService uriService, ISubscriptionRepository subscriptionRepository) : base(sessionProvider)
         {
             _teamRepository = teamRepository;
             _mapper = mapper;
@@ -33,6 +36,7 @@ namespace _750HrsTracker.Services.Implementations
             _userRepository = userRepository;
             _notificationService = notificationService;
             _uriService = uriService;
+            _subscriptionRepository = subscriptionRepository;   
         }
         public async Task<ResponseHandler<GetRoleResponse>> AddTeamRoleAsync(AddRoleRequest request)
         {
@@ -277,6 +281,62 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
+        public async Task<ResponseHandler<CreateStripeCheckoutSessionResponse>> CreateStripeCheckoutSessionAsync(CreateStripeCheckoutSessionRequest request)
+        {
+            ResponseHandler<CreateStripeCheckoutSessionResponse> response = new();
+
+            // get subscription by price id
+            var subscription = await _subscriptionRepository.GetSubscriptionByPriceIdAsync(request.PriceId!) ?? throw new ApplicationException("Cannot initiate session. Invalid price id");
+
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        Price = request.PriceId,
+                        Quantity = 1,
+                    },
+                },
+                SubscriptionData = new SessionSubscriptionDataOptions
+                {
+                    TrialSettings = new SessionSubscriptionDataTrialSettingsOptions
+                    {
+                        EndBehavior = new SessionSubscriptionDataTrialSettingsEndBehaviorOptions
+                        {
+                            MissingPaymentMethod = "pause",
+                        },
+                    },
+                    TrialPeriodDays = 7,
+                },
+                Mode = "subscription",
+                SuccessUrl = $"{_appSettings.FrontendBaseUrl}/settings?success=true",
+                CancelUrl = $"{_appSettings.FrontendBaseUrl}/settings?success=false",
+            };
+
+            var service = new SessionService();
+            Session session = await service.CreateAsync(options);
+
+            await _teamRepository.AddTeamSubscriptionTransactionAsync(new Models.SubscriptionModels.SubscriptionTransactions
+            {
+               InitialStripeSessionId = session.Id,
+               TeamSubscription = new Models.SubscriptionModels.TeamSubscription
+               {
+                   TeamId = Session.TeamId,
+                   SubscriptionId = subscription.Id
+               },
+               LastActionById = Session.UserId
+            });
+
+
+            response.Success = true;
+            response.Message = "Stripe session created successfully";
+            response.Data = new CreateStripeCheckoutSessionResponse { SessionId = session.Id };
+
+
+            return response;
+        }
         private GetUsersOnlyResponse MappedResponse(User user)
         {
             var response =_mapper.Map<GetUsersOnlyResponse>(user);

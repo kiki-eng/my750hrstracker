@@ -23,5 +23,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<string>> UpdateUserRoleAsync(UpdateUserRoleRequest request);
         Task<ResponseHandler<string>> DeactivateAccountAsync();
 
+        Task<ResponseHandler<CreateStripeCheckoutSessionResponse>> CreateStripeCheckoutSessionAsync(CreateStripeCheckoutSessionRequest request);
+
     }
 }

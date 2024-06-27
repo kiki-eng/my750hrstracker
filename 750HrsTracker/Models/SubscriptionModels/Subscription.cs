@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using _750HrsTracker.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace _750HrsTracker.Models.SubscriptionModels
 {
@@ -7,6 +8,9 @@ namespace _750HrsTracker.Models.SubscriptionModels
         public string? Name { get; set; }
         public string? Slug { get; set; }
         public decimal Price { get; set; }
+        public string? StripePriceId { get; set; }
+        public SubscriptionInterval SubscriptionInterval { get; set; }
+
         public int GracePeriodMinutes { get; set; }
         public string? Features { get; set; }
 

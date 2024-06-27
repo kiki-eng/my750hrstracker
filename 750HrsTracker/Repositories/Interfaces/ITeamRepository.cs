@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.Filters;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
+using _750HrsTracker.Models.SubscriptionModels;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
@@ -21,5 +22,6 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> UpdateUserRoleAsync(Guid teamId, Guid userId, Guid roleId);
         Task<Team> DeleteTeamAsync(Guid teamId, Guid currentUserId);
         Task<User> MakeSpouseAsync(Guid teamId, Guid userId);
+        Task<SubscriptionTransactions> AddTeamSubscriptionTransactionAsync(SubscriptionTransactions subscriptionTransactions);
     }
 }

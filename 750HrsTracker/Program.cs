@@ -3,11 +3,13 @@ using _750HrsTracker.Helpers;
 using _750HrsTracker.Middleware;
 using _750HrsTracker.Models;
 using _750HrsTracker.Persistence.Contexts;
+using Bugsnag.AspNet.Core;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SendGrid.Extensions.DependencyInjection;
+using Stripe;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +56,7 @@ builder.Services.AddSendGrid(options =>
     options.ApiKey = builder.Configuration.GetSection("ApplicationConfiguration:SendGridKey").Value
 );
 
+
 builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 builder.Services.AddDbContextPool<AppDbContext>(options =>
 {
@@ -72,6 +75,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddServicesFromExtension();
 builder.Services.AddCors();
 
+builder.Services.AddBugsnag(config =>
+{
+    config.ApiKey = builder.Configuration["ApplicationConfiguration:BugsnagApiKey"];
+});
+
 
 
 var app = builder.Build();
@@ -88,6 +96,8 @@ app.UseCors(x => x
     .SetIsOriginAllowed(origin => true)
     .AllowAnyMethod()
     .AllowAnyHeader());
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("ApplicationConfiguration:StripeApiSecretKey").Value;
 
 
 

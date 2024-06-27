@@ -33,6 +33,8 @@ namespace _750HrsTracker.Persistence.Contexts
         public DbSet<SubscriptionPermission> SubscriptionPermissions { get; set; }
         public DbSet<UserInvitation> UserInvitations { get; set; }
         public DbSet<UserProfilePicture> UserProfilePictures { get; set; }
+        public DbSet<WebhookNotificationTraceLog> WebhookNotificationTraceLogs { get; set; }
+        public DbSet<SubscriptionTransactions> SubscriptionTransactions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -172,6 +174,12 @@ namespace _750HrsTracker.Persistence.Contexts
                 b.HasKey(ur => new { ur.RoleId, ur.PermissionId });
                 b.HasOne(rp => rp.Role).WithMany(rp => rp.RolePermissions).HasForeignKey(rp => rp.RoleId);
                 b.HasOne(rp => rp.Permission).WithMany(rp => rp.RolePermissions).HasForeignKey(rp => rp.PermissionId);
+            });
+
+            builder.Entity<SubscriptionTransactions>(b =>
+            {
+                b.HasOne(e => e.TeamSubscription).WithMany(e => e.SubscriptionTransactions).OnDelete(DeleteBehavior.NoAction);
+                b.HasOne(e => e.LastActionBy).WithMany(e => e.SubscriptionTransactions).HasForeignKey(e => e.LastActionById).OnDelete(DeleteBehavior.NoAction);
             });
 
             builder.Entity<UserInvitation>(b =>

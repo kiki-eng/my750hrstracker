@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.JointEntities;
+using _750HrsTracker.Models.SubscriptionModels;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -30,6 +31,8 @@ namespace _750HrsTracker.Models
         public ICollection<PropertyTeamUser>? PropertyTeamUsers { get; set; }
         public ICollection<ActivityLog>? ActivityLogs { get; set; }
         public ICollection<ActivityLog>? LogsCreated { get; set; }
+        public ICollection<SubscriptionTransactions>? SubscriptionTransactions { get; set; }
+
 
 
         [NotMapped]
