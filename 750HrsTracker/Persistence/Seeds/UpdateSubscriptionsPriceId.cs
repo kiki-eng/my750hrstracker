@@ -29,10 +29,10 @@ namespace _750HrsTracker.Persistence.Seeds
                     switch (subscription.SubscriptionInterval)
                     {
                         case SubscriptionInterval.monthly:
-                            options.Recurring = new PriceRecurringOptions { Interval = "monthly" };
+                            options.Recurring = new PriceRecurringOptions { Interval = "month" };
                             break;
                         case SubscriptionInterval.yearly:
-                            options.Recurring = new PriceRecurringOptions { Interval = "yearly" };
+                            options.Recurring = new PriceRecurringOptions { Interval = "year" };
                             break;
                         default:
                             continue;

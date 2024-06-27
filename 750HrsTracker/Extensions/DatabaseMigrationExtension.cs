@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Models;
+﻿using _750HrsTracker.Helpers;
+using _750HrsTracker.Models;
 using _750HrsTracker.Persistence.Contexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,9 @@ namespace _750HrsTracker.Extensions
                 var context = services.GetRequiredService<AppDbContext>();
                 var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
+                var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false).Build();
+                var appSettings = config.GetSection("ApplicationConfiguration").Get<AppSettings>();
+
                 try
                 {
                     bool runMigration = bool.Parse(app.Configuration.GetSection("ApplicationConfiguration:RunMigration").Value);
@@ -33,6 +37,7 @@ namespace _750HrsTracker.Extensions
                     await Persistence.Seeds.DefaultLogData.SeedDefaultCatgoriesAsync(context);
                     await Persistence.Seeds.DefaultLogData.SeedDefaultLogActivityAsync(context);
                     await Persistence.Seeds.DefaultLogData.SeedDefaultStrLogActivityAsync(context);
+                    //await Persistence.Seeds.UpdateSubscriptionsPriceId.SeedSubscriptionPricesAsync(context, appSettings);
 
                     logger.LogInformation("Application starting ...");
 

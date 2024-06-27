@@ -23,6 +23,7 @@ namespace _750HrsTracker.Repositories.Implementations
             existingSubscription.Name = subscription.Name;
             existingSubscription.Slug = subscription.Slug;
             existingSubscription.GracePeriodMinutes = subscription.GracePeriodMinutes;
+            existingSubscription.SubscriptionInterval = subscription.SubscriptionInterval;
             existingSubscription.ModifiedAt = DateTime.Now;
 
             var updated = _context.Subscriptions.Update(existingSubscription);
