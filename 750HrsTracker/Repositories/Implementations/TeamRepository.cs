@@ -491,7 +491,7 @@ namespace _750HrsTracker.Repositories.Implementations
         }
 
         public async Task<SubscriptionTransactions> AddTeamSubscriptionTransactionAsync(SubscriptionTransactions subscriptionTransactions)
-        {
+        { 
             var added = await _context.SubscriptionTransactions.AddAsync(subscriptionTransactions);
             await _context.SaveChangesAsync();
 

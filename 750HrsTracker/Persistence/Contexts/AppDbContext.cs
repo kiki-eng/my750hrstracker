@@ -178,7 +178,6 @@ namespace _750HrsTracker.Persistence.Contexts
 
             builder.Entity<SubscriptionTransactions>(b =>
             {
-                b.HasOne(e => e.TeamSubscription).WithMany(e => e.SubscriptionTransactions).OnDelete(DeleteBehavior.NoAction);
                 b.HasOne(e => e.LastActionBy).WithMany(e => e.SubscriptionTransactions).HasForeignKey(e => e.LastActionById).OnDelete(DeleteBehavior.NoAction);
             });
 

@@ -321,11 +321,8 @@ namespace _750HrsTracker.Services.Implementations
             await _teamRepository.AddTeamSubscriptionTransactionAsync(new Models.SubscriptionModels.SubscriptionTransactions
             {
                InitialStripeSessionId = session.Id,
-               TeamSubscription = new Models.SubscriptionModels.TeamSubscription
-               {
-                   TeamId = Session.TeamId,
-                   SubscriptionId = subscription.Id
-               },
+               TeamId = (Guid)Session.TeamId!,
+               SubscriptionId = subscription.Id,
                LastActionById = Session.UserId
             });
 

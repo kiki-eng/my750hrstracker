@@ -7,7 +7,11 @@ namespace _750HrsTracker.Models.SubscriptionModels
         [Key]
         public Guid Id { get; set; }        
 
-        public TeamSubscription? TeamSubscription { get; set; }
+        public Guid TeamId { get; set; }
+        public Team? Team { get; set; }
+
+        public Guid SubscriptionId { get; set; }
+        public Subscription? Subcription { get; set; }
 
         public string? InitialStripeSessionId { get; set; }
         public string? StripeCustomerId { get; set; }
