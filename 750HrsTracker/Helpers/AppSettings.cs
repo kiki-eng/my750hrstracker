@@ -24,5 +24,6 @@
         public string? StripeApiSecretKey { get; set; }
         public string? StripeProductId { get; set; }
         public string? StripeWebhookSecret { get; set; }
+        public int StripeSubscriptionTrialPeriodDays { get; set; }
     }
 }

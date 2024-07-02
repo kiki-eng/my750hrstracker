@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models.Misc;
 using _750HrsTracker.Services.Interfaces;
@@ -14,6 +15,62 @@ namespace _750HrsTracker.Services.Implementations
         {
             _appSettings = appSettings.Value;
             _emailService = emailService;
+        }
+
+        public async Task<bool> SendCustomNotificationAsync(NotificationDto notificationData, AppSettings appSettings)
+        {
+            string appName = "my750HrsTracker";
+            string subject = $"{appName} Notification";
+            string messageHtml = "";
+
+            switch (notificationData.Event)
+            {
+                case NotificationEvent.subscription_trial_will_end:
+                    subject = $"{appName} Subscription Trial Period Ending Soon";
+                    messageHtml = $"<p>This is to inform you that your subcription to {appName} will end soon.</p>";
+                    messageHtml += notificationData.Other;
+                    break;
+                case NotificationEvent.subscription_payment_completed:
+                    subject = $"{appName} Subscription Success";
+                    messageHtml = $"<p>This is to inform you that your subcription to {appName} is successful.</p>";
+                    messageHtml += notificationData.Other;
+                    break;
+                
+                case NotificationEvent.subscription_payment_failed:
+                    subject = $"{appName} Subscription Failed";
+                    messageHtml = $"<p>This is to inform you that your subcription to {appName} failed.</p>";
+                    messageHtml += notificationData.Other;
+                    break;
+
+                default:
+                    return false;
+            }
+
+            var html = $@"
+                  <div id=""message-container"">
+                    <p id=""salutation"">Dear {notificationData.RecipientName},</p>
+                    <p class=""message-body msg"">
+                      {messageHtml}
+                    </p>
+                    <p> 
+                        Best Regards. 
+                    </p>
+                    <p> {appName} Team.</p>
+                    <p> Copyright © {DateTime.Now.Year} {appName}. All rights reserved. </p> <p>201 Sand Creek Road, Suite F, Brentwood, CA 94513 </p>
+                    <p>Phone: (925) 350-4963 | Fax: (925) 634-2346</p>
+                </div>               
+            ";
+
+            try
+            {
+                var sent = await _emailService.SendMail(notificationData.RecipientEmail!, subject, html);
+                return sent;
+            }
+            catch
+            {
+                return false;
+            }
+
         }
 
         public async Task<bool> SendLoginNotification(LoginNotificationRequest request, bool isMobileRequest = false)

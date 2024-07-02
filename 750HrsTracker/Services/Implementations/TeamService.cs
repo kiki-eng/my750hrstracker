@@ -308,11 +308,11 @@ namespace _750HrsTracker.Services.Implementations
                             MissingPaymentMethod = "pause",
                         },
                     },
-                    TrialPeriodDays = 7,
+                    TrialPeriodDays = _appSettings.StripeSubscriptionTrialPeriodDays,
                 },
                 Mode = "subscription",
-                SuccessUrl = $"{_appSettings.FrontendBaseUrl}/settings?success=true",
-                CancelUrl = $"{_appSettings.FrontendBaseUrl}/settings?success=false",
+                SuccessUrl = _appSettings.FrontendBaseUrl + "/settings?subscription_success=true&session_id={CHECKOUT_SESSION_ID}",
+                CancelUrl = _appSettings.FrontendBaseUrl + "/settings?subscription_success=false&session_id={CHECKOUT_SESSION_ID}",
             };
 
             var service = new SessionService();

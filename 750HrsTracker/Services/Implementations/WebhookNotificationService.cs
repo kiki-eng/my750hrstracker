@@ -14,13 +14,18 @@ namespace _750HrsTracker.Services.Implementations
     public class WebhookNotificationService : IWebhookNotificationService
     {
         private readonly IWebhookNotificationRepository _webhookNotificationRepository;
+        private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly INotificationService _notificationService;
         private readonly IUriService _uriService;
         private readonly AppSettings _appSettings;
-        public WebhookNotificationService(IWebhookNotificationRepository webhookNotificationRepository, IUriService uriService, IOptionsSnapshot<AppSettings> appSettings)
+        public WebhookNotificationService(IWebhookNotificationRepository webhookNotificationRepository, IUriService uriService, 
+            IOptionsSnapshot<AppSettings> appSettings, ISubscriptionRepository subscriptionRepository, INotificationService notificationService)
         {
             _webhookNotificationRepository = webhookNotificationRepository;
             _appSettings = appSettings.Value;
             _uriService = uriService;
+            _subscriptionRepository = subscriptionRepository;
+            _notificationService = notificationService;
 
         }
 
@@ -49,7 +54,8 @@ namespace _750HrsTracker.Services.Implementations
             try
             {
                 var signatureHeader = httpContext.Request.Headers["Stripe-Signature"];
-                stripeEvent = EventUtility.ConstructEvent(json,signatureHeader,_appSettings.StripeWebhookSecret);
+                //stripeEvent = EventUtility.ParseEvent(json,signatureHeader,_appSettings.StripeWebhookSecret);
+                stripeEvent = EventUtility.ParseEvent(json);
 
                 var log = await _webhookNotificationRepository.AddAsync(new WebhookNotificationTraceLog
                 {
@@ -65,6 +71,8 @@ namespace _750HrsTracker.Services.Implementations
                     case Events.InvoicePaid:
                         break;
                     case Events.InvoicePaymentFailed:
+                        break;
+                    case Events.CustomerSubscriptionTrialWillEnd:
                         break;
                     default:
                         response.Message = string.Format("Unhandled event type: {0}", stripeEvent.Type);

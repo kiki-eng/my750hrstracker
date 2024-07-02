@@ -1,4 +1,6 @@
-﻿namespace _750HrsTracker.DTOs.Requests
+﻿using _750HrsTracker.Enums;
+
+namespace _750HrsTracker.DTOs.Requests
 {
     public class NewUserNotificationRequest
     {
@@ -55,4 +57,12 @@
         public string? OriginIpAddress { get; set; }
     }
 
+    public class NotificationDto
+    {
+        public NotificationEvent Event { get; set; }
+        public string? RecipientName { get; set; }
+        public string? RecipientEmail { get; set; }
+        public string? Other { get; set; }
+        public string? Additional { get; set; }
+    }
 }
