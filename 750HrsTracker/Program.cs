@@ -97,6 +97,11 @@ app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyHeader());
 
+StripeConfiguration.AppInfo = new AppInfo
+{
+    Name = builder.Configuration.GetSection("ApplicationConfiguration:StripeApiNme").Value,
+    Version = builder.Configuration.GetSection("ApplicationConfiguration:StripeApiVersion").Value,
+};
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("ApplicationConfiguration:StripeApiSecretKey").Value;
 
 

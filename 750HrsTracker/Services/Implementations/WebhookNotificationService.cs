@@ -54,8 +54,8 @@ namespace _750HrsTracker.Services.Implementations
             try
             {
                 var signatureHeader = httpContext.Request.Headers["Stripe-Signature"];
-                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, _appSettings.StripeWebhookSecret);
-                //stripeEvent = EventUtility.ParseEvent(json);
+                //stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, _appSettings.StripeWebhookSecret);
+                stripeEvent = EventUtility.ParseEvent(json);
 
                 var log = await _webhookNotificationRepository.AddAsync(new WebhookNotificationTraceLog
                 {
