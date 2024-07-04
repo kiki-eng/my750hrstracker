@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.Models.SubscriptionModels;
 
 namespace _750HrsTracker.DTOs.Responses
 {
@@ -29,8 +30,17 @@ namespace _750HrsTracker.DTOs.Responses
         public DateTime CreatedAt { get; set; }
         public List<GetRolesOnlyResponse>? Roles { get; set; }
         public Base64FileModel? ProfilePic { get; set; }
+
+        public SubscriptionData? Subscription { get; set; }
     }
 
+    public class SubscriptionData
+    {
+        public bool IsTrial { get; set; }
+        public DateTime TrialEnd { get; set; }
+        public bool IsActive { get; set; }
+        public TeamSubscription? TeamSubscription { get; set; }
+    }
     public class InviteUserResponse
     {
         public bool InvitationSent { get; set; }
