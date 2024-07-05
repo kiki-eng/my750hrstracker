@@ -508,6 +508,13 @@ namespace _750HrsTracker.Repositories.Implementations
             return roles;
         }
 
+        public async Task<User> GetTeamAdmin(Guid teamId)
+        {
+            var team = await _context.Teams.Include(t => t.Owner).FirstOrDefaultAsync(t => t.Id == teamId) ?? throw new KeyNotFoundException("Team not found");
+
+            return team.Owner!;
+        }
+
         // === user invitation end === //
     }
 }

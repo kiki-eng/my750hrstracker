@@ -22,6 +22,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> UpdateUserRoleAsync(Guid teamId, Guid userId, Guid roleId);
         Task<Team> DeleteTeamAsync(Guid teamId, Guid currentUserId);
         Task<User> MakeSpouseAsync(Guid teamId, Guid userId);
+        Task<User> GetTeamAdmin(Guid teamId);
         Task<SubscriptionTransactions> AddTeamSubscriptionTransactionAsync(SubscriptionTransactions subscriptionTransactions);
     }
 }

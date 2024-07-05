@@ -10,6 +10,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<Subscription> UpdateFeaturesAsync(Guid id, List<string> features);
         Task<Subscription> GetSubscriptionPermissionsAsync(Guid subscriptionId);
         Task<Subscription> GetSubscriptionByPriceIdAsync(string priceId);
+        Task<SubscriptionTransactions> GetSubscriptionTransactionBySessionIdAsync(string checkoutSessionId);
         Task<List<SubscriptionPermission>> UpdateSubscriptionPermissionsAsync(Guid subscriptionId, List<Permission> permissions);
     }
 }

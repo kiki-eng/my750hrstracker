@@ -113,5 +113,12 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return subscription;
         }
+
+        public async Task<SubscriptionTransactions> GetSubscriptionTransactionBySessionIdAsync(string checkoutSessionId)
+        {
+            var subTransaction = await _context.SubscriptionTransactions.FirstOrDefaultAsync(s => s.InitialStripeSessionId == checkoutSessionId);
+
+            return subTransaction!;
+        }
     }
 }

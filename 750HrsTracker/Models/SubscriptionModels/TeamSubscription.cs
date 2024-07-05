@@ -9,6 +9,9 @@
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int GracePeriodMinutes { get; set; }
+        public bool StillOnTrial { get; set; }
+        public DateTime? TrialStartDate { get; set; }
+        public DateTime? TrialEndDate { get; set; }
 
     }
 }

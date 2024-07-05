@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.Helpers;
 
 namespace _750HrsTracker.Services.Interfaces
 {
@@ -10,5 +11,6 @@ namespace _750HrsTracker.Services.Interfaces
         Task<bool> SendEmailVerificationNotification(EmailVerificationNotificationRequest request, bool isMobileRequest = false);
         Task<bool> SendPasswordResetNotification(PasswordResetNotificationRequest request, bool isMobileRequest = false);
         Task<bool> NewAccountNotificationToAdmin(NewUserNotificationRequest request, bool isMobileRequest = false);
+        Task<bool> SendCustomNotificationAsync(NotificationDto notificationData, AppSettings appSettings);
     }
 }

@@ -17,16 +17,20 @@ namespace _750HrsTracker.Services.Implementations
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly INotificationService _notificationService;
         private readonly IUriService _uriService;
+        private readonly ITeamSubscriptionRepository _teamSubscriptionRepository;
+        private readonly ITeamRepository _teamRepository;
         private readonly AppSettings _appSettings;
         public WebhookNotificationService(IWebhookNotificationRepository webhookNotificationRepository, IUriService uriService, 
-            IOptionsSnapshot<AppSettings> appSettings, ISubscriptionRepository subscriptionRepository, INotificationService notificationService)
+            IOptionsSnapshot<AppSettings> appSettings, ISubscriptionRepository subscriptionRepository, INotificationService notificationService, 
+            ITeamSubscriptionRepository teamSubscriptionRepository, ITeamRepository teamRepository)
         {
             _webhookNotificationRepository = webhookNotificationRepository;
             _appSettings = appSettings.Value;
             _uriService = uriService;
             _subscriptionRepository = subscriptionRepository;
             _notificationService = notificationService;
-
+            _teamSubscriptionRepository = teamSubscriptionRepository;
+            _teamRepository = teamRepository;
         }
 
 
@@ -67,6 +71,8 @@ namespace _750HrsTracker.Services.Implementations
                 switch (stripeEvent.Type)
                 {
                     case Events.CheckoutSessionCompleted:
+                        var checkoutSession = stripeEvent.Data.Object as Stripe.Checkout.Session;
+                        await HandleCheckoutSessionCompletedNotificationAsync(checkoutSession!);
                         break;
                     case Events.InvoicePaid:
                         break;
@@ -91,6 +97,38 @@ namespace _750HrsTracker.Services.Implementations
                 response.Message = ex.Message;
                 return response;
             }
+        }
+
+        public async Task HandleCheckoutSessionCompletedNotificationAsync(Stripe.Checkout.Session checkoutSession)
+        {
+            // get initial checkout session and create team subscription
+            var subscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionBySessionIdAsync(checkoutSession.Id) 
+                ??  throw new ApplicationException("Checkout session not found");
+
+            // create team subscription
+            var teamSubscription = new TeamSubscription
+            {
+                TeamId = subscriptionTransaction.TeamId,
+                SubscriptionId = subscriptionTransaction.SubscriptionId,
+                StillOnTrial = true,
+                TrialStartDate = checkoutSession.Subscription.TrialStart,
+                TrialEndDate = checkoutSession.Subscription.TrialEnd,
+                CreatedAt = DateTime.Now,
+                
+            };
+
+            var newTeamSubscription = await _teamSubscriptionRepository.AddAsync(teamSubscription);
+
+            var teamAdmin = await _teamRepository.GetTeamAdmin((Guid)teamSubscription.TeamId!);
+
+            // send notification to teamAdmin
+            await _notificationService.SendCustomNotificationAsync(new DTOs.Requests.NotificationDto
+            {
+                RecipientEmail = teamAdmin.Email,
+                RecipientName = $"{teamAdmin.Firstname} {teamAdmin.Lastname}"
+
+            }, _appSettings);
+
         }
     }
 }
