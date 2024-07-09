@@ -13,8 +13,15 @@ namespace _750HrsTracker.Models.SubscriptionModels
         public Guid SubscriptionId { get; set; }
         public Subscription? Subcription { get; set; }
 
+        public bool IsCheckoutTransaction { get; set; }
+
         public string? InitialStripeSessionId { get; set; }
         public string? StripeCustomerId { get; set; }
+        public string? StripeSubscriptionId { get; set; }
+        public string? StripeInvoiceId { get; set; }
+        public string? StripeEventId { get; set; }
+        public string? StripeEventName { get; set; }
+        public string? EventDataObject { get; set; }
 
         public Guid? LastActionById { get; set; }
         public User? LastActionBy { get; set; }

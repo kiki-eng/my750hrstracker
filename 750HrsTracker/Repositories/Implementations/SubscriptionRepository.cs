@@ -1,9 +1,11 @@
-﻿using _750HrsTracker.Helpers;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace _750HrsTracker.Repositories.Implementations
@@ -11,9 +13,11 @@ namespace _750HrsTracker.Repositories.Implementations
     public class SubscriptionRepository : GenericRepository<Subscription>, ISubscriptionRepository
     {
         private readonly AppDbContext _context;
-        public SubscriptionRepository(AppDbContext context) : base(context)
+        private readonly Bugsnag.IClient _bugsnag;
+        public SubscriptionRepository(AppDbContext context, Bugsnag.IClient bugsnag) : base(context)
         {
             _context = context;
+            _bugsnag = bugsnag;
         }
 
         public async Task<Subscription> UpdateAsync(Guid id, Subscription subscription)
@@ -119,6 +123,41 @@ namespace _750HrsTracker.Repositories.Implementations
             var subTransaction = await _context.SubscriptionTransactions.FirstOrDefaultAsync(s => s.InitialStripeSessionId == checkoutSessionId);
 
             return subTransaction!;
+        }
+
+        public async Task<SubscriptionTransactions> UpdateSubscriptionTransactionAsync(Guid id, SubscriptionTransactions subscriptionTransaction, SubscriptionTransactionUpdateAction updateAction = SubscriptionTransactionUpdateAction.none)
+        {
+            try
+            {
+                var subTransaction = await _context.SubscriptionTransactions.FirstOrDefaultAsync(st => st.Id == id) 
+                    ?? throw new KeyNotFoundException("Could not find subscription transaction");
+
+                switch(updateAction)
+                {
+                    case SubscriptionTransactionUpdateAction.checkout_session_completed:
+                        subTransaction.StripeSubscriptionId = subscriptionTransaction.StripeSubscriptionId;
+                        subTransaction.StripeCustomerId = subscriptionTransaction.StripeCustomerId;
+                        subTransaction.StripeInvoiceId = subscriptionTransaction.StripeInvoiceId;
+                        subTransaction.StripeEventId = subscriptionTransaction.StripeEventId;
+                        subTransaction.StripeEventName = subscriptionTransaction.StripeEventName;
+                        subTransaction.EventDataObject = subscriptionTransaction.EventDataObject;
+                        break;
+                    default:
+                        throw new ApplicationException("Invalid subscription transaction update action");
+                }
+
+                subscriptionTransaction.IsCheckoutTransaction = subscriptionTransaction.IsCheckoutTransaction;
+
+                var updated = _context.SubscriptionTransactions.Update(subTransaction);
+                await _context.SaveChangesAsync();
+
+                return updated.Entity;
+
+            }catch(Exception ex)
+            {
+                _bugsnag.Notify(ex);
+                throw;
+            }
         }
     }
 }

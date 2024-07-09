@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using _750HrsTracker.Persistence.Contexts;
 
@@ -11,9 +12,10 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240709040419_alter_subscription_tables_add_more_stripe_fields_1")]
+    partial class alter_subscription_tables_add_more_stripe_fields_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -871,9 +873,6 @@ namespace _750HrsTracker.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("EventDataObject")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InitialStripeSessionId")
                         .HasColumnType("nvarchar(max)");
 
@@ -887,12 +886,6 @@ namespace _750HrsTracker.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("StripeCustomerId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StripeEventId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StripeEventName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StripeInvoiceId")
@@ -963,8 +956,6 @@ namespace _750HrsTracker.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("SubscriptionId", "TeamId");
-
-                    b.HasIndex("TeamId");
 
                     b.ToTable("TeamSubscriptions");
                 });
@@ -1539,7 +1530,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasOne("_750HrsTracker.Models.Team", "Team")
                         .WithMany("TeamSubscriptions")
-                        .HasForeignKey("TeamId")
+                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 

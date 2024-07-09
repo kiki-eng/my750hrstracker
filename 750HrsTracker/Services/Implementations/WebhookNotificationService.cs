@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Filters;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Models.SubscriptionModels;
@@ -74,7 +75,7 @@ namespace _750HrsTracker.Services.Implementations
                 {
                     case Events.CheckoutSessionCompleted:
                         var checkoutSession = stripeEvent.Data.Object as Stripe.Checkout.Session;
-                        var result = await HandleCheckoutSessionCompletedNotificationAsync(checkoutSession!);
+                        var result = await HandleCheckoutSessionCompletedNotificationAsync(stripeEvent.Id,stripeEvent.Type,checkoutSession!);
                         response.Success = result;
                         response.Message = "Webhook notification processed successfully";
                         break;
@@ -103,7 +104,7 @@ namespace _750HrsTracker.Services.Implementations
             }
         }
 
-        public async Task<bool> HandleCheckoutSessionCompletedNotificationAsync(Stripe.Checkout.Session checkoutSession)
+        public async Task<bool> HandleCheckoutSessionCompletedNotificationAsync(string eventId, string eventName, Stripe.Checkout.Session checkoutSession)
         {
             try
             {
@@ -111,17 +112,30 @@ namespace _750HrsTracker.Services.Implementations
                 var subscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionBySessionIdAsync(checkoutSession.Id)
                     ?? throw new ApplicationException("Checkout session not found");
 
+
+                subscriptionTransaction.StripeSubscriptionId = checkoutSession.SubscriptionId;
+                subscriptionTransaction.StripeCustomerId = checkoutSession.CustomerId;
+                subscriptionTransaction.StripeInvoiceId = checkoutSession.InvoiceId;
+                subscriptionTransaction.StripeEventId = eventId;
+                subscriptionTransaction.StripeEventName = eventName;
+                subscriptionTransaction.IsCheckoutTransaction = true;
+                subscriptionTransaction.EventDataObject = JsonConvert.SerializeObject(checkoutSession, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    Formatting = Formatting.None,
+                });
+
+                var updateSubTransaction = 
+                    await _subscriptionRepository.UpdateSubscriptionTransactionAsync(subscriptionTransaction.Id, subscriptionTransaction, SubscriptionTransactionUpdateAction.checkout_session_completed);
                 // create team subscription
                 var teamSubscription = new TeamSubscription
                 {
                     TeamId = subscriptionTransaction.TeamId,
                     SubscriptionId = subscriptionTransaction.SubscriptionId,
-                    StillOnTrial = true,
-                    TrialStartDate = checkoutSession.Subscription.TrialStart,
-                    TrialEndDate = checkoutSession.Subscription.TrialEnd,
+                    SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
                     CreatedAt = DateTime.Now,
-
                 };
+
 
                 var newTeamSubscription = await _teamSubscriptionRepository.AddAsync(teamSubscription);
 
@@ -131,7 +145,9 @@ namespace _750HrsTracker.Services.Implementations
                 await _notificationService.SendCustomNotificationAsync(new DTOs.Requests.NotificationDto
                 {
                     RecipientEmail = teamAdmin.Email,
-                    RecipientName = $"{teamAdmin.Firstname} {teamAdmin.Lastname}"
+                    RecipientName = $"{teamAdmin.Firstname} {teamAdmin.Lastname}",
+                    Event = NotificationEvent.subscription_checkout_session_completed
+                    
 
                 }, _appSettings);
 

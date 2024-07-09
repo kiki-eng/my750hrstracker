@@ -12,6 +12,7 @@
         public bool StillOnTrial { get; set; }
         public DateTime? TrialStartDate { get; set; }
         public DateTime? TrialEndDate { get; set; }
+        public string? SubscriptionTransactionId { get; set; }
 
     }
 }

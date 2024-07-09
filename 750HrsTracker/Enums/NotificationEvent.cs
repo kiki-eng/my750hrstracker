@@ -5,6 +5,7 @@
         subscription_trial_will_end,
         subscription_payment_completed,
         subscription_payment_failed,
+        subscription_checkout_session_completed
 
     }
 }

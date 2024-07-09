@@ -27,18 +27,25 @@ namespace _750HrsTracker.Services.Implementations
             {
                 case NotificationEvent.subscription_trial_will_end:
                     subject = $"{appName} Subscription Trial Period Ending Soon";
-                    messageHtml = $"<p>This is to inform you that your subcription to {appName} will end soon.</p>";
+                    messageHtml = $"<p>This is to inform you that your subscription to {appName} will end soon.</p>";
                     messageHtml += notificationData.Other;
                     break;
                 case NotificationEvent.subscription_payment_completed:
                     subject = $"{appName} Subscription Success";
-                    messageHtml = $"<p>This is to inform you that your subcription to {appName} is successful.</p>";
+                    messageHtml = $"<p>This is to inform you that your subscription to {appName} is successful.</p>";
                     messageHtml += notificationData.Other;
                     break;
                 
                 case NotificationEvent.subscription_payment_failed:
                     subject = $"{appName} Subscription Failed";
-                    messageHtml = $"<p>This is to inform you that your subcription to {appName} failed.</p>";
+                    messageHtml = $"<p>This is to inform you that your subscription to {appName} failed.</p>";
+                    messageHtml += notificationData.Other;
+                    break;
+                
+                case NotificationEvent.subscription_checkout_session_completed:
+                    subject = $"{appName} Subscription Checkout Session Completed";
+                    messageHtml = $"<p>This is to inform you that your checkout session for subscription to {appName} was successful..</p>";
+                    messageHtml += $"<p>Your subscription details will be shared shortly</p>";
                     messageHtml += notificationData.Other;
                     break;
 

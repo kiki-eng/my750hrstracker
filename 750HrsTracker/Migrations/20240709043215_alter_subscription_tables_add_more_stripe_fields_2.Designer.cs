@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using _750HrsTracker.Persistence.Contexts;
 
@@ -11,9 +12,10 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240709043215_alter_subscription_tables_add_more_stripe_fields_2")]
+    partial class alter_subscription_tables_add_more_stripe_fields_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -964,8 +966,6 @@ namespace _750HrsTracker.Migrations
 
                     b.HasKey("SubscriptionId", "TeamId");
 
-                    b.HasIndex("TeamId");
-
                     b.ToTable("TeamSubscriptions");
                 });
 
@@ -1539,7 +1539,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasOne("_750HrsTracker.Models.Team", "Team")
                         .WithMany("TeamSubscriptions")
-                        .HasForeignKey("TeamId")
+                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
