@@ -124,6 +124,18 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return subTransaction!;
         }
+        public async Task<SubscriptionTransactions> GetSubscriptionTransactionByStripeRecIdAsync(string recId, string filter = "")
+        {
+            SubscriptionTransactions? subscriptionTransaction = filter switch
+            {
+                "invoice" => await _context.SubscriptionTransactions.FirstOrDefaultAsync(st => st.StripeInvoiceId == recId),
+                "subscription" => await _context.SubscriptionTransactions.FirstOrDefaultAsync(st => st.StripeSubscriptionId == recId),
+                "customer" => await _context.SubscriptionTransactions.FirstOrDefaultAsync(st => st.StripeCustomerId == recId),
+                "session" => await _context.SubscriptionTransactions.FirstOrDefaultAsync(s => s.InitialStripeSessionId == recId),
+                _ => null,
+            };
+            return subscriptionTransaction!;
+        }
 
         public async Task<SubscriptionTransactions> UpdateSubscriptionTransactionAsync(Guid id, SubscriptionTransactions subscriptionTransaction, SubscriptionTransactionUpdateAction updateAction = SubscriptionTransactionUpdateAction.none)
         {
@@ -141,6 +153,8 @@ namespace _750HrsTracker.Repositories.Implementations
                         subTransaction.StripeEventId = subscriptionTransaction.StripeEventId;
                         subTransaction.StripeEventName = subscriptionTransaction.StripeEventName;
                         subTransaction.EventDataObject = subscriptionTransaction.EventDataObject;
+                        break;
+                    case SubscriptionTransactionUpdateAction.invoice_paid:
                         break;
                     default:
                         throw new ApplicationException("Invalid subscription transaction update action");

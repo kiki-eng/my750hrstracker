@@ -70,16 +70,16 @@ namespace _750HrsTracker.Services.Implementations
                     EventType = stripeEvent.Type,
                 });
 
-
+                bool result = false;
                 switch (stripeEvent.Type)
                 {
                     case Events.CheckoutSessionCompleted:
                         var checkoutSession = stripeEvent.Data.Object as Stripe.Checkout.Session;
-                        var result = await HandleCheckoutSessionCompletedNotificationAsync(stripeEvent.Id,stripeEvent.Type,checkoutSession!);
-                        response.Success = result;
-                        response.Message = "Webhook notification processed successfully";
+                        result = await HandleCheckoutSessionCompletedNotificationAsync(stripeEvent.Id,stripeEvent.Type,checkoutSession!);                        
                         break;
                     case Events.InvoicePaid:
+                        var invoicePaidObj = stripeEvent.Data.Object as Stripe.Invoice;
+                        result = await HandleInvoicePaidNotificationAsync(stripeEvent.Id, stripeEvent.Type, invoicePaidObj!);
                         break;
                     case Events.InvoicePaymentFailed:
                         break;
@@ -94,6 +94,9 @@ namespace _750HrsTracker.Services.Implementations
                 log.ResponseData = JsonConvert.SerializeObject(response);
                 await _webhookNotificationRepository.UpdateAsync(log.Id, log);
 
+
+                response.Success = result;
+                response.Message = result ? "Webhook notification processed successfully" : "Could not process webhook notification";
                 return response;
 
             }
@@ -148,6 +151,76 @@ namespace _750HrsTracker.Services.Implementations
                     RecipientName = $"{teamAdmin.Firstname} {teamAdmin.Lastname}",
                     Event = NotificationEvent.subscription_checkout_session_completed
                     
+
+                }, _appSettings);
+
+
+                return true;
+            }catch(Exception ex)
+            {
+                _bugsnag.Notify(ex);
+                return false;
+            }
+        }
+        
+        public async Task<bool> HandleInvoicePaidNotificationAsync(string eventId, string eventName, Stripe.Invoice invoice)
+        {
+            try
+            {
+                // get subscription transaction by invoice id
+                var subscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionByStripeRecIdAsync(invoice.Id, "invoice");
+
+                if(subscriptionTransaction == null)
+                {
+                    // get new subscription transaction
+                    var existingSubscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionByStripeRecIdAsync(invoice.SubscriptionId, "subscription") 
+                        ?? throw new ApplicationException("Could not identify payment");
+
+                    subscriptionTransaction = await _teamRepository.AddTeamSubscriptionTransactionAsync(new Models.SubscriptionModels.SubscriptionTransactions
+                    {
+                        TeamId = (Guid)existingSubscriptionTransaction.TeamId!,
+                        SubscriptionId = existingSubscriptionTransaction.SubscriptionId,
+                        StripeSubscriptionId = invoice.SubscriptionId,
+                        StripeCustomerId = invoice.CustomerId,
+                        StripeEventId = eventId,
+                        StripeEventName = eventName,
+                        StripeInvoiceId = invoice.Id,
+                        EventDataObject = JsonConvert.SerializeObject(invoice, new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                            Formatting = Formatting.None,
+                        })
+                    });
+                }
+                else
+                {
+                    var updateSubTransaction =
+                        await _subscriptionRepository.UpdateSubscriptionTransactionAsync(subscriptionTransaction.Id, subscriptionTransaction, SubscriptionTransactionUpdateAction.invoice_paid);
+                }
+
+             
+                // create team subscription
+                var teamSubscription = new TeamSubscription
+                {
+                    TeamId = subscriptionTransaction.TeamId,
+                    SubscriptionId = subscriptionTransaction.SubscriptionId,
+                    SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
+                    StartDate = invoice.PeriodStart, 
+                    EndDate = invoice.PeriodEnd,
+                };
+
+
+                var updatedTeamSubscription = await _teamSubscriptionRepository.UpdateTeamSubscriptionAsync(teamSubscription);
+
+                var teamAdmin = await _teamRepository.GetTeamAdmin((Guid)teamSubscription.TeamId!);
+
+                // send notification to teamAdmin
+                await _notificationService.SendCustomNotificationAsync(new DTOs.Requests.NotificationDto
+                {
+                    RecipientEmail = teamAdmin.Email,
+                    RecipientName = $"{teamAdmin.Firstname} {teamAdmin.Lastname}",
+                    Event = NotificationEvent.subscription_payment_completed,
+                    Additional = $@"<p>Click this link to Download your invoice and/or receipt. <a href=""{ invoice.HostedInvoiceUrl }"">Click Here</a></p>"                    
 
                 }, _appSettings);
 

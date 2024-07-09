@@ -29,5 +29,23 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return teamSubscription;
         }
+
+        public async Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription)
+        {
+            var existingTeamSubscription = await _context.TeamSubscriptions.FirstOrDefaultAsync(t => t.TeamId == teamSubscription.TeamId && t.SubscriptionId == teamSubscription.SubscriptionId) 
+                ?? throw new KeyNotFoundException("No subscription available");
+
+            existingTeamSubscription.SubscriptionTransactionId = teamSubscription.SubscriptionTransactionId;
+            existingTeamSubscription.StartDate = teamSubscription.StartDate;
+            existingTeamSubscription.EndDate = teamSubscription.EndDate;
+            existingTeamSubscription.ModifiedAt = DateTime.Now;
+
+            var updated = _context.TeamSubscriptions.Update(existingTeamSubscription);
+
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
+
+        }
     }
 }
