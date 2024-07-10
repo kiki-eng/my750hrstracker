@@ -36,8 +36,9 @@ namespace _750HrsTracker.DTOs.Responses
 
     public class SubscriptionData
     {
-        public bool IsTrial { get; set; }
-        public DateTime TrialEnd { get; set; }
+        public string? Name { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
         public TeamSubscription? TeamSubscription { get; set; }
     }

@@ -84,6 +84,8 @@ namespace _750HrsTracker.Services.Implementations
                     case Events.InvoicePaymentFailed:
                         break;
                     case Events.CustomerSubscriptionTrialWillEnd:
+                        var subscriptionObj = stripeEvent.Data.Object as Stripe.Subscription;
+                        result = await HandleCustomerSubscriptionTrialEnd(stripeEvent.Id, stripeEvent.Type, subscriptionObj!);
                         break;
                     default:
                         response.Message = string.Format("Unhandled event type: {0}", stripeEvent.Type);
@@ -227,6 +229,37 @@ namespace _750HrsTracker.Services.Implementations
 
                 return true;
             }catch(Exception ex)
+            {
+                _bugsnag.Notify(ex);
+                return false;
+            }
+        }
+
+        public async Task<bool> HandleCustomerSubscriptionTrialEnd(string eventId, string eventName, Stripe.Subscription subscription)
+        {
+            try
+            {
+                // get subscription transaction by invoice id
+                var subscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionByStripeRecIdAsync(subscription.Id, "subscription")
+                    ?? throw new ApplicationException("Could not identify subscription");
+
+
+                var teamAdmin = await _teamRepository.GetTeamAdmin(subscriptionTransaction.TeamId);
+
+                // send notification to teamAdmin
+                await _notificationService.SendCustomNotificationAsync(new DTOs.Requests.NotificationDto
+                {
+                    RecipientEmail = teamAdmin.Email,
+                    RecipientName = $"{teamAdmin.Firstname} {teamAdmin.Lastname}",
+                    Event = NotificationEvent.subscription_trial_will_end,
+                    Additional = $@"<p>Click this link to make payment and activate your subscription <a href=""{subscription.LatestInvoice.HostedInvoiceUrl}"">Click Here</a></p>"
+
+                }, _appSettings);
+
+
+                return true;
+            }
+            catch (Exception ex)
             {
                 _bugsnag.Notify(ex);
                 return false;
