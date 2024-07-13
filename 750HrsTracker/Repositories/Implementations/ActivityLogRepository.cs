@@ -10,9 +10,6 @@ using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Utilities;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace _750HrsTracker.Repositories.Implementations
 {
@@ -57,6 +54,8 @@ namespace _750HrsTracker.Repositories.Implementations
             decimal totalSeconds = 0 ;
             decimal totalTimeInSeconds = 0;
 
+            response.TeamMembersCount = await _context.Team_User.Where(tu => tu.TeamId == teamId).CountAsync();
+
             response.PropertyType = propertyType;
             response.TotalRepsHours = totalTimeInSeconds / 3600;
 
@@ -95,10 +94,9 @@ namespace _750HrsTracker.Repositories.Implementations
                                 var totalGroupedSeconds = cat.Sum(l => l.HoursSpent);
                                 var totalGroupedTimeInSeconds = (totalGroupedHours * 3600) + (totalGroupedMinutes * 60) + totalGroupedSeconds;
 
-                                getCategoryHoursCount.Hours = totalGroupedTimeInSeconds / 3600;
+                                decimal totalGroupedRepHours = totalGroupedTimeInSeconds / 3600;
+                                getCategoryHoursCount.Hours = Math.Round(totalGroupedRepHours, 2);
                             }
-
-
 
                             getCategoryHoursCount.UserHours = GetUserHoursAsync(team, adminUsers, cat);
 
@@ -114,9 +112,11 @@ namespace _750HrsTracker.Repositories.Implementations
                         var totalGroupedHours = group.Sum(l => l.HoursSpent);
                         var totalGroupedMinutes = group.Sum(l => l.MinutesSpent);
                         var totalGroupedSeconds = group.Sum(l => l.HoursSpent);
-                        var totalGroupedTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
+                        var totalGroupedTimeInSeconds = (totalGroupedHours * 3600) + (totalGroupedMinutes * 60) + totalGroupedSeconds;
 
-                        logTypeCount.TotalHours = totalTimeInSeconds / 3600;
+                        decimal totalRepHours = totalGroupedTimeInSeconds / 3600;
+
+                        logTypeCount.TotalHours = Math.Round(totalRepHours, 2);
                     }
 
                     counts.Add(logTypeCount);
@@ -165,7 +165,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 totalSeconds = materialLogs.Sum(l => l.SecondsSpent);
                 totalTimeInSeconds = (totalHours * 3600) + (totalMinutes * 60) + totalSeconds;
 
-                response.TotalRepsHours = totalTimeInSeconds / 3600;
+                response.TotalRepsHours = Math.Round((totalTimeInSeconds / 3600), 2);
                 response.LogHours = counts;
 
             }

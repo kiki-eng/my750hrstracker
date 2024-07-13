@@ -9,7 +9,7 @@ namespace _750HrsTracker.DTOs.Responses
         public List<LogTypeCounts>? LogHours { get; set; }
         public List<GetActivityLogResponse>? RecentLogs { get; set; }
         public List<UserHoursModel>? UserHours { get; set; }
-
+        public int TeamMembersCount { get; set; }
 
     }
     public class LogTypeCounts

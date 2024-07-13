@@ -24,17 +24,20 @@ namespace _750HrsTracker.Services.Implementations
     {
         private readonly AppSettings _appSettings;
         private readonly INotificationService _notificationService;
+        private readonly ITeamSubscriptionRepository _teamSubscriptionRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IOptionsSnapshot<AppSettings> appSettings, INotificationService notificationService, IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
+        public UserService(IOptionsSnapshot<AppSettings> appSettings, INotificationService notificationService, 
+            IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, ITeamSubscriptionRepository teamSubscriptionRepository)
         {
             _appSettings = appSettings.Value;
             _notificationService = notificationService;
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;   
+            _teamSubscriptionRepository = teamSubscriptionRepository;
         }
 
         public async Task<ResponseHandler<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
@@ -103,6 +106,18 @@ namespace _750HrsTracker.Services.Implementations
                     };
 
                     responseData.ProfilePic = fileModel;
+                }
+
+                var subscriptionData = await _teamSubscriptionRepository.GetSingleOrDefaultAsync(ts => ts.TeamId == Guid.Parse(user.DefaultTeamId!));
+                if(subscriptionData != null)
+                {
+                    responseData.Subscription = new SubscriptionData
+                    {
+                        IsActive = subscriptionData.EndDate > DateTime.Now,
+                        StartDate = (DateTime)subscriptionData.StartDate!,
+                        EndDate = (DateTime)subscriptionData.EndDate!,
+                        Name = subscriptionData.Subscription?.Name
+                    };
                 }
 
                 responseData.DefaulTeamId = user.DefaultTeamId;
