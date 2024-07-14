@@ -275,11 +275,16 @@ namespace _750HrsTracker.Services.Implementations
                 Name = activityLog.Name,
                 Slug = activityLog.Slug,
                 PropertyType = activityLog.AvailablePropertyType,
-                Category = activityLog.ActivityLogCategory!.Name
 
             };
 
-            if(activityLog.ActivityLogSubCategories != null && activityLog.ActivityLogSubCategories.Count > 0) 
+            if(activityLog.ActivityLogCategory != null)
+            {
+                response.Category = activityLog.ActivityLogCategory!.Name;
+
+            }
+
+            if (activityLog.ActivityLogSubCategories != null && activityLog.ActivityLogSubCategories.Count > 0) 
             {
                 response.Tasks = activityLog.ActivityLogSubCategories.Select(asc => _mapper.Map<GetLogActivitySubCategoryResponse>(asc)).ToList();
             }

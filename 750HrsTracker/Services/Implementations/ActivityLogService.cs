@@ -26,6 +26,7 @@ using System.IO.Compression;
 using System.Net;
 using System;
 using Microsoft.VisualBasic.FileIO;
+using System.Globalization;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -602,9 +603,11 @@ namespace _750HrsTracker.Services.Implementations
                 var activityBy = await _userRepository.GetUserByEmailAsync(data.TeamMemberEmail!);
                 activityLog.ActivityById = activityBy.Id;
 
+                AvailableProperty property = null;
+
                 if (propertyType == AvailablePropertyType.LTR && data.LogType!.ToUpper() == ActivityLogType.REAL_ESTATE.ToString())
                 {
-                    var property = await _propertyRepository.GetSingleOrDefaultAsync(p => p.Code == data.Property) ?? throw new ApplicationException($"Property on Row {i + 1} not found");
+                    property = await _propertyRepository.GetSingleOrDefaultAsync(p => p.Code == data.Property) ?? throw new ApplicationException($"Property on Row {i + 1} not found");
 
                     var isMaterial = data.Material!.ToLower() == "yes";
                     GetLogCategoryResponse categoryData = new();
@@ -628,13 +631,13 @@ namespace _750HrsTracker.Services.Implementations
                     activityLog.ActivityLogActivityId = activity.Id;
                     activityLog.TaskId = task.Id;
 
-                    activityLog.ActivityLogProperties = new List<ActivityLogProperty>()
-                        {
-                            new ActivityLogProperty
-                            {
-                                Id = property.Id
-                            }
-                        };
+                    //activityLog.ActivityLogProperties = new List<ActivityLogProperty>()
+                    //    {
+                    //        new ActivityLogProperty
+                    //        {
+                    //            Id = property.Id
+                    //        }
+                    //    };
                     activityLog.LogType = ActivityLogType.REAL_ESTATE;
 
                 }
@@ -645,7 +648,7 @@ namespace _750HrsTracker.Services.Implementations
                 }
                 else
                 {
-                    var property = await _propertyRepository.GetSingleOrDefaultAsync(p => p.Code == data.Property) ?? throw new ApplicationException($"Property on Row {i + 1} not found");
+                    property = await _propertyRepository.GetSingleOrDefaultAsync(p => p.Code == data.Property) ?? throw new ApplicationException($"Property on Row {i + 1} not found");
                     activityLog.ActivityLogProperties = new List<ActivityLogProperty>()
                     {
                         new ActivityLogProperty
@@ -660,6 +663,20 @@ namespace _750HrsTracker.Services.Implementations
                     activityLog.LogType = ActivityLogType.NONE;
 
                 }
+
+                string format = "d/M/yyyy";     
+                DateTime dateTime;
+
+                if (DateTime.TryParseExact(data.ActivityDate, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                {
+                    activityLog.ActivityDate = dateTime;
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Date on Row {i + 1} is not valid");
+                }
+
                 activityLog.PropertyType = propertyType;
                 activityLog.HoursSpent = Convert.ToInt32(data.Hours);
                 activityLog.MinutesSpent = Convert.ToInt32(data.Minutes);
@@ -667,9 +684,24 @@ namespace _750HrsTracker.Services.Implementations
                 activityLog.Description = data.Description;
 
                 activityLogs.Add(activityLog);
+
+                var newLog = await _activityLogRepository.AddAsync(activityLog);
+
+
+                if ((propertyType == AvailablePropertyType.LTR && data.LogType!.ToUpper() == ActivityLogType.REAL_ESTATE.ToString()) || propertyType == AvailablePropertyType.STR)
+                {
+                    List<ActivityLogProperty> properties = new()
+                    {
+                        new()
+                        {
+                            ActivityLogId = newLog.Id,
+                            PropertyId = property!.Id,
+                        } };
+                    
+                    await _activityLogRepository.AttachLogPropertyAsync(properties);
+                }
             }
 
-            await _activityLogRepository.AddRangeAsync(activityLogs);   
 
 
             response.Success = true;
