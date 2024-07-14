@@ -180,7 +180,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
                 var users = await _context.Team_User.Include(tu => tu.User).Where(tu => tu.TeamId == team.Id).ToListAsync();
 
-                response.TotalRepsHours = totalTimeInSeconds / 3600;
+                response.TotalRepsHours = Math.Round((totalTimeInSeconds / 3600), 2);
                 response.UserHours = GetUserHoursAsync(team, users.Select(u => new User
                 {
                     Id = (Guid)u.UserId!,

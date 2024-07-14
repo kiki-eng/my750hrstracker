@@ -8,6 +8,8 @@ namespace _750HrsTracker.DTOs.Responses
         public string? Name { get; set; }
         public string? Slug { get; set; }
         public AvailablePropertyType PropertyType { get; set; }
+        public string? Category { get; set; }
+
         public List<GetLogActivitySubCategoryResponse>? Tasks { get; set; }
     }
 

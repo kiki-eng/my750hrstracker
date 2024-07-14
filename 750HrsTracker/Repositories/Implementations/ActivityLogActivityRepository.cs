@@ -14,6 +14,11 @@ namespace _750HrsTracker.Repositories.Implementations
             _context = context;
         }
 
+        public async Task<List<ActivityLogActivity>> GetAllWithTasksAsync(AvailablePropertyType availablePropertyType)
+        {
+            return await _context.ActivityLogActivities.Include(al => al.ActivityLogCategory).Include(al => al.ActivityLogSubCategories).Where(al => al.AvailablePropertyType == availablePropertyType).ToListAsync();
+        }
+
         public async Task<ActivityLogActivity> UpdateAsync(Guid id, ActivityLogActivity activityLogActivity)
         {
             var existingLogActivity = await _context.ActivityLogActivities.FirstOrDefaultAsync(ala => ala.Id == id) 

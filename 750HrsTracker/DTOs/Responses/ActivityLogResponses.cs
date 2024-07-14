@@ -73,11 +73,11 @@ namespace _750HrsTracker.DTOs.Responses
                     errors.Add($"Row {i + 1}: Team member email must be a valid email address.");
                 }
 
-                // Validate ActivityDate
-                if (!IsValidDate(dto.ActivityDate))
-                {
-                    errors.Add($"Row {i + 1}: Activity date must be a valid date.");
-                }
+                //// Validate ActivityDate
+                //if (!IsValidDate(dto.ActivityDate))
+                //{
+                //    errors.Add($"Row {i + 1}: Activity date must be a valid date.");
+                //}
                 
                 // Validate Log Type
                 if (!IsValidLogType(dto.LogType, propertyType))
@@ -111,11 +111,11 @@ namespace _750HrsTracker.DTOs.Responses
             {
                 return false;
             }
-
+            date += " 00:00:00";
             return DateTime.TryParseExact(
                 date,
-                "dd/MM/yyyy", // Adjust the format according to your date format
-                CultureInfo.InvariantCulture,
+                "dd/MM/yyyy HH:mm:ss", // Adjust the format according to your date format
+                 new CultureInfo("en-US"),
                 DateTimeStyles.None,
                 out _);
         }
@@ -127,12 +127,12 @@ namespace _750HrsTracker.DTOs.Responses
                 return false;
             }
 
-            if(propertyType == AvailablePropertyType.LTR &&  (logType.ToUpper() != ActivityLogType.REAL_ESTATE.ToString() || logType.ToUpper() != ActivityLogType.NON_REAL_ESTATE.ToString()))
+            if(propertyType == AvailablePropertyType.LTR &&  (logType.ToUpper() == ActivityLogType.REAL_ESTATE.ToString() || logType.ToUpper() == ActivityLogType.NON_REAL_ESTATE.ToString()))
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
     }
 

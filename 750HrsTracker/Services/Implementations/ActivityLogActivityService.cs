@@ -252,23 +252,40 @@ namespace _750HrsTracker.Services.Implementations
 
             if (propertyType == AvailablePropertyType.ALL)
             {
-                logActivities =  _logActivityRepository.GetAllAsync().Result.ToList();
+                logActivities = _logActivityRepository.GetAllAsync().Result.ToList();
 
             }
             else
             {
-                var activities = await _logActivityRepository.GetAllAsync(la => la.AvailablePropertyType == propertyType);
-                logActivities = activities.ToList();
+                //var activities = await _logActivityRepository.GetAllAsync(la => la.AvailablePropertyType == propertyType);
+                logActivities = await _logActivityRepository.GetAllWithTasksAsync(propertyType);
             }
-
-
             response.Success = true;
             response.Message = "Log activities retrieved successfully";
-            response.Data = logActivities.Select(p => _mapper.Map<GetActivityLogActivityResponse>(p)).ToList();
+            response.Data = logActivities.Select(p => MappedResponse(p)).ToList();
 
             return response;
         }
 
+
+        private GetActivityLogActivityResponse MappedResponse (ActivityLogActivity activityLog)
+        {
+            GetActivityLogActivityResponse response = new()
+            {
+                Name = activityLog.Name,
+                Slug = activityLog.Slug,
+                PropertyType = activityLog.AvailablePropertyType,
+                Category = activityLog.ActivityLogCategory!.Name
+
+            };
+
+            if(activityLog.ActivityLogSubCategories != null && activityLog.ActivityLogSubCategories.Count > 0) 
+            {
+                response.Tasks = activityLog.ActivityLogSubCategories.Select(asc => _mapper.Map<GetLogActivitySubCategoryResponse>(asc)).ToList();
+            }
+
+            return response;
+        }
         #endregion
     }
 }
