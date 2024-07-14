@@ -206,7 +206,7 @@ namespace _750HrsTracker.Services.Implementations
                             {
                                 Name = sc.Name,
                                 Id = sc.Id,
-                                Slug = activity.Slug,
+                                Slug = sc.Slug,
                             };
 
 
