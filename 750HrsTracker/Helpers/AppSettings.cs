@@ -26,5 +26,9 @@
         public string? StripeProductId { get; set; }
         public string? StripeWebhookSecret { get; set; }
         public int StripeSubscriptionTrialPeriodDays { get; set; }
+
+        public string? AutoSuggestionBaseUrl { get; set; }
+        public string? AutoSuggestionRequestUrl { get; set; }
+        public string? AutoSuggestionApiKey { get; set; }
     }
 }

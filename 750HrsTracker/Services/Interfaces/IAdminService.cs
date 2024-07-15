@@ -10,5 +10,6 @@ namespace _750HrsTracker.Services.Interfaces
         Task<PagedResponseHandler<List<GetTeamResponse>>> GetAllTeamsAsync(PaginationFilter filter, HttpRequest httpRequest);
         Task<ResponseHandler<string>> SendSupportNotificationAsync(SupportRequest supportRequest);
         Task<ResponseHandler<List<GetSubscriptionResponse>>> GetSubscriptionsAsync();
+        Task<ResponseHandler<GetAutoSuggestionResponse>> GetAutoSuggestionResponseAsync(string keyword);
     }
 }

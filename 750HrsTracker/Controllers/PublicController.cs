@@ -1,6 +1,7 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Extensions;
+using _750HrsTracker.Helpers;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Implementations;
 using _750HrsTracker.Services.Interfaces;
@@ -31,6 +32,12 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetSubscriptionResponse>>))]
         public async Task<IActionResult> GetSubscriptionsAsync()
             => Ok(await _adminService.GetSubscriptionsAsync());
+        
+        
+        [HttpGet("autocomplete/{keyword}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetAutoSuggestionResponse>))]
+        public async Task<IActionResult> GetAutocompleteSuggestions(string keyword)
+            => Ok(await _adminService.GetAutoSuggestionResponseAsync(keyword));
 
     }
 }
