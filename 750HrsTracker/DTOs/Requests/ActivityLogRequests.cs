@@ -36,6 +36,7 @@ namespace _750HrsTracker.DTOs.Requests
 
     public class Base64FileModel
     {
+        public Guid? DocumentId { get; set; }
         public string? FileName { get; set; }
         public string? FileExtension { get; set; }
         public string? ContentType { get; set; }

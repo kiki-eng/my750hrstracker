@@ -30,6 +30,15 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return added.Entity;
         }
+        
+        public async Task DetachLogDocumentAsync(Guid activityLogId)
+        {
+            var documents = await _context.ActivityLogDocuments.Where(ad => ad.ActivityLogId == activityLogId).ToListAsync();
+
+            _context.ActivityLogDocuments.RemoveRange(documents);
+
+            await _context.SaveChangesAsync();
+        }
 
         public async Task AttachLogPropertyAsync(List<ActivityLogProperty> activityLogProperties)
         {
@@ -288,12 +297,15 @@ namespace _750HrsTracker.Repositories.Implementations
 
             existingActivityLog.Name = activityLog.Name;
             existingActivityLog.TaskId = activityLog.TaskId;
+            existingActivityLog.ActivityById = activityLog.ActivityById;
             existingActivityLog.ActivityLogActivityId = activityLog.ActivityLogActivityId;
             existingActivityLog.ActivityLogCategoryId = activityLog.ActivityLogCategoryId;
             existingActivityLog.ActivityDate = activityLog.ActivityDate;
             existingActivityLog.HoursSpent = activityLog.HoursSpent;
             existingActivityLog.MinutesSpent = activityLog.MinutesSpent;
+            existingActivityLog.SecondsSpent = activityLog.SecondsSpent;
             existingActivityLog.Description = activityLog.Description;
+            existingActivityLog.LogType = activityLog.LogType;
             existingActivityLog.ModifiedAt = DateTime.Now;
 
             var updated = _context.ActivityLogs.Update(existingActivityLog);

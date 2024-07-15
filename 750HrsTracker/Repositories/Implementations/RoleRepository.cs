@@ -12,5 +12,20 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             _context = context;
         }
+
+        public async Task<Role> UpdateAsync(Guid id, Role role)
+        {
+            var existingRole = _context.Roles.FirstOrDefault(r => r.Id == id) ?? throw new KeyNotFoundException("Role not found");
+
+            existingRole.Name = role.Name;
+            existingRole.Slug = role.Slug;
+
+            var updated = _context.Roles.Update(existingRole);
+
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
+
+        }
     }
 }

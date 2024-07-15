@@ -83,7 +83,9 @@ namespace _750HrsTracker.Extensions
                    };
                })
                .AddScheme<CustomPubAccessAuthenticationSchemeOption, CustomPubAccessAuthenticationHandler>
-                    (CustomPubAccessAuthenticationSchemeOption.Name, op => { });
+                    (CustomPubAccessAuthenticationSchemeOption.Name, op => { })
+               .AddScheme<CustomAdminAuthenticationSchemeOption, CustomAdminAuthenticationHandler>
+                    (CustomAdminAuthenticationSchemeOption.Name, op => { });
 
             return services;
         }

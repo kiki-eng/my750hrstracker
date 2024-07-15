@@ -12,15 +12,15 @@ namespace _750HrsTracker.Helpers
 {
     public class Storage
     {
-        public static async Task<ActivityLogDocument?> PrepareAndUploadDocumentAsync(IFormFile file, AppSettings _appSettings, Guid teamId, DocumentFor documentFor)
+        public static async Task<ActivityLogDocument?> PrepareAndUploadDocumentAsync(IFormFile file, AppSettings _appSettings, Guid teamId, DocumentFor documentFor, string activityLog = null!)
         {
             var fileType = file.ContentType;
 
             var extension = Path.GetExtension(file.FileName).ToLower();
             var name = file.FileName.Split('.')[0];
-            var fileName = Utility.UcWords(name + " " + documentFor.ToString()).Replace(" ", "_").ToString().ToLower() + extension;
+            var fileName = Utility.UcWords(name).Replace(" ", "_").ToString().ToLower() + extension;
 
-            var fileUploadResponse = await UploadDocumentAsync(_appSettings, file, documentFor, fileName, teamId.ToString());
+            var fileUploadResponse = await UploadDocumentAsync(_appSettings, file, documentFor, fileName, teamId.ToString(), activityLog);
 
             var filePath = fileUploadResponse.FileAbsoluteUri;
 
@@ -35,7 +35,42 @@ namespace _750HrsTracker.Helpers
 
             return document;
         } 
-        public static async Task<DocumentUploadResponse> UploadDocumentAsync(AppSettings appSettings, IFormFile file, DocumentFor documentFor, string fileName, string teamId = null!)
+        public static async Task<bool> RemoveDocumentsAsync(AppSettings appSettings, DocumentFor documentFor, string fileName, string teamId = null!, string activityLogId = null!)
+        {
+            string directoryName = "";
+            string currentEnvironment = appSettings.CurrentEnvironment!;
+
+            directoryName = documentFor switch
+            {
+                DocumentFor.ActivityLog => "activity-logs/" + teamId + "/" + activityLogId,
+                DocumentFor.Template => $"{LogCategoryConstants.TemplatesDirectory}/{fileName}",
+                DocumentFor.ProfilePicture => $"profile-pics/{fileName}",
+                _ => throw new ApplicationException("Invalid document type"),
+            };
+
+            BlobServiceClient serviceClient = new(appSettings.AzureStorageBlobConnectionString);
+
+            var containers = serviceClient.GetBlobContainers().FirstOrDefault(c => c.Name == appSettings.AzureStorageBlobContainerName);
+
+            BlobContainerClient containerClient;
+
+            if (containers == null)
+            {
+                containerClient = serviceClient.CreateBlobContainer(appSettings.AzureStorageBlobContainerName, PublicAccessType.Blob);
+            }
+            else
+            {
+                containerClient = new BlobContainerClient(appSettings.AzureStorageBlobConnectionString, appSettings.AzureStorageBlobContainerName);
+            }
+
+            BlobClient blob = containerClient.GetBlobClient(directoryName);
+
+            await blob.DeleteIfExistsAsync();
+
+            return true;
+
+        }
+        public static async Task<DocumentUploadResponse> UploadDocumentAsync(AppSettings appSettings, IFormFile file, DocumentFor documentFor, string fileName, string teamId = null!, string activityLogId = null!)
         {
             try
             {
@@ -45,7 +80,7 @@ namespace _750HrsTracker.Helpers
 
                 directoryName = documentFor switch
                 {
-                    DocumentFor.ActivityLog => "activity-logs/" + teamId + "/" + fileName,
+                    DocumentFor.ActivityLog => "activity-logs/" + teamId + "/" + activityLogId +"/"+ fileName,
                     DocumentFor.Template => $"{LogCategoryConstants.TemplatesDirectory}/{fileName}",
                     DocumentFor.ProfilePicture => $"profile-pics/{fileName}",
                     _ => throw new ApplicationException("Invalid document type"),

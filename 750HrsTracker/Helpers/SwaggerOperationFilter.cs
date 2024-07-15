@@ -21,6 +21,13 @@ namespace _750HrsTracker.Helpers
                 Schema = new OpenApiSchema() { Type = "string" },
                 Required = false,
             });
+            operation.Parameters.Add(new OpenApiParameter()
+            {
+                Name = "a-auth",
+                In = ParameterLocation.Header,
+                Schema = new OpenApiSchema() { Type = "string" },
+                Required = false,
+            });
 
 
 

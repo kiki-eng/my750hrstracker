@@ -134,7 +134,7 @@ namespace _750HrsTracker.Services.Implementations
             {
                 foreach (var f in files)
                 {
-                    ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
+                    ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog, activityLog.Id.ToString());
 
                     if (documentUploadResponse != null)
                     {
@@ -307,6 +307,7 @@ namespace _750HrsTracker.Services.Implementations
                         FileExtension = Path.GetExtension(document.DocumentName!),
                         Data = Convert.ToBase64String(fileBytes),
                         FileName = document.DocumentName,
+                        DocumentId = document.Id
                     };
 
                     supportDocuments.Add(fileModel);
@@ -359,8 +360,9 @@ namespace _750HrsTracker.Services.Implementations
 
 
             var requestData = _mapper.Map<ActivityLog>(request);
+            requestData.ActivityLogCategoryId = request.ActivityLogCategoryId ?? Guid.Empty;
+            requestData.ActivityLogActivityId = request.ActivityLogActivityId ?? Guid.Empty;
             requestData.TeamId = (Guid)Session.TeamId!;
-            requestData.CreatedById = (Guid)Session.UserId!;
 
             var activityBy = await _userRepository.GetUserAsync(request.ActivityById);
 
@@ -383,6 +385,11 @@ namespace _750HrsTracker.Services.Implementations
             List<ActivityLogDocument> docuemnts = new();
             if (request.SupportingDocuments != null && request.SupportingDocuments!.Count > 0)
             {
+                // purge old data
+                await _activityLogRepository.DetachLogDocumentAsync(id);
+                await Storage.RemoveDocumentsAsync(_appSettings, DocumentFor.ActivityLog, "", Session.TeamId!.ToString()!, id.ToString());
+
+
                 foreach (var f in files)
                 {
                     ActivityLogDocument? documentUploadResponse = await Storage.PrepareAndUploadDocumentAsync(f, _appSettings, (Guid)Session.TeamId, DocumentFor.ActivityLog);
@@ -535,9 +542,9 @@ namespace _750HrsTracker.Services.Implementations
                 {
                     GetPropertyResponse propertyResponse = new()
                     {
-                        Name = property.Property!.Name,
-                        Description = property.Property!.Description,
-                        Id = property.Property!.Id,
+                        Name = property.Property?.Name,
+                        Description = property.Property?.Description,
+                        Id = property.PropertyId,
                     };
 
                     properties.Add(propertyResponse);

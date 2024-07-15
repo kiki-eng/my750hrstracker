@@ -13,6 +13,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<ActivityLog> UpdateAsync(Guid id, Guid teamId, ActivityLog property);
         Task<ActivityLog> GetLogByIdAsync(Guid id, Guid teamId);
         Task<ActivityLogDocument> AttachLogDocumentAsync(ActivityLogDocument activityLogDocument);
+        Task DetachLogDocumentAsync(Guid activityLogId);
         Task UpdateAttachedLogDocumentAsync(Guid activityLogId, List<ActivityLogDocument> activityLogDocument);
         Task<List<ActivityLogDocument>> GetDocumentsAsync(Guid logId);
         Task AttachLogPropertyAsync(List<ActivityLogProperty> activityLogProperties);
