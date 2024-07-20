@@ -108,7 +108,7 @@ namespace _750HrsTracker.Services.Implementations
                     responseData.ProfilePic = fileModel;
                 }
 
-                var subscriptionData = await _teamSubscriptionRepository.GetSingleOrDefaultAsync(ts => ts.TeamId == Guid.Parse(user.DefaultTeamId!));
+                var subscriptionData = await _teamSubscriptionRepository.GetWthSubscription(Guid.Parse(user.DefaultTeamId!));
                 if(subscriptionData != null)
                 {
                     responseData.Subscription = new SubscriptionData

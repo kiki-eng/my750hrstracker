@@ -30,6 +30,13 @@ namespace _750HrsTracker.Repositories.Implementations
             return teamSubscription;
         }
 
+        public async Task<TeamSubscription> GetWthSubscription(Guid teamId)
+        {
+            var teamSub = await _context.TeamSubscriptions.Include(ts => ts.Subscription).OrderByDescending(ts => ts.CreatedAt).FirstOrDefaultAsync(ts => ts.TeamId == teamId);
+
+            return teamSub!;
+        }
+
         public async Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription)
         {
             var existingTeamSubscription = await _context.TeamSubscriptions.FirstOrDefaultAsync(t => t.TeamId == teamSubscription.TeamId && t.SubscriptionId == teamSubscription.SubscriptionId) 

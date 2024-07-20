@@ -196,19 +196,20 @@ namespace _750HrsTracker.Services.Implementations
                 }
                 else
                 {
+                    
                     var updateSubTransaction =
                         await _subscriptionRepository.UpdateSubscriptionTransactionAsync(subscriptionTransaction.Id, subscriptionTransaction, SubscriptionTransactionUpdateAction.invoice_paid);
                 }
 
-             
+
                 // create team subscription
                 var teamSubscription = new TeamSubscription
                 {
                     TeamId = subscriptionTransaction.TeamId,
                     SubscriptionId = subscriptionTransaction.SubscriptionId,
                     SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
-                    StartDate = invoice.PeriodStart, 
-                    EndDate = invoice.PeriodEnd,
+                    StartDate = invoice.Lines.First().Period.Start, 
+                    EndDate = invoice.Lines.First().Period.End,
                 };
 
 
