@@ -29,5 +29,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<UpdateProfilePictureRequest>> UpdatetUserProfilePictureAsync(Guid userId, UpdateProfilePictureRequest request);
         Task<ResponseHandler<Base64FileModel>> GetUserProfilePictureAsync(Guid userId);
         Task<ResponseHandler<string>> RemoveProfilePictureAsync(Guid userId);
+
+        Task<ResponseHandler<GetUserPermissionsResponse>> GetUserPermissionsAsync(HttpRequest httpRequest);
     }
 }

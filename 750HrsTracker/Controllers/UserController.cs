@@ -114,6 +114,24 @@ namespace _750HrsTracker.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [Authorize]
+        [Route("get-permissions")]
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserPermissionsResponse>))]
+        public async Task<IActionResult> GetUserPermissionsAsync()
+        {
+            ResponseHandler<GetUserPermissionsResponse> response = new ResponseHandler<GetUserPermissionsResponse>();
+           
+            response = await _userService.GetUserPermissionsAsync(Request);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+        
+        [Authorize]
         [Route("{userId}")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]

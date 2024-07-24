@@ -31,7 +31,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<User> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword)
         {
-            User user = await _context.Users.Include(m => m.UserTeams!).ThenInclude(mu => mu.Team).FirstOrDefaultAsync(m => m.Id == userId) ?? throw new KeyNotFoundException("User not found");           
+            User user = await _context.Users.Include(m => m.UserTeams!).ThenInclude(mu => mu.Team).FirstOrDefaultAsync(m => m.Id == userId) ?? throw new KeyNotFoundException("User not found");
 
             string oldPasswordHash = user.PasswordHash;
             if (!Encryption.CompareHashedPassword(oldPassword, oldPasswordHash))
@@ -65,7 +65,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return user;
         }
-        
+
         public async Task<User> GetUserAsync(Guid userId, Guid teamId)
         {
             var userTeam = await _context.Team_User.Include(m => m.User).FirstOrDefaultAsync(m => m.UserId == userId && m.TeamId == teamId) ?? throw new KeyNotFoundException("User not found");
@@ -136,8 +136,8 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<User> ResetPasswordAsync(string newPassword, string resetToken)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.ResetToken == resetToken && u.ResetTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token"); 
-                      
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.ResetToken == resetToken && u.ResetTokenExpires > DateTime.Now) ?? throw new KeyNotFoundException("Invalid user/token");
+
 
             user.PasswordHash = Encryption.HashPassword(newPassword);
             user.LastPasswordResetAt = DateTime.Now;
@@ -153,7 +153,7 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             var exists = await _userManager.FindByEmailAsync(user.Email) ?? throw new ApplicationException("Incorrect email or password");
 
-            
+
             if (!Encryption.CompareHashedPassword(user.PasswordHash, exists.PasswordHash))
             {
                 throw new ApplicationException("Incorrect email or password");
@@ -197,7 +197,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 user.IsActive = true;
                 user.FirstTime = false;
 
-              
+
 
                 var newUserEntity = await _userManager.CreateAsync(user);
                 var newUser = await _userManager.FindByEmailAsync(user.Email);
@@ -257,20 +257,20 @@ namespace _750HrsTracker.Repositories.Implementations
         public async Task<User> UpdateUserAsync(Guid id, User user)
         {
             User existingUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id) ?? throw new KeyNotFoundException("User not found");
-          
+
             existingUser.Firstname = user.Firstname;
             existingUser.Lastname = user.Lastname;
 
-            var updated = _context.Users.Update(existingUser); 
+            var updated = _context.Users.Update(existingUser);
             await _context.SaveChangesAsync();
 
             return existingUser;
         }
-        
+
         public async Task<User> UpdateUserSecurityAsync(Guid id, User user)
         {
             User existingUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id) ?? throw new KeyNotFoundException("User not found");
-          
+
             existingUser.SendLoginNotification = user.SendLoginNotification;
 
             var updated = _context.Users.Update(existingUser);
@@ -303,7 +303,7 @@ namespace _750HrsTracker.Repositories.Implementations
             foreach (var r in userRoles)
             {
                 var role = await _roleManager.FindByIdAsync(r.RoleId.ToString());
-                UserRolesOnly rolesOnly = new ()
+                UserRolesOnly rolesOnly = new()
                 {
                     RoleName = role.Name,
                     RoleId = role.Id
@@ -351,6 +351,39 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return deleted.Entity;
 
+        }
+
+        public async Task<List<Permission>> GetUserPermissionsAsync(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(mu => mu.Id.Equals(userId)) ?? throw new KeyNotFoundException("User not found");
+
+            var userRoles = _context.UserRoles.Where(mur => mur.UserId == userId && mur.TeamId == Guid.Parse(user.DefaultTeamId!)).ToList();
+
+            List<Permission> permissions = new List<Permission>();
+            var allPermissions = await _context.Permissions.ToListAsync();
+
+
+            List<UserRolesOnly> roles = new();
+            foreach (var r in userRoles)
+            {
+                var role = await _roleManager.FindByIdAsync(r.RoleId.ToString());
+
+                var claims = await _roleManager.GetClaimsAsync(role);
+
+
+                foreach(var permission in allPermissions)
+                {
+                    if(claims.Any(c => c.Value == permission.Value))
+                    {
+                        if(!permissions.Any(p => p.Value == permission.Value))
+                        {
+                            permissions.Add(permission);
+                        }
+                    }
+                }
+            }
+
+            return permissions;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.Models.JointEntities;
 using _750HrsTracker.Models.SubscriptionModels;
 
 namespace _750HrsTracker.DTOs.Responses
@@ -34,6 +35,12 @@ namespace _750HrsTracker.DTOs.Responses
         public SubscriptionData? Subscription { get; set; }
     }
 
+    public class GetUserPermissionsResponse
+    {
+        public Guid UserId { get; set; }
+        public Guid TeamId { get; set; }
+        public List<GetPermissionResponse>? Permissions { get; set; }
+    }
     public class SubscriptionData
     {
         public string? Name { get; set; }

@@ -536,6 +536,36 @@ namespace _750HrsTracker.Services.Implementations
             response.Data = null;
             return response;
         }
+        public async Task<ResponseHandler<GetUserPermissionsResponse>> GetUserPermissionsAsync(HttpRequest httpRequest)
+        {
+            try
+            {
+                var response = new ResponseHandler<GetUserPermissionsResponse>();
+
+
+                string userId = Utility.GetUserIdFromToken(httpRequest) ?? throw new ApplicationException("Invalid user token");
+
+                User user = await _userRepository.GetUserAsync(Guid.Parse(userId)) ?? throw new KeyNotFoundException("user not found");
+
+                var userPermissions = await _userRepository.GetUserPermissionsAsync(Guid.Parse(userId));
+                GetUserPermissionsResponse responsedata = new()
+                {
+                    TeamId = Guid.Parse(user.DefaultTeamId!),
+                    UserId = Guid.Parse(userId),
+                    Permissions = userPermissions.Select(p => _mapper.Map<GetPermissionResponse>(p)).ToList()
+                };
+
+                response.Success = true;
+                response.Message = "User permissions retrievd successfully";
+                response.Data = responsedata;
+
+                return response;
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
 
         private GetUsersOnlyResponse MappedResponse(User user)
         {
