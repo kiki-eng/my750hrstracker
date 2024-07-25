@@ -37,8 +37,8 @@ namespace _750HrsTracker.Persistence.Seeds
                 },
                 new Role()
                 {
-                    Name = Roles.Auditor.ToString(),
-                    Slug = Roles.Auditor.ToString().ToLower(),
+                    Name = Roles.TaxPreparer.ToString(),
+                    Slug = Roles.TaxPreparer.ToString().ToLower(),
                     CreatedBy = "system",
                     RoleType = RoleType.team,
                     Default = true
