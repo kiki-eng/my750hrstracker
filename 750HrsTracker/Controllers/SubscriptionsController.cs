@@ -79,7 +79,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdateSubscriptionPriceAsync(Guid id, UpdateSubscriptionPriceRequest request)
           => Ok(await _subscriptionService.UpdateSubscriptionPriceAsync(id, request));
 
-        [Authorize]
+        [Authorize(Policy = "Permission.Subscription.Manage")]
         [ServiceFilter(typeof(SessionFilter))]
         [HttpPost("stripe/create-checkout-session")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<CreateStripeCheckoutSessionResponse>))]

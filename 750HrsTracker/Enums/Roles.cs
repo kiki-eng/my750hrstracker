@@ -5,7 +5,7 @@
         Admin, 
         Owner,
         Basic,
-        Auditor
+        TaxPreparer
     }
 
     public enum RoleType

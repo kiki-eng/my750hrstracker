@@ -65,6 +65,10 @@ namespace _750HrsTracker.Persistence.Seeds
                 new Permission { Module = "Team", Name = "ActivateDeactivate"},
                 new Permission { Module = "Team", Name = "DeleteAccount"},
 
+
+
+                new Permission { Module = "Subscription", Name = "Manage"},
+
             };
 
 
@@ -104,8 +108,9 @@ namespace _750HrsTracker.Persistence.Seeds
                 "Permission.ActivityLog.Create",
                 "Permission.ActivityLog.View",
                 "Permission.ActivityLog.Update",
+                "Permission.Dashboard.View"
             };
-            var auditorPermissions = new List<string>
+            var taxPreparerPermissions = new List<string>
             {
                 "Permission.ActivityLog.View", "Permission.Dashboard.View", "Permission.ActivityLog.ExportDocument"
             };
@@ -122,11 +127,11 @@ namespace _750HrsTracker.Persistence.Seeds
                     await roleManager.SeedClaimsForRole(r, basicPerms, context);
                 }
 
-                if(r.Name == Roles.Auditor.ToString())
+                if(r.Name == Roles.TaxPreparer.ToString())
                 {
-                    var auditorPerms = permissions.Where(p => auditorPermissions.Contains(p.Value!)).ToList();
+                    var taxPreparerPerms = permissions.Where(p => taxPreparerPermissions.Contains(p.Value!)).ToList();
 
-                    await roleManager.SeedClaimsForRole(r, auditorPerms, context);
+                    await roleManager.SeedClaimsForRole(r, taxPreparerPerms, context);
                 }
 
                 if (r.Name == Roles.Owner.ToString())
