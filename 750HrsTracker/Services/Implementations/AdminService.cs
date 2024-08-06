@@ -1,7 +1,9 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
@@ -20,9 +22,11 @@ namespace _750HrsTracker.Services.Implementations
         private IUriService _uriService;
         private INotificationService _notificationService;
         private ISubscriptionRepository _subscriptionRepository;
+        private readonly IActivityLogRepository _activityLogRepository; 
         private AppSettings _appSettings;
         public AdminService(IMapper mapper, ITeamRepository teamRepository, IUriService uriService, 
-            INotificationService notificationService, ISubscriptionRepository subscriptionRepository, IOptionsSnapshot<AppSettings> appSettings)
+            INotificationService notificationService, ISubscriptionRepository subscriptionRepository, IOptionsSnapshot<AppSettings> appSettings, 
+            IActivityLogRepository activityLogRepository)
         {
             _mapper = mapper;
             _teamRepository = teamRepository;
@@ -30,6 +34,8 @@ namespace _750HrsTracker.Services.Implementations
             _notificationService = notificationService;
             _subscriptionRepository = subscriptionRepository;
             _appSettings = appSettings.Value;
+            _activityLogRepository = activityLogRepository;
+
         }
 
         public async Task<PagedResponseHandler<List<GetTeamResponse>>> GetAllTeamsAsync(PaginationFilter filter, HttpRequest httpRequest)
@@ -94,5 +100,143 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
         }
+
+        public async Task<ResponseHandler<AdminGetActivityLogResponse>> GetActivityLogAsync(Guid id)
+        {
+            ResponseHandler<AdminGetActivityLogResponse> response = new();
+
+            var activityLog = await _activityLogRepository.GetLogByIdAsync(id) ?? throw new KeyNotFoundException("Activity log not found");
+
+            
+            var responseData = MappedActivityLogResponse(activityLog);
+
+
+            var documents = await _activityLogRepository.GetDocumentsAsync(activityLog.Id);
+            List<Base64FileModel> supportDocuments = new();
+
+            if (documents != null && documents.Count > 0)
+            {
+                foreach (var document in documents)
+                {
+                    byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, document.RemoteDirectoryName!);
+
+                    Base64FileModel fileModel = new()
+                    {
+                        ContentType = Utility.GetMimeType(document.DocumentName!),
+                        FileExtension = Path.GetExtension(document.DocumentName!),
+                        Data = Convert.ToBase64String(fileBytes),
+                        FileName = document.DocumentName,
+                        DocumentId = document.Id
+                    };
+
+                    supportDocuments.Add(fileModel);
+                }
+            }
+
+            responseData.SupportingDocuments = supportDocuments;
+
+            response.Success = true;
+            response.Message = "Activity log retrieved successfully";
+            response.Data = responseData;
+
+            return response;
+        }
+
+        public async Task<PagedResponseHandler<List<AdminGetActivityLogResponse>>> GetAllActivityLogAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter, string route)
+        {
+            var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var validActivityLogFilters = new ActivityLogFilter(activityLogFilter.Activity.ToString(), activityLogFilter.Property.ToString(), activityLogFilter.Member.ToString(),
+                activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.WithDocuments, activityLogFilter.StartDate, activityLogFilter.EndDate);
+
+            var properties = await _activityLogRepository.GetAllLogsAsync(validFilters, validActivityLogFilters, propertyType);
+
+
+            var pagedData = (properties.Records!.Select(sn => MappedActivityLogResponse(sn))).ToList();
+
+            PagedResponseHandler<List<AdminGetActivityLogResponse>> response =
+                PaginationHelper.CreatePagedResponse(pagedData, validFilters, properties.TotalCount, _uriService, route);
+
+            response.Success = true;
+            response.Message = "All activity logs retrieved successfully";
+            return response;
+        }
+
+        public async Task<ResponseHandler<List<AdminGetActivityLogResponse>>> SearchActivityLogAsync(string keyword)
+        {
+            ResponseHandler<List<AdminGetActivityLogResponse>> response = new();
+
+            var activityLog = await _activityLogRepository.SearchEntityAsync(p => p.Description!.ToLower().Contains(keyword.ToLower()));
+
+            response.Success = true;
+            response.Message = "Activity logs retrieved successfully";
+            response.Data = activityLog.Select(p => _mapper.Map<AdminGetActivityLogResponse>(p)).ToList();
+
+            return response;
+        }
+
+        #region Data Maps
+        private AdminGetActivityLogResponse MappedActivityLogResponse(ActivityLog activityLog)
+        {
+            var response = _mapper.Map<AdminGetActivityLogResponse>(activityLog);
+
+
+            if(activityLog.Team is not null)
+            {
+                response.Team = activityLog.Team?.Name + "'s team";
+            }
+            if (activityLog.ActivityLogActivity != null)
+            {
+                response.Activity = new GetActivityLogActivityResponse
+                {
+                    Name = activityLog.ActivityLogActivity.Name,
+                    Id = activityLog.ActivityLogActivity.Id
+                };
+
+                //response.Activity = activityLog.ActivityLogActivity.Name;
+            }
+
+            if (activityLog.Task != null)
+            {
+                response.Task = new GetLogActivitySubCategoryResponse()
+                {
+                    Id = activityLog.Task.Id,
+                    Name = activityLog.Task.Name,
+                    Slug = activityLog.Task.Slug,
+                };
+            }
+
+            if (activityLog.ActivityLogActivity != null && activityLog.ActivityLogActivity.ActivityLogCategory != null)
+            {
+                response.Category = new GetActivityLogCategoryResponse
+                {
+                    Name = activityLog.ActivityLogActivity.ActivityLogCategory.Name,
+                    Id = activityLog.ActivityLogActivity.ActivityLogCategory.Id,
+                };
+
+                //response.Category = activityLog.ActivityLogActivity.ActivityLogCategory.Name;
+            }
+
+            if (activityLog.ActivityLogProperties != null && activityLog.ActivityLogProperties.Count > 0)
+            {
+                List<GetPropertyResponse> properties = new List<GetPropertyResponse>();
+
+                foreach (var property in activityLog.ActivityLogProperties)
+                {
+                    GetPropertyResponse propertyResponse = new()
+                    {
+                        Name = property.Property?.Name,
+                        Description = property.Property?.Description,
+                        Id = property.PropertyId,
+                    };
+
+                    properties.Add(propertyResponse);
+                }
+
+                response.Properties = properties;
+            }
+
+            return response;
+        }
+        #endregion
     }
 }

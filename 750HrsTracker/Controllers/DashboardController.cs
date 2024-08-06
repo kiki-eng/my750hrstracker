@@ -15,7 +15,7 @@ namespace _750HrsTracker.Controllers
 {
     [Route("api/dashboard")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
     [ServiceFilter(typeof(SessionFilter))]
     public class DashboardController : ControllerBase
     {

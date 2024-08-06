@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Implementations;
@@ -11,7 +12,7 @@ using System.Net;
 namespace _750HrsTracker.Controllers
 {
     [Route("api/admin")]
-    [ApiController]
+    [Authorize(Policy = "AdminPolicy", AuthenticationSchemes = "AdminScheme")]
     [AllowAnonymous]
     public class AdminController : ControllerBase
     {
@@ -25,5 +26,25 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetTeamResponse>>))]
         public async Task<IActionResult> GetAllTeamsAsync([FromQuery] PaginationFilter filter)
             => Ok(await _adminService.GetAllTeamsAsync(filter, Request));
+
+        #region Activity Logs
+        [HttpGet("activity-logs")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetActivityLogResponse>>))]
+        public async Task<IActionResult> GetAllActivityLogAsync([FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter,
+            [FromQuery] AvailablePropertyType propertyType = AvailablePropertyType.ALL)
+            => Ok(await _adminService.GetAllActivityLogAsync(propertyType, filter, activityLogFilter, Request.Path));
+
+
+        [HttpGet("activity-logs/search")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetActivityLogResponse>>))]
+        public async Task<IActionResult> SearchActivityLogAsync([FromQuery] string keyword)
+            => Ok(await _adminService.SearchActivityLogAsync(keyword));
+
+        [HttpGet("activity-logs/{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetActivityLogResponse>))]
+        public async Task<IActionResult> GetActivityLogAsync(Guid id)
+            => Ok(await _adminService.GetActivityLogAsync(id));
+
+        #endregion
     }
 }

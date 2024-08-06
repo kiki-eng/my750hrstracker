@@ -27,6 +27,7 @@ namespace _750HrsTracker.Extensions
             services.AddScoped<ITeamRepository, TeamRepository>();
             services.AddScoped<IWebhookNotificationRepository, WebhooNotificationRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IAdminUserRepository, AdminUserRepository>();
             
 
             // services
@@ -45,6 +46,7 @@ namespace _750HrsTracker.Extensions
             services.TryAddScoped<ITeamService,TeamService>();
             services.TryAddScoped<IDocumentService, DocumentService>();  
             services.TryAddScoped<IRolesService, RolesService>();  
+            services.TryAddScoped<IAdminUserService, AdminUserService>();   
 
             services.TryAddScoped<IWebhookNotificationService, WebhookNotificationService>(); 
 

@@ -17,6 +17,7 @@ namespace _750HrsTracker.AutoMapperProfiles
             CreateMap<AddActivityLogRequest, ActivityLog>();
             CreateMap<BaseAddActivityLogRequest, ActivityLog>();
             CreateMap<ActivityLog, GetActivityLogResponse>();
+            CreateMap<ActivityLog, AdminGetActivityLogResponse>();
         }
     }
 }

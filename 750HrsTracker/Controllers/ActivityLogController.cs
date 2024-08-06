@@ -12,7 +12,7 @@ using System.Net;
 namespace _750HrsTracker.Controllers
 {
     [Route("api/activity-logs")]
-    [Authorize]
+    [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
     [ApiController]
     [ServiceFilter(typeof(SessionFilter))]
     public class ActivityLogController : ControllerBase

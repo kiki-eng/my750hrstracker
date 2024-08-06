@@ -18,10 +18,16 @@ namespace _750HrsTracker.DTOs.Responses
         public int SecondsSpent { get; set; }
         public string? Description { get; set; }
         public ActivityLogType? LogType { get; set; }
-
         public GetUsersOnlyResponse? ActivityBy {  get; set; }
         public List<GetPropertyResponse>? Properties { get; set; }   
         public List<Base64FileModel>? SupportingDocuments { get; set; }
+    }
+
+    public class AdminGetActivityLogResponse : GetActivityLogResponse
+    {
+        public AvailablePropertyType? PropertyType { get; set; }
+
+        public string? Team { get; set; }
     }
 
     public class FileImportDto

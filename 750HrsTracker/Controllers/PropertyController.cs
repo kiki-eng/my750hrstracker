@@ -17,7 +17,7 @@ namespace _750HrsTracker.Controllers
     
     [Route("api/properties")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
     [ServiceFilter(typeof(SessionFilter))]
     public class PropertyController : ControllerBase
     {

@@ -38,6 +38,7 @@ namespace _750HrsTracker.Extensions
                     await Persistence.Seeds.DefaultLogData.SeedDefaultLogActivityAsync(context);
                     await Persistence.Seeds.DefaultLogData.SeedDefaultStrLogActivityAsync(context);
                     await Persistence.Seeds.UpdateSubscriptionsPriceId.SeedSubscriptionPricesAsync(context, appSettings);
+                    await Persistence.Seeds.DefaultAdmin.SeedAsync(context, appSettings);
 
                     logger.LogInformation("Application starting ...");
 

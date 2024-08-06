@@ -71,7 +71,7 @@ namespace _750HrsTracker.Controllers
         }
        
 
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{id}")]
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
@@ -89,7 +89,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("me")]
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
@@ -113,7 +113,7 @@ namespace _750HrsTracker.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("get-permissions")]
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUserPermissionsResponse>))]
@@ -131,7 +131,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
         
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
@@ -155,7 +155,7 @@ namespace _750HrsTracker.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}/update-security")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateUserSecurityRequest>))]
@@ -203,7 +203,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}/change-password")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
@@ -253,7 +253,7 @@ namespace _750HrsTracker.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}/update-profile-pic")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateProfilePictureRequest>))]
@@ -273,7 +273,7 @@ namespace _750HrsTracker.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}/profile-pic")]
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
@@ -281,7 +281,7 @@ namespace _750HrsTracker.Controllers
             => Ok(await _userService.GetUserProfilePictureAsync(userId));
 
         
-        [Authorize]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}/profile-pic")]
         [HttpDelete]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]

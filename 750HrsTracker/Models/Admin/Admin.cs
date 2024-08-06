@@ -24,6 +24,7 @@ namespace _750HrsTracker.Models.Admin
         public Guid? ProfilePictureId { get; set; }
         public AdminProfilePicture? ProfilePicture { get; set; }
 
+
         [NotMapped]
         public List<Role>? Roles { get; set; }
         public Admin()

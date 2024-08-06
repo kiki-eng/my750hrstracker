@@ -316,10 +316,15 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
 
-        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(Guid teamId, PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType)
+        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType, Guid? teamId = null)
         {
 
-            IQueryable<ActivityLog> query = _context.ActivityLogs.Where(al => al.TeamId == teamId);
+            IQueryable<ActivityLog> query = _context.ActivityLogs;
+
+            if (teamId is not null)
+            {
+                query = query.Where(al => al.TeamId == teamId);
+            }
 
             if(propertyType == AvailablePropertyType.STR)
             {
@@ -446,13 +451,22 @@ namespace _750HrsTracker.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<ActivityLog> GetLogByIdAsync(Guid id, Guid teamId)
+        public async Task<ActivityLog> GetLogByIdAsync(Guid id, Guid? teamId = null)
         {
-            return await _context.ActivityLogs.Include(al => al.ActivityLogActivity).ThenInclude(al => al!.ActivityLogCategory)
+            IQueryable<ActivityLog> query = _context.ActivityLogs;
+
+            if(teamId is not null)
+            {
+                query = query.Where(al => al.TeamId == teamId);
+            }
+            var log = await query.Include(al => al.ActivityLogActivity).ThenInclude(al => al!.ActivityLogCategory)
                 .Include(al => al.Task)
-                .Include(al => al.ActivityLogProperties).ThenInclude(al => al.Property)
+                .Include(al => al.ActivityLogProperties)!.ThenInclude(al => al.Property)
                 .Include(al => al.ActivityBy)
-                .FirstOrDefaultAsync(l => l.Id == id && l.TeamId == teamId) ?? throw new KeyNotFoundException("Log not found");
+                .Include(al => al.Team)
+                .FirstOrDefaultAsync(l => l.Id == id) ?? throw new KeyNotFoundException("Log not found");
+
+            return log;
         }
     }
 }

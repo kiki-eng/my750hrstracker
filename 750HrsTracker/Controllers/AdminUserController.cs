@@ -14,8 +14,8 @@ namespace _750HrsTracker.Controllers
     [ApiController]
     public class AdminUserController : ControllerBase
     {
-        private readonly IUserService _userService;
-        public AdminUserController(IUserService userService)
+        private readonly IAdminUserService _userService;
+        public AdminUserController(IAdminUserService userService)
         {
             _userService = userService;
         }
@@ -43,35 +43,8 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
 
         }
-       
 
-
-        [AllowAnonymous]
-        [Route("signup")]
-        [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
-        public async Task<IActionResult> SignUpAsync(SignUpRequest request)
-        {
-            ResponseHandler<string> response = new();
-            if (!ModelState.IsValid)
-            {
-                response.Success = false;
-                response.Message = "error";
-                return BadRequest(response);
-            }
-            response = await _userService.SignUpAsync(request, Request);
-
-            if (!response.Success)
-            {
-                return BadRequest(response);
-            }
-
-            return Ok(response);
-
-        }
-       
-
-        [Authorize]
+        [Authorize(Policy = "AdminPolicy", AuthenticationSchemes = "AdminScheme")]
         [Route("{id}")]
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
@@ -89,7 +62,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "AdminPolicy", AuthenticationSchemes = "AdminScheme")]
         [Route("me")]
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
@@ -108,28 +81,7 @@ namespace _750HrsTracker.Controllers
         }
 
 
-        /// <summary>
-        /// Update user details
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [Authorize]
-        [Route("{userId}")]
-        [HttpPatch]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
-        public async Task<IActionResult> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
-        {
-            ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
-           
-            response = await _userService.UpdatetUserProfileAsync(userId, request);
 
-            if (!response.Success)
-            {
-                return NotFound(response);
-            }
-
-            return Ok(response);
-        }
 
 
         /// <summary>
@@ -137,7 +89,7 @@ namespace _750HrsTracker.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Policy = "AdminPolicy", AuthenticationSchemes = "AdminScheme")]
         [Route("{userId}/update-security")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateUserSecurityRequest>))]
@@ -185,7 +137,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "AdminPolicy", AuthenticationSchemes = "AdminScheme")]
         [Route("{userId}/change-password")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
@@ -200,76 +152,6 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
-        [AllowAnonymous]
-        [Route("verify-email")]
-        [HttpPatch]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
-        public async Task<IActionResult> VerifyEmailAsync(VerifyEmailRequest request)
-        {
-            ResponseHandler<string> response = await _userService.VerifyEmailAsync(request);
-            if (!response.Success)
-            {
-                return NotFound(response);
-            }
-
-            return Ok(response);
-        }
-
-        [AllowAnonymous]
-        [Route("resend-verification-email")]
-        [HttpPatch]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
-        public async Task<IActionResult> ResendVerifyEmailAsync(ResendVerifyEmailRequest request)
-        {
-            ResponseHandler<string> response = await _userService.ResendVerifyEmailAsync(request, Request);
-            if (!response.Success)
-            {
-                return NotFound(response);
-            }
-
-            return Ok(response);
-        }
-
-        /// <summary>
-        /// Update user profile pic
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [Authorize]
-        [Route("{userId}/update-profile-pic")]
-        [HttpPatch]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<UpdateProfilePictureRequest>))]
-        public async Task<IActionResult> UpdatetUserProfilePictureAsync(Guid userId, UpdateProfilePictureRequest request)
-        {
-            ResponseHandler<UpdateProfilePictureRequest> response = await _userService.UpdatetUserProfilePictureAsync(userId, request);
-            if (!response.Success)
-            {
-                return BadRequest(response);
-            }
-
-            return Ok(response);
-        }
-
-        /// <summary>
-        /// Get user profile pic
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [Authorize]
-        [Route("{userId}/profile-pic")]
-        [HttpGet]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
-        public async Task<IActionResult> UpdatetUserProfilePictureAsync(Guid userId)
-            => Ok(await _userService.GetUserProfilePictureAsync(userId));
-
         
-        [Authorize]
-        [Route("{userId}/profile-pic")]
-        [HttpDelete]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<Base64FileModel>))]
-        public async Task<IActionResult> RemoveProfilePictureAsync(Guid userId)
-            => Ok(await _userService.RemoveProfilePictureAsync(userId));
-
-
     }
 }

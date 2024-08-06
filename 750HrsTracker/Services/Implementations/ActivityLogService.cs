@@ -265,7 +265,7 @@ namespace _750HrsTracker.Services.Implementations
             var validActivityLogFilters = new ActivityLogFilter(activityLogFilter.Activity.ToString(), activityLogFilter.Property.ToString(), activityLogFilter.Member.ToString(), 
                 activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.WithDocuments, activityLogFilter.StartDate, activityLogFilter.EndDate);
 
-            var properties = await _activityLogRepository.GetAllLogsAsync((Guid) Session.TeamId!, validFilters, validActivityLogFilters, propertyType);
+            var properties = await _activityLogRepository.GetAllLogsAsync(validFilters, validActivityLogFilters, propertyType, (Guid)Session.TeamId!);
 
 
             var pagedData = (properties.Records!.Select(sn => MappedResponse(sn))).ToList();

@@ -85,8 +85,9 @@ namespace _750HrsTracker.Services.Implementations
             {
                 ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
 
-                string userId = Utility.GetUserIdFromToken(httpRequest) ?? throw new ApplicationException("Invalid user token");
+                var  details = Utility.GetUserIdFromToken(httpRequest) ?? throw new ApplicationException("Invalid user token");
 
+                string userId = details.Item1;
 
                 User user = await _userRepository.GetUserAsync(Guid.Parse(userId)) ?? throw new KeyNotFoundException("user not found");
                 var responseData = MappedResponse(user);
@@ -303,7 +304,7 @@ namespace _750HrsTracker.Services.Implementations
                 {
                     var res = _mapper.Map<SignInResponse>(existingUser);
 
-                    res.Token = res.EmailConfirmed ? Utility.GenerateJwtToken(_mapper.Map<UserUtilData>(existingUser), _appSettings) : "";
+                    res.Token = res.EmailConfirmed ? Utility.GenerateJwtToken(_mapper.Map<UserUtilData>(existingUser), _appSettings, _appSettings.UserAuthPolicy!) : "";
                     res.TokenExpireAt = res.EmailConfirmed ? DateTime.Now.AddMinutes(_appSettings.JwtTokenTTLMinutees) : DateTime.Now;
                     response.Message = res.EmailConfirmed ? "User successfully signed In" : "User email verification not completed. Please verify your email to continue";
 
@@ -543,8 +544,9 @@ namespace _750HrsTracker.Services.Implementations
                 var response = new ResponseHandler<GetUserPermissionsResponse>();
 
 
-                string userId = Utility.GetUserIdFromToken(httpRequest) ?? throw new ApplicationException("Invalid user token");
+                var details = Utility.GetUserIdFromToken(httpRequest) ?? throw new ApplicationException("Invalid user token");
 
+                string userId = details.Item1;
                 User user = await _userRepository.GetUserAsync(Guid.Parse(userId)) ?? throw new KeyNotFoundException("user not found");
 
                 var userPermissions = await _userRepository.GetUserPermissionsAsync(Guid.Parse(userId));

@@ -2,6 +2,8 @@
 {
     public class AppSettings
     {
+        public string? AdminAuthPolicy { get; set; }
+        public string? UserAuthPolicy { get; set; }
         public string? JwtSecret { get; set; }
         public string? AppBaseUrl { get; set; }
         public string? SystemNotificationReceiverEmail { get; set; }
@@ -30,6 +32,10 @@
         public string? AutoSuggestionBaseUrl { get; set; }
         public string? AutoSuggestionRequestUrl { get; set; }
         public string? AutoSuggestionApiKey { get; set; }
+
+        public string? AdminFirstname { get; set; }
+        public string? AdminLastname { get;set; }
+        public string? AdminEmailAddress { get; set;}
     }
 }
     

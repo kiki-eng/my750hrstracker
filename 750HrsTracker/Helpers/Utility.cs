@@ -62,24 +62,15 @@ namespace _750HrsTracker.Helpers
             return output.Remove(output.Length - 1, 1);
         }
 
-        public static string GetMerchantIdFromHeader(HttpRequest httpRequest)
-        {
-            string merchantIdString = httpRequest.Headers["MerchantId"];
-
-            if (merchantIdString != null)
-            {
-                return merchantIdString;
-            }
-
-            return null;
-        }
 
 
-        public static string GetUserIdFromToken(HttpRequest httpRequest)
+        public static Tuple<string, bool> GetUserIdFromToken(HttpRequest httpRequest)
         {
             var principal = httpRequest.HttpContext.User;
             string? userId = null;
 
+            var isAdmin = false;          
+            
             if (principal.HasClaim(c => c.Type == "Id") && principal.Identity!.IsAuthenticated)
             {
 
@@ -87,10 +78,10 @@ namespace _750HrsTracker.Helpers
 
             }
 
-            return userId!;
+            return Tuple.Create(userId!, isAdmin);
         }
 
-        public static string GenerateJwtToken(UserUtilData userUtilData, AppSettings appSettings)
+        public static string GenerateJwtToken(UserUtilData userUtilData, AppSettings appSettings, string authPolicy)
         {
             // generate token that is valid for 7 days
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -107,6 +98,7 @@ namespace _750HrsTracker.Helpers
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iss, appSettings.AppBaseUrl!),
                     new Claim(JwtRegisteredClaimNames.Aud, appSettings.AppBaseUrl!),
+                    new Claim("UserType", authPolicy!),
                 }),
                 Expires = DateTime.Now.AddHours(12),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
