@@ -10,6 +10,7 @@ namespace _750HrsTracker.AutoMapperProfiles
         public PropertyProfiles()
         {
             CreateMap<AvailableProperty, GetPropertyResponse>();
+            CreateMap<AvailableProperty, AdminGetPropertyResponse>().ForMember(s => s.Type, sp => sp.MapFrom(o => o.PropertyType));
             CreateMap<AddUpdatePropertyRequest, AvailableProperty>();   
         }
     }

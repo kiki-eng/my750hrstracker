@@ -3,6 +3,7 @@ using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -47,10 +48,27 @@ namespace _750HrsTracker.Repositories.Implementations
             var query = _context.Set<TEntity>().Where(predicate);
             return await Task.Run(() => query);
         }
-        public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter)
+        public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter, 
+            Expression<Func<TEntity, object>> orderByDescending = null!, params Expression<Func<TEntity, object>>[]? includeProperties)
         {
-            var records = await _context.Set<TEntity>().Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+            IQueryable<TEntity> query = _context.Set<TEntity>();
 
+            if (orderByDescending != null)
+            {
+                query = query.OrderByDescending(orderByDescending);
+            }
+
+            if(includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            query = query.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize);
+
+            var records = await query.ToListAsync();
             var totalCount = await _context.Set<TEntity>().CountAsync();
 
             RepositoryResponseHandler<TEntity> response = new RepositoryResponseHandler<TEntity>
@@ -62,10 +80,27 @@ namespace _750HrsTracker.Repositories.Implementations
             return response;
         }
         
-        public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter)
+        public async Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter, 
+            Expression<Func<TEntity, object>> orderByDescending = null!, params Expression<Func<TEntity, object>>[]? includeProperties)
         {
-            var records = await _context.Set<TEntity>().Where(predicate).Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+            IQueryable<TEntity> query = _context.Set<TEntity>().Where(predicate);
 
+            if(orderByDescending != null)
+            {
+                query = query.OrderByDescending(orderByDescending);
+            }
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            query = query.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize);
+
+            var records = await query.ToListAsync();
             var totalCount = await _context.Set<TEntity>().Where(predicate).CountAsync();
 
             RepositoryResponseHandler<TEntity> response = new RepositoryResponseHandler<TEntity>

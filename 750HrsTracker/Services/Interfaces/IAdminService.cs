@@ -17,5 +17,10 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<AdminGetActivityLogResponse>> GetActivityLogAsync(Guid id);
         Task<PagedResponseHandler<List<AdminGetActivityLogResponse>>> GetAllActivityLogAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter, string route);
         Task<ResponseHandler<List<AdminGetActivityLogResponse>>> SearchActivityLogAsync(string keyword);
+
+        // properties
+        Task<ResponseHandler<AdminGetPropertyResponse>> GetPropertyAsync(Guid propertyId);
+        Task<PagedResponseHandler<List<AdminGetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route);
+        Task<ResponseHandler<List<AdminGetPropertyResponse>>> SearchPropertiesAsync(string keyword); 
     }
 }

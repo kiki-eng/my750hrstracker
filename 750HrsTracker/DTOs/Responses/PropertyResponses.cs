@@ -23,4 +23,10 @@ namespace _750HrsTracker.DTOs.Responses
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
     }
+
+    public class AdminGetPropertyResponse : GetPropertyResponse
+    {
+        public string? Type { get; set; }
+        public string? Team { get; set; }
+    }
 }

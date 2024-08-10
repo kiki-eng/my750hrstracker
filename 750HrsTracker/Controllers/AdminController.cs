@@ -46,5 +46,24 @@ namespace _750HrsTracker.Controllers
             => Ok(await _adminService.GetActivityLogAsync(id));
 
         #endregion
+
+        #region Properties
+        [HttpGet("properties")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<AdminGetPropertyResponse>>))]
+        public async Task<IActionResult> GetAllPropertiesAsync([FromQuery] PaginationFilter filter)
+            => Ok(await _adminService.GetAllPropertiesAsync(filter, Request.Path));
+
+
+        [HttpGet("properties/search")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<AdminGetPropertyResponse>>))]
+        public async Task<IActionResult> SearchPropertiesAsync([FromQuery] string keyword)
+            => Ok(await _adminService.SearchPropertiesAsync(keyword));
+
+        [HttpGet("properties/{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<AdminGetPropertyResponse>))]
+        public async Task<IActionResult> GetPropertyAsync(Guid id)
+            => Ok(await _adminService.GetPropertyAsync(id));
+
+        #endregion
     }
 }

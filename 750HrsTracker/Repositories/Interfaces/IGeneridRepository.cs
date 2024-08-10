@@ -18,8 +18,10 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> SoftDeleteAsync(Expression<Func<TEntity, bool>> predicate);
 
-        Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter);
-        Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter);
+        Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(PaginationFilter filter, Expression<Func<TEntity, object>> orderByDescending = null!, params
+            Expression<Func<TEntity, object>>[]? includeProperties);
+        Task<RepositoryResponseHandler<TEntity>> GetAllPaginatedAsync(Expression<Func<TEntity, bool>> predicate, PaginationFilter filter, 
+            Expression<Func<TEntity, object>> orderByDescending = null!, params Expression<Func<TEntity, object>>[]? includeProperties);
 
         Task<List<TEntity>> SearchEntityAsync(Expression<Func<TEntity, bool>> predicate);
         bool AllExistAsync(Expression<Func<TEntity, bool>> predicate, List<Guid> entityIds, string idColumnName);

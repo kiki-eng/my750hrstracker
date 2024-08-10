@@ -90,7 +90,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetTeamUsersAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamUsersAsync(filter, Request.Path));
 
-        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+            [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpGet("get-users-once")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetUsersOnlyResponse>>))]
         public async Task<IActionResult> GetTeamUsersAsync()

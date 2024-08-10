@@ -3,6 +3,7 @@ using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Models;
 using _750HrsTracker.Models.ActivityLogModels;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Repositories.Interfaces;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System.Linq.Expressions;
 
 namespace _750HrsTracker.Services.Implementations
 {
@@ -19,6 +21,7 @@ namespace _750HrsTracker.Services.Implementations
     {
         private IMapper _mapper;
         private ITeamRepository _teamRepository;
+        private IPropertyRepository _propertyRepository;
         private IUriService _uriService;
         private INotificationService _notificationService;
         private ISubscriptionRepository _subscriptionRepository;
@@ -26,7 +29,7 @@ namespace _750HrsTracker.Services.Implementations
         private AppSettings _appSettings;
         public AdminService(IMapper mapper, ITeamRepository teamRepository, IUriService uriService, 
             INotificationService notificationService, ISubscriptionRepository subscriptionRepository, IOptionsSnapshot<AppSettings> appSettings, 
-            IActivityLogRepository activityLogRepository)
+            IActivityLogRepository activityLogRepository, IPropertyRepository propertyRepository)
         {
             _mapper = mapper;
             _teamRepository = teamRepository;
@@ -35,7 +38,7 @@ namespace _750HrsTracker.Services.Implementations
             _subscriptionRepository = subscriptionRepository;
             _appSettings = appSettings.Value;
             _activityLogRepository = activityLogRepository;
-
+            _propertyRepository = propertyRepository;
         }
 
         public async Task<PagedResponseHandler<List<GetTeamResponse>>> GetAllTeamsAsync(PaginationFilter filter, HttpRequest httpRequest)
@@ -148,13 +151,13 @@ namespace _750HrsTracker.Services.Implementations
             var validActivityLogFilters = new ActivityLogFilter(activityLogFilter.Activity.ToString(), activityLogFilter.Property.ToString(), activityLogFilter.Member.ToString(),
                 activityLogFilter.AllSupportingDocument, activityLogFilter.HasSupportingDocument, activityLogFilter.WithDocuments, activityLogFilter.StartDate, activityLogFilter.EndDate);
 
-            var properties = await _activityLogRepository.GetAllLogsAsync(validFilters, validActivityLogFilters, propertyType);
+            var logs = await _activityLogRepository.GetAllLogsAsync(validFilters, validActivityLogFilters, propertyType);
 
 
-            var pagedData = (properties.Records!.Select(sn => MappedActivityLogResponse(sn))).ToList();
+            var pagedData = (logs.Records!.Select(sn => MappedActivityLogResponse(sn))).ToList();
 
             PagedResponseHandler<List<AdminGetActivityLogResponse>> response =
-                PaginationHelper.CreatePagedResponse(pagedData, validFilters, properties.TotalCount, _uriService, route);
+                PaginationHelper.CreatePagedResponse(pagedData, validFilters, logs.TotalCount, _uriService, route);
 
             response.Success = true;
             response.Message = "All activity logs retrieved successfully";
@@ -173,6 +176,50 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
         }
+
+        public async Task<ResponseHandler<AdminGetPropertyResponse>> GetPropertyAsync(Guid propertyId)
+        {
+            ResponseHandler<AdminGetPropertyResponse> response = new();
+
+            var property = await _propertyRepository.GetSingleOrDefaultAsync(propertyId) ?? throw new KeyNotFoundException("Property not found");
+
+            response.Success = true;
+            response.Message = "Retrieved property details successfully";
+            response.Data = _mapper.Map<AdminGetPropertyResponse>(property);
+
+            return response;
+        }
+
+        public async Task<PagedResponseHandler<List<AdminGetPropertyResponse>>> GetAllPropertiesAsync(PaginationFilter filter, string route)
+        {
+            var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var properties = await _propertyRepository.GetAllPaginatedAsync(validFilters, orderByDescending: e => e.CreatedAt, e => e.Team!);
+
+
+            var pagedData = (properties.Records!.Select(sn => MapProperty(sn))).ToList();
+
+            PagedResponseHandler<List<AdminGetPropertyResponse>> response =
+                PaginationHelper.CreatePagedResponse(pagedData, validFilters, properties.TotalCount, _uriService, route);
+
+            response.Success = true;
+            response.Message = "All properties retrieved successfully";
+            return response;
+        }
+
+        public async Task<ResponseHandler<List<AdminGetPropertyResponse>>> SearchPropertiesAsync(string keyword)
+        {
+            ResponseHandler<List<AdminGetPropertyResponse>> response = new();
+
+            var properties = await _propertyRepository.SearchEntityAsync(p => p.Name!.ToLower().Contains(keyword.ToLower()));
+
+            response.Success = true;
+            response.Message = "Properties retrieved successfully";
+            response.Data = properties.Select(p => _mapper.Map<AdminGetPropertyResponse>(p)).ToList();
+
+            return response;
+        }
+
 
         #region Data Maps
         private AdminGetActivityLogResponse MappedActivityLogResponse(ActivityLog activityLog)
@@ -233,6 +280,19 @@ namespace _750HrsTracker.Services.Implementations
                 }
 
                 response.Properties = properties;
+            }
+
+            return response;
+        }
+
+
+        private AdminGetPropertyResponse MapProperty(AvailableProperty property)
+        {
+            var response = _mapper.Map<AdminGetPropertyResponse>(property);
+
+            if(property.Team != null)
+            {
+                response.Team = $"{property.Team!.Name}";
             }
 
             return response;
