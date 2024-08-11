@@ -45,9 +45,17 @@ namespace _750HrsTracker.Services.Implementations
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            var teams = await _teamRepository.GetAllPaginatedAsync(validFilters);
+            var teams = await _teamRepository.GetAllTeamsAsync(validFilters);
 
-            var pagedData = (teams.Records!.Select(sn => _mapper.Map<GetTeamResponse>(sn))).ToList();
+            var pagedData = (teams.Records!.Select(sn => new GetTeamResponse
+            {
+                Id = sn.Id,
+                Name = sn.Name,
+                CreatedBy = $"{sn.Owner!.Firstname} {sn.Owner!.Lastname} ({sn.Owner!.Email})",
+                CreatedAt = sn.CreatedAt
+            })).ToList();
+
+
             PagedResponseHandler<List<GetTeamResponse>> response =
                 PaginationHelper.CreatePagedResponse(pagedData, validFilters, teams.TotalCount, _uriService, httpRequest.Path);
 
@@ -55,6 +63,70 @@ namespace _750HrsTracker.Services.Implementations
             response.Message = "All teams retrieved successfully";
             return response;
 
+        }
+
+        public async Task<ResponseHandler<AdminGetTeamResponse>> GetTeamAsync(Guid teamId)
+        {
+            ResponseHandler<AdminGetTeamResponse> response = new();
+
+            var team = await _teamRepository.GetTeamAsync(teamId);
+
+            var properties = await _propertyRepository.GetAllAsync(p => p.TeamId == teamId);
+            var activityLogs = await _activityLogRepository.GetAllAsync(a => a.TeamId == teamId); 
+            
+            var groupedLogs = activityLogs.ToList().GroupBy(a => a.PropertyType);
+
+            decimal totalLogHours = 0;
+            decimal totalStrHours = 0;
+            decimal totalLtrHours = 0;
+            foreach ( var group in groupedLogs)
+            {
+
+                var totalGroupedHours = group.ToList().Sum(l => l.HoursSpent);
+                var totalGroupedMinutes = group.ToList().Sum(l => l.MinutesSpent);
+                var totalGroupedSeconds = group.ToList().Sum(l => l.HoursSpent);
+                var totalGroupedTimeInSeconds = (totalGroupedHours * 3600) + (totalGroupedMinutes * 60) + totalGroupedSeconds;
+
+                decimal totalGroupedRepHours = totalGroupedTimeInSeconds / 3600;
+                totalLogHours += Math.Round(totalGroupedRepHours, 2);
+
+                if(group.Key == AvailablePropertyType.LTR)
+                {
+                    totalLtrHours = totalGroupedRepHours;
+                }
+                else if(group.Key == AvailablePropertyType.STR)
+                {
+                    totalStrHours = totalGroupedRepHours;
+                }
+            }
+
+            var responseData = new AdminGetTeamResponse
+            {
+                Id = team.Id,
+                CreatedAt = team.CreatedAt,
+                CreatedBy = $"{team.Owner!.Firstname} {team.Owner!.Lastname} ({team.Owner!.Email})",
+                ModifiedAt = team.ModifiedAt,
+                Name = team.Name,
+                Properties = properties.Take(5).Select(p => new GetPropertyResponse { Id = p.Id, Address = p.Address, Code = p.Code, Name = p.Name }).ToList(),
+                Users = team.TeamUsers!.Take(5).Select(u => new GetUsersOnlyResponse
+                {
+                    FirstName = u.User!.Firstname,
+                    LastName = u.User!.Lastname,
+                    Id  = u.User!.Id,
+                    Email = u.User!.Email,
+                }).ToList(),
+                TotalNumberOfLogs = activityLogs.Count(), 
+                TotalHours = totalLogHours,
+                TotalLtrHours = totalLtrHours,
+                TotalStrHours = totalStrHours,
+            };
+
+
+            response.Success = true;
+            response.Message = "Team details retrieved successfully";
+            response.Data = responseData;
+
+            return response;
         }
 
         public async Task<ResponseHandler<List<GetSubscriptionResponse>>> GetSubscriptionsAsync()

@@ -24,5 +24,8 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> MakeSpouseAsync(Guid teamId, Guid userId);
         Task<User> GetTeamAdmin(Guid teamId);
         Task<SubscriptionTransactions> AddTeamSubscriptionTransactionAsync(SubscriptionTransactions subscriptionTransactions);
+
+        Task<RepositoryResponseHandler<Team>> GetAllTeamsAsync(PaginationFilter filter);
+        Task<Team> GetTeamAsync(Guid teamId);
     }
 }

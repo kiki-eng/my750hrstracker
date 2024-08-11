@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Options;
+using Stripe;
 using System.Data;
 using System.Net.Mail;
 using System.Security.Claims;
@@ -513,6 +514,28 @@ namespace _750HrsTracker.Repositories.Implementations
             var team = await _context.Teams.Include(t => t.Owner).FirstOrDefaultAsync(t => t.Id == teamId) ?? throw new KeyNotFoundException("Team not found");
 
             return team.Owner!;
+        }
+
+        public async Task<RepositoryResponseHandler<Team>> GetAllTeamsAsync(PaginationFilter filter)
+        {
+            var records = await _context.Teams.Include(t => t.Owner)!.OrderByDescending(t => t.CreatedAt)
+                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+
+            var totalCount = await _context.Teams.CountAsync();
+
+            return new RepositoryResponseHandler<Team>()
+            {
+                TotalCount = totalCount,
+                Records = records
+            };
+        }
+
+        public async Task<Team> GetTeamAsync(Guid teamId)
+        {
+            var team = await _context.Teams.Include(t => t.Owner).Include(t => t.TeamUsers!).ThenInclude(tu => tu.User)
+                .FirstOrDefaultAsync(t => t.Id == teamId) ?? throw new KeyNotFoundException("Team not found");
+
+            return team!;
         }
 
         // === user invitation end === //

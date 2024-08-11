@@ -26,6 +26,12 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetTeamResponse>>))]
         public async Task<IActionResult> GetAllTeamsAsync([FromQuery] PaginationFilter filter)
             => Ok(await _adminService.GetAllTeamsAsync(filter, Request));
+        
+        
+        [HttpGet("teams/{teamId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<AdminGetTeamResponse>))]
+        public async Task<IActionResult> GetTeamAsync(Guid teamId)
+            => Ok(await _adminService.GetTeamAsync(teamId));
 
         #region Activity Logs
         [HttpGet("activity-logs")]

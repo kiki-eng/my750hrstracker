@@ -55,7 +55,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var logs = await _context.ActivityLogs.Include(al => al.ActivityLogActivity).ThenInclude(al => al!.ActivityLogCategory)
                 .Include(al => al.Task)
-                .Include(al => al.ActivityLogProperties).ThenInclude(al => al.Property)
+                .Include(al => al.ActivityLogProperties)!.ThenInclude(al => al.Property)
                 .Where(al => al.PropertyType == propertyType && al.TeamId == teamId).OrderByDescending(al => al.CreatedAt).ToListAsync();
 
             decimal totalHours = 0;

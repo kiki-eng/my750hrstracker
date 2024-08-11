@@ -9,6 +9,7 @@ namespace _750HrsTracker.Services.Interfaces
     public interface IAdminService
     {
         Task<PagedResponseHandler<List<GetTeamResponse>>> GetAllTeamsAsync(PaginationFilter filter, HttpRequest httpRequest);
+        Task<ResponseHandler<AdminGetTeamResponse>> GetTeamAsync(Guid teamId);
         Task<ResponseHandler<string>> SendSupportNotificationAsync(SupportRequest supportRequest);
         Task<ResponseHandler<List<GetSubscriptionResponse>>> GetSubscriptionsAsync();
         Task<ResponseHandler<GetAutoSuggestionResponse>> GetAutoSuggestionResponseAsync(string keyword);
