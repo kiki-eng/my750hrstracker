@@ -368,7 +368,7 @@ namespace _750HrsTracker.Services.Implementations
 
             requestData.ActivityById = activityBy.Id;
 
-            if (request.PropertyType == AvailablePropertyType.LTR && request.TaskId == null)
+            if (request.PropertyType == AvailablePropertyType.LTR && request.TaskId == null && request.LogType == ActivityLogType.REAL_ESTATE)
             {
                 throw new ApplicationException("Task Id is required for LTR logs");
             }

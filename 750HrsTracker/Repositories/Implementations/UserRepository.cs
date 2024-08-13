@@ -260,6 +260,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
             existingUser.Firstname = user.Firstname;
             existingUser.Lastname = user.Lastname;
+            existingUser.PhoneNumber = user.PhoneNumber;
 
             var updated = _context.Users.Update(existingUser);
             await _context.SaveChangesAsync();

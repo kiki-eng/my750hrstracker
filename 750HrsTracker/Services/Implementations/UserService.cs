@@ -357,7 +357,8 @@ namespace _750HrsTracker.Services.Implementations
                     Firstname = request.Firstname,
                     Lastname = request.Lastname,
                     Email = request.Email,
-                    UserName = $"{address.User}_{Utility.RandomString(4)}",
+                    UserName = $"{address.User}",
+                    PhoneNumber = request.PhoneNumber,
                     PasswordHash = Encryption.HashPassword(request.Password!),
                 };
 
@@ -426,7 +427,7 @@ namespace _750HrsTracker.Services.Implementations
             {
                 ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
 
-                var user = await _userRepository.UpdateUserAsync(userId, new User { Firstname = request.Firstname, Lastname = request.Lastname});
+                var user = await _userRepository.UpdateUserAsync(userId, new User { Firstname = request.Firstname, Lastname = request.Lastname, PhoneNumber = request.PhoneNumber});
 
                 response.Success = true;
                 response.Message = "User updated successfully";

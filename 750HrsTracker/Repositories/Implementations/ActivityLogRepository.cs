@@ -296,10 +296,19 @@ namespace _750HrsTracker.Repositories.Implementations
             var existingActivityLog = await _context.ActivityLogs.FirstOrDefaultAsync(p => p.Id == id && p.TeamId == teamId) ?? throw new KeyNotFoundException("Activity log not found");
 
             existingActivityLog.Name = activityLog.Name;
-            existingActivityLog.TaskId = activityLog.TaskId;
             existingActivityLog.ActivityById = activityLog.ActivityById;
-            existingActivityLog.ActivityLogActivityId = activityLog.ActivityLogActivityId;
-            existingActivityLog.ActivityLogCategoryId = activityLog.ActivityLogCategoryId;
+
+            if (activityLog.LogType != ActivityLogType.NON_REAL_ESTATE)
+            {
+                if (activityLog.LogType == ActivityLogType.REAL_ESTATE)
+                {
+                    existingActivityLog.TaskId = activityLog.TaskId;
+                    existingActivityLog.ActivityLogCategoryId = activityLog.ActivityLogCategoryId;
+
+                }
+                existingActivityLog.ActivityLogActivityId = activityLog.ActivityLogActivityId;
+
+            }
             existingActivityLog.ActivityDate = activityLog.ActivityDate;
             existingActivityLog.HoursSpent = activityLog.HoursSpent;
             existingActivityLog.MinutesSpent = activityLog.MinutesSpent;
