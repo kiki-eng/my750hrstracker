@@ -80,6 +80,7 @@ namespace _750HrsTracker.Controllers
           => Ok(await _subscriptionService.UpdateSubscriptionPriceAsync(id, request));
 
         [Authorize(Policy = "Permission.Subscription.Manage")]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [ServiceFilter(typeof(SessionFilter))]
         [HttpPost("stripe/create-checkout-session")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<CreateStripeCheckoutSessionResponse>))]
