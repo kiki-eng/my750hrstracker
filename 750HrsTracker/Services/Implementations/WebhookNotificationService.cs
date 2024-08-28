@@ -133,12 +133,14 @@ namespace _750HrsTracker.Services.Implementations
                 var updateSubTransaction = 
                     await _subscriptionRepository.UpdateSubscriptionTransactionAsync(subscriptionTransaction.Id, subscriptionTransaction, SubscriptionTransactionUpdateAction.checkout_session_completed);
                 // create team subscription
+
                 var teamSubscription = new TeamSubscription
                 {
                     TeamId = subscriptionTransaction.TeamId,
                     SubscriptionId = subscriptionTransaction.SubscriptionId,
                     SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
                     CreatedAt = DateTime.Now,
+                    
                 };
 
 
@@ -196,7 +198,7 @@ namespace _750HrsTracker.Services.Implementations
                 }
                 else
                 {
-                    
+                    subscriptionTransaction.StripeInvoiceId = invoice.Id;
                     var updateSubTransaction =
                         await _subscriptionRepository.UpdateSubscriptionTransactionAsync(subscriptionTransaction.Id, subscriptionTransaction, SubscriptionTransactionUpdateAction.invoice_paid);
                 }
@@ -210,6 +212,7 @@ namespace _750HrsTracker.Services.Implementations
                     SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
                     StartDate = invoice.Lines.First().Period.Start, 
                     EndDate = invoice.Lines.First().Period.End,
+                    StripeSubscriptionId = invoice.SubscriptionId
                 };
 
 

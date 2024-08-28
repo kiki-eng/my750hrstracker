@@ -141,9 +141,15 @@ namespace _750HrsTracker.Repositories.Implementations
         {
             try
             {
+
                 var subTransaction = await _context.SubscriptionTransactions.FirstOrDefaultAsync(st => st.Id == id) 
                     ?? throw new KeyNotFoundException("Could not find subscription transaction");
 
+                var subscription = await _context.TeamSubscriptions.Include(ts => ts.Team).FirstOrDefaultAsync(ts => ts.SubscriptionId == subTransaction.SubscriptionId)
+                    ?? throw new KeyNotFoundException("Could not find subscription");
+
+
+                var team = subscription.Team!;
                 switch(updateAction)
                 {
                     case SubscriptionTransactionUpdateAction.checkout_session_completed:
@@ -152,9 +158,13 @@ namespace _750HrsTracker.Repositories.Implementations
                         subTransaction.StripeInvoiceId = subscriptionTransaction.StripeInvoiceId;
                         subTransaction.StripeEventId = subscriptionTransaction.StripeEventId;
                         subTransaction.StripeEventName = subscriptionTransaction.StripeEventName;
-                        subTransaction.EventDataObject = subscriptionTransaction.EventDataObject;
+                        subTransaction.EventDataObject = subscriptionTransaction.EventDataObject;                      
+
                         break;
                     case SubscriptionTransactionUpdateAction.invoice_paid:
+                        team.StripeCustomerId = subscriptionTransaction.StripeCustomerId;
+                        team.UsedTrial = true;
+                        team.ModifiedAt = DateTime.Now;
                         break;
                     default:
                         throw new ApplicationException("Invalid subscription transaction update action");
@@ -162,6 +172,8 @@ namespace _750HrsTracker.Repositories.Implementations
 
                 subscriptionTransaction.IsCheckoutTransaction = subscriptionTransaction.IsCheckoutTransaction;
 
+                _context.TeamSubscriptions.Update(subscription);
+                _context.Teams.Update(team);
                 var updated = _context.SubscriptionTransactions.Update(subTransaction);
                 await _context.SaveChangesAsync();
 

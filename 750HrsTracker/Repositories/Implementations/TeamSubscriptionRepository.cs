@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Helpers;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Helpers;
 using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Persistence.Contexts;
 using _750HrsTracker.Repositories.Interfaces;
@@ -37,16 +38,27 @@ namespace _750HrsTracker.Repositories.Implementations
             return teamSub!;
         }
 
-        public async Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription)
+        public async Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription, TeamSubscriptionUpdateAction updateAction = TeamSubscriptionUpdateAction.none)
         {
             var existingTeamSubscription = await _context.TeamSubscriptions.FirstOrDefaultAsync(t => t.TeamId == teamSubscription.TeamId && t.SubscriptionId == teamSubscription.SubscriptionId) 
                 ?? throw new KeyNotFoundException("No subscription available");
 
-            existingTeamSubscription.SubscriptionTransactionId = teamSubscription.SubscriptionTransactionId;
-            existingTeamSubscription.StartDate = teamSubscription.StartDate;
-            existingTeamSubscription.EndDate = teamSubscription.EndDate;
-            existingTeamSubscription.ModifiedAt = DateTime.Now;
+            switch (updateAction)
+            {
+                case TeamSubscriptionUpdateAction.none:
+                    existingTeamSubscription.SubscriptionTransactionId = teamSubscription.SubscriptionTransactionId;
+                    existingTeamSubscription.StartDate = teamSubscription.StartDate;
+                    existingTeamSubscription.EndDate = teamSubscription.EndDate;
+                    existingTeamSubscription.ModifiedAt = DateTime.Now;
+                    break;
+                case TeamSubscriptionUpdateAction.cancel:
+                    existingTeamSubscription.Canceled = true;
+                    existingTeamSubscription.CanceledAt = DateTime.Now;
+                    break;
 
+                default:
+                    break;
+            }
             var updated = _context.TeamSubscriptions.Update(existingTeamSubscription);
 
             await _context.SaveChangesAsync();
@@ -54,5 +66,6 @@ namespace _750HrsTracker.Repositories.Implementations
             return updated.Entity;
 
         }
+
     }
 }

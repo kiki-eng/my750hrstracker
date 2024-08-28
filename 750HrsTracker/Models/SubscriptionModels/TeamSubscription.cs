@@ -12,7 +12,12 @@
         public bool StillOnTrial { get; set; }
         public DateTime? TrialStartDate { get; set; }
         public DateTime? TrialEndDate { get; set; }
+
+        public string? StripeSubscriptionId { get; set; }
         public string? SubscriptionTransactionId { get; set; }
+
+        public bool Canceled { get; set; }
+        public DateTime? CanceledAt { get; set; }   
 
     }
 }

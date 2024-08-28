@@ -33,4 +33,12 @@ namespace _750HrsTracker.DTOs.Responses
     {
         public string? SessionId { get; set; }
     }
+
+    public class CreateStripeMobilePaymentIntentResponse
+    {
+        public string? EphemeralKey { get; set; }
+        public string? PaymentIntent { get; set; }
+
+        public string? StripeCustomerId { get; set; }
+    }
 }

@@ -45,9 +45,11 @@ namespace _750HrsTracker.Persistence.Seeds
                     
                 }
 
-                context.Subscriptions.UpdateRange(subscriptions);
-                await context.SaveChangesAsync();
+               
             }
+
+            context.Subscriptions.UpdateRange(subscriptions);
+            await context.SaveChangesAsync();
         }
     }
 }

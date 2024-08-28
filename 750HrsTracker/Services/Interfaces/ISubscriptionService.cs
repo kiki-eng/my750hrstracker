@@ -20,5 +20,8 @@ namespace _750HrsTracker.Services.Interfaces
 
 
         Task<ResponseHandler<GetSubscriptionResponse>> UpdateSubscriptionPriceAsync(Guid id, UpdateSubscriptionPriceRequest request);
+
+        Task<ResponseHandler<string>> CancelSubscriptionAsync(HttpRequest httpRequest);
     }
+
 }

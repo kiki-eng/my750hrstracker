@@ -9,6 +9,7 @@ using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
@@ -23,14 +24,21 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
         private readonly AppSettings _appSettings;
+        private readonly Bugsnag.IClient _bugsnag;
+        private readonly IUserRepository _userRepository;
+        private readonly ITeamSubscriptionRepository _teamSubscriptionRepository;
         public SubscriptionService(ISubscriptionRepository subscriptionRepository, IPermissionRepository permissionRepository,
-            IMapper mapper, IUriService uriService, IOptionsSnapshot<AppSettings> appSettings)
+            IMapper mapper, IUriService uriService, IOptionsSnapshot<AppSettings> appSettings, Bugsnag.IClient bugsnag, 
+            IUserRepository userRepository, ITeamSubscriptionRepository teamSubscriptionRepository)
         {
             _subscriptionRepository = subscriptionRepository;
             _permissionRepository = permissionRepository;
             _mapper = mapper;
             _uriService = uriService;
             _appSettings = appSettings.Value;
+            _bugsnag = bugsnag;
+            _userRepository = userRepository;
+            _teamSubscriptionRepository = teamSubscriptionRepository;
         }
 
         public async Task<ResponseHandler<GetSubscriptionResponse>> AddSubscriptionAsync(AddUpdateSubscriptionRequest request)
@@ -158,7 +166,52 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-       
+        public async Task<ResponseHandler<string>> CancelSubscriptionAsync(HttpRequest httpRequest)
+        {
+
+            ResponseHandler<string> response = new();
+
+            try
+            {
+                var userData = Utility.GetUserIdFromToken(httpRequest);
+
+
+                var user = await _userRepository.GetUserAsync(Guid.Parse(userData.Item1));
+
+
+                var teamSubscription = await _teamSubscriptionRepository.GetWthSubscription(Guid.Parse(user.DefaultTeamId!)) 
+                    ?? throw new ApplicationException("No team subscription found");
+
+                var service = new Stripe.SubscriptionService();
+
+                var result = service.Cancel(teamSubscription.StripeSubscriptionId);
+
+                if (result.Status != "canceled")
+                {
+                    response.Message = "Could not cancel subscription now. Please try again soon.";
+
+                    return response;
+                }
+
+
+                // update subscription as canceled and inactive
+                var updated = _teamSubscriptionRepository.UpdateTeamSubscriptionAsync(teamSubscription, Enums.TeamSubscriptionUpdateAction.cancel);
+
+
+                response.Success = true;
+                response.Message = "Team subscription canceled successfully";
+
+                return response;
+
+            }
+            catch(Exception ex)
+            {
+                _bugsnag.Notify(ex);
+                throw;                
+            } 
+          
+
+        }
     }
 
 }

@@ -19,6 +19,9 @@ namespace _750HrsTracker.Models
         public bool IsDeleted { get; set; }
         public DateTime DeletedAt { get; set; }
 
+        public string? StripeCustomerId { get; set; }
+        public bool UsedTrial { get; set; }
+
 
         public ICollection<AvailableProperty>? Properties { get; set; }
         public ICollection<TeamUser>? TeamUsers { get; set; }

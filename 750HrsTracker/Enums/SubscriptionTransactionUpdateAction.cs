@@ -4,7 +4,9 @@
     {
         none = 0,
         checkout_session_completed,
-        invoice_paid
+        invoice_paid,
+        subscription_canceled,
+        trial_ended
 
     }
 }

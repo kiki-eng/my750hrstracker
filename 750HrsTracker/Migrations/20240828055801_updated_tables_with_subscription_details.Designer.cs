@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using _750HrsTracker.Persistence.Contexts;
 
@@ -11,9 +12,10 @@ using _750HrsTracker.Persistence.Contexts;
 namespace _750HrsTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240828055801_updated_tables_with_subscription_details")]
+    partial class updated_tables_with_subscription_details
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,7 +98,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("ActivityLogs", (string)null);
+                    b.ToTable("ActivityLogs");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.ActivityLogModels.ActivityLogActivity", b =>
@@ -137,7 +139,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("ActivityLogActivities", (string)null);
+                    b.ToTable("ActivityLogActivities");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.ActivityLogModels.ActivityLogCategory", b =>
@@ -173,7 +175,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("ActivityLogCategories", (string)null);
+                    b.ToTable("ActivityLogCategories");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.ActivityLogModels.ActivityLogDocument", b =>
@@ -221,7 +223,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("ActivityLogDocuments", (string)null);
+                    b.ToTable("ActivityLogDocuments");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.ActivityLogModels.ActivityLogSubCategory", b =>
@@ -259,7 +261,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL AND [LogActivityId] IS NOT NULL");
 
-                    b.ToTable("ActivityLogSubCategories", (string)null);
+                    b.ToTable("ActivityLogSubCategories");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.Admin.Admin", b =>
@@ -351,7 +353,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.Admin.AdminProfilePicture", b =>
@@ -396,7 +398,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[AdminId] IS NOT NULL");
 
-                    b.ToTable("AdminProfilePicture", (string)null);
+                    b.ToTable("AdminProfilePicture");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.AvailableProperty", b =>
@@ -456,7 +458,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("Properties", (string)null);
+                    b.ToTable("Properties");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.JointEntities.ActivityLogProperty", b =>
@@ -486,7 +488,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("PropertyId");
 
-                    b.ToTable("ActivityLogProperties", (string)null);
+                    b.ToTable("ActivityLogProperties");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.JointEntities.PropertyTeamUser", b =>
@@ -521,7 +523,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PropertyTeamUsers", (string)null);
+                    b.ToTable("PropertyTeamUsers");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.JointEntities.RoleClaims", b =>
@@ -575,7 +577,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("RolePermission", (string)null);
+                    b.ToTable("RolePermission");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.JointEntities.TeamUser", b =>
@@ -598,7 +600,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Team_User", (string)null);
+                    b.ToTable("Team_User");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.JointEntities.UserClaims", b =>
@@ -722,7 +724,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.Role", b =>
@@ -829,7 +831,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("Subscriptions", (string)null);
+                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.SubscriptionPermission", b =>
@@ -859,7 +861,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("SubscriptionPermissions", (string)null);
+                    b.ToTable("SubscriptionPermissions");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.SubscriptionTransactions", b =>
@@ -915,7 +917,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("SubscriptionTransactions", (string)null);
+                    b.ToTable("SubscriptionTransactions");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.TeamSubscription", b =>
@@ -975,7 +977,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("TeamSubscriptions", (string)null);
+                    b.ToTable("TeamSubscriptions");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.SubscriptionModels.WebhookNotificationTraceLog", b =>
@@ -1004,7 +1006,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WebhookNotificationTraceLogs", (string)null);
+                    b.ToTable("WebhookNotificationTraceLogs");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.Team", b =>
@@ -1041,7 +1043,7 @@ namespace _750HrsTracker.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Teams", (string)null);
+                    b.ToTable("Teams");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.User", b =>
@@ -1209,7 +1211,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[Code] IS NOT NULL");
 
-                    b.ToTable("UserInvitations", (string)null);
+                    b.ToTable("UserInvitations");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.UserProfilePicture", b =>
@@ -1254,7 +1256,7 @@ namespace _750HrsTracker.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("UserProfilePictures", (string)null);
+                    b.ToTable("UserProfilePictures");
                 });
 
             modelBuilder.Entity("_750HrsTracker.Models.ActivityLogModels.ActivityLog", b =>

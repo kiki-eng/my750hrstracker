@@ -88,5 +88,16 @@ namespace _750HrsTracker.Controllers
           => Ok(await _tenantService.CreateStripeCheckoutSessionAsync(request));
 
 
+        [Authorize(Policy = "Permission.Subscription.Manage")]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+        [ServiceFilter(typeof(SessionFilter))]
+        [HttpDelete("cancel")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<CreateStripeMobilePaymentIntentResponse>))]
+        public async Task<IActionResult> CancelSubscriptionAsync()
+           => Ok(await _subscriptionService.CancelSubscriptionAsync(Request));
+
+
+
+
     }
 }

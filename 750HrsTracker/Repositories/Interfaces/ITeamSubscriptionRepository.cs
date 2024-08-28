@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Models.SubscriptionModels;
+﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Models.SubscriptionModels;
 
 namespace _750HrsTracker.Repositories.Interfaces
 {
@@ -6,6 +7,6 @@ namespace _750HrsTracker.Repositories.Interfaces
     {
         Task<TeamSubscription> GetWthSubscription(Guid id);
         Task<TeamSubscription> FindPermissionInTeamSubscriptionAsync(Guid teamId, string permission);
-        Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription);
+        Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription, TeamSubscriptionUpdateAction updateAction = TeamSubscriptionUpdateAction.none);
     }
 }
