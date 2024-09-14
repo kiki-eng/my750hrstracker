@@ -308,13 +308,13 @@ namespace _750HrsTracker.Services.Implementations
                             MissingPaymentMethod = "pause",
                         },
                     },
-                    TrialPeriodDays = _appSettings.StripeSubscriptionTrialPeriodDays,
                 },
                 Mode = "subscription",
                 SuccessUrl = _appSettings.FrontendBaseUrl + "/settings?subscription_success=true&session_id={CHECKOUT_SESSION_ID}",
                 CancelUrl = _appSettings.FrontendBaseUrl + "/settings?subscription_success=false&session_id={CHECKOUT_SESSION_ID}",
             };
 
+         
             var service = new SessionService();
             Session session = await service.CreateAsync(options);
 
