@@ -47,6 +47,7 @@ namespace _750HrsTracker.Repositories.Implementations
             {
                 case TeamSubscriptionUpdateAction.none:
                     existingTeamSubscription.SubscriptionTransactionId = teamSubscription.SubscriptionTransactionId;
+                    existingTeamSubscription.StripeSubscriptionId = teamSubscription.StripeSubscriptionId;
                     existingTeamSubscription.StartDate = teamSubscription.StartDate;
                     existingTeamSubscription.EndDate = teamSubscription.EndDate;
                     existingTeamSubscription.ModifiedAt = DateTime.Now;
