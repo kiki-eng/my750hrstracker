@@ -93,8 +93,9 @@ namespace _750HrsTracker.Services.Implementations
                         response.Message = string.Format("Unhandled event type: {0}", stripeEvent.Type);
                         break;
 
-                }              
+                }
 
+                response.Success = result;
                 log.ResponseData = JsonConvert.SerializeObject(response);
                 await _webhookNotificationRepository.UpdateAsync(log.Id, log);
 
@@ -173,6 +174,7 @@ namespace _750HrsTracker.Services.Implementations
         {
             try
             {
+                Thread.Sleep(3000);
                 // get subscription transaction by invoice id
                 var subscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionByStripeRecIdAsync(invoice.Id, "invoice");
 
