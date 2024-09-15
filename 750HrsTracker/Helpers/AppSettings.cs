@@ -30,6 +30,8 @@
         public int StripeSubscriptionTrialPeriodDays { get; set; }
         public string? StripeApiVersion { get; set; }
 
+        public int StripeInvoicePaidSleepTime { get; set; }
+
         public string? AutoSuggestionBaseUrl { get; set; }
         public string? AutoSuggestionRequestUrl { get; set; }
         public string? AutoSuggestionApiKey { get; set; }

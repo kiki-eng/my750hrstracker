@@ -174,7 +174,7 @@ namespace _750HrsTracker.Services.Implementations
         {
             try
             {
-                Thread.Sleep(3000);
+                Thread.Sleep(_appSettings.StripeInvoicePaidSleepTime);
                 // get subscription transaction by invoice id
                 var subscriptionTransaction = await _subscriptionRepository.GetSubscriptionTransactionByStripeRecIdAsync(invoice.Id, "invoice");
 
@@ -220,7 +220,7 @@ namespace _750HrsTracker.Services.Implementations
                 };
 
 
-                var updatedTeamSubscription = await _teamSubscriptionRepository.UpdateTeamSubscriptionAsync(teamSubscription);
+                var updatedTeamSubscription = await _teamSubscriptionRepository.UpdateTeamSubscriptionAsync(teamSubscription, TeamSubscriptionUpdateAction.none);
 
                 var teamAdmin = await _teamRepository.GetTeamAdmin((Guid)teamSubscription.TeamId!);
 

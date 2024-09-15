@@ -40,7 +40,8 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<TeamSubscription> UpdateTeamSubscriptionAsync(TeamSubscription teamSubscription, TeamSubscriptionUpdateAction updateAction = TeamSubscriptionUpdateAction.none)
         {
-            var existingTeamSubscription = await _context.TeamSubscriptions.FirstOrDefaultAsync(t => t.TeamId == teamSubscription.TeamId && t.SubscriptionId == teamSubscription.SubscriptionId) 
+            var existingTeamSubscription = await _context.TeamSubscriptions.FirstOrDefaultAsync(t => t.TeamId == teamSubscription.TeamId 
+                && t.SubscriptionId == teamSubscription.SubscriptionId && t.SubscriptionTransactionId == teamSubscription.SubscriptionTransactionId) 
                 ?? throw new KeyNotFoundException("No subscription available");
 
             switch (updateAction)
