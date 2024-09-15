@@ -33,7 +33,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<TeamSubscription> GetWthSubscription(Guid teamId)
         {
-            var teamSub = await _context.TeamSubscriptions.Include(ts => ts.Subscription).OrderByDescending(ts => ts.CreatedAt).FirstOrDefaultAsync(ts => ts.TeamId == teamId);
+            var teamSub = await _context.TeamSubscriptions.Include(ts => ts.Subscription).OrderByDescending(ts => ts.CreatedAt).FirstOrDefaultAsync(ts => ts.TeamId == teamId && !ts.Canceled);
 
             return teamSub!;
         }
