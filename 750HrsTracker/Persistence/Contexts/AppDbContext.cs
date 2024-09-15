@@ -116,7 +116,7 @@ namespace _750HrsTracker.Persistence.Contexts
 
             builder.Entity<TeamSubscription>(entity =>
             {
-                entity.HasKey(e => new { e.SubscriptionId, e.TeamId, e.SubscriptionTransactionId }); 
+                //entity.HasKey(e => new { e.SubscriptionId, e.TeamId }); 
                 entity.HasOne(e => e.Subscription).WithMany(e => e.TeamSubscriptions).HasForeignKey(e => e.SubscriptionId).OnDelete(DeleteBehavior.NoAction);   
                 entity.HasOne(e => e.Team).WithMany(e => e.TeamSubscriptions).HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.NoAction);   
             });
