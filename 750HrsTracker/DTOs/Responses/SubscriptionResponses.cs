@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.Enums;
+using _750HrsTracker.Models;
 
 namespace _750HrsTracker.DTOs.Responses
 {
@@ -40,5 +41,29 @@ namespace _750HrsTracker.DTOs.Responses
         public string? PaymentIntent { get; set; }
 
         public string? StripeCustomerId { get; set; }
+    }
+
+    public class GetSubscriptionTransactionResponse
+    {
+        public Guid Id { get; set; }
+
+        public GetTeamResponse? Team { get; set; }
+
+        public GetSubscriptionResponse? Subcription { get; set; }
+
+        public bool IsCheckoutTransaction { get; set; }
+
+        public string? InitialStripeSessionId { get; set; }
+        public string? StripeCustomerId { get; set; }
+        public string? StripeSubscriptionId { get; set; }
+        public string? StripeInvoiceId { get; set; }
+        public string? StripeEventId { get; set; }
+        public string? StripeEventName { get; set; }
+        public string? EventDataObject { get; set; }
+
+        public GetUsersOnlyResponse? LastActionBy { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime ModifiedAt { get; set; }
     }
 }

@@ -142,14 +142,14 @@ namespace _750HrsTracker.Repositories.Implementations
             try
             {
 
-                var subTransaction = await _context.SubscriptionTransactions.FirstOrDefaultAsync(st => st.Id == id) 
+                var subTransaction = await _context.SubscriptionTransactions.Include(st => st.Team).FirstOrDefaultAsync(st => st.Id == id) 
                     ?? throw new KeyNotFoundException("Could not find subscription transaction");
 
-                var subscription = await _context.TeamSubscriptions.Include(ts => ts.Team).FirstOrDefaultAsync(ts => ts.SubscriptionId == subTransaction.SubscriptionId)
-                    ?? throw new KeyNotFoundException("Could not find subscription");
+                //var subscription = await _context.TeamSubscriptions.Include(ts => ts.Team).FirstOrDefaultAsync(ts => ts.SubscriptionId == subTransaction.SubscriptionId)
+                //    ?? throw new KeyNotFoundException("Could not find subscription");
 
 
-                var team = subscription.Team!;
+                var team = subTransaction.Team!;
                 switch(updateAction)
                 {
                     case SubscriptionTransactionUpdateAction.checkout_session_completed:
@@ -158,10 +158,12 @@ namespace _750HrsTracker.Repositories.Implementations
                         subTransaction.StripeInvoiceId = subscriptionTransaction.StripeInvoiceId;
                         subTransaction.StripeEventId = subscriptionTransaction.StripeEventId;
                         subTransaction.StripeEventName = subscriptionTransaction.StripeEventName;
-                        subTransaction.EventDataObject = subscriptionTransaction.EventDataObject;                      
+                        subTransaction.EventDataObject = subscriptionTransaction.EventDataObject;       
+                        subTransaction.IsCheckoutTransaction = subscriptionTransaction.IsCheckoutTransaction;
 
                         break;
                     case SubscriptionTransactionUpdateAction.invoice_paid:
+                        subTransaction.StripeInvoiceId = subscriptionTransaction.StripeInvoiceId;
                         team.StripeCustomerId = subscriptionTransaction.StripeCustomerId;
                         team.UsedTrial = true;
                         team.ModifiedAt = DateTime.Now;
@@ -170,9 +172,8 @@ namespace _750HrsTracker.Repositories.Implementations
                         throw new ApplicationException("Invalid subscription transaction update action");
                 }
 
-                subscriptionTransaction.IsCheckoutTransaction = subscriptionTransaction.IsCheckoutTransaction;
 
-                _context.TeamSubscriptions.Update(subscription);
+                //_context.TeamSubscriptions.Update(subscription);
                 _context.Teams.Update(team);
                 var updated = _context.SubscriptionTransactions.Update(subTransaction);
                 await _context.SaveChangesAsync();

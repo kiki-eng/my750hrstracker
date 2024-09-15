@@ -41,9 +41,9 @@ namespace _750HrsTracker.Services.Implementations
         {
             var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            var logs = await _webhookNotificationRepository.GetAllPaginatedAsync(filter);
+            var logs = await _webhookNotificationRepository.GetAllPaginatedAsync(filter, e => e.CreatedAt);
 
-            var response = PaginationHelper.CreatePagedResponse<WebhookNotificationTraceLog>(logs.Records!, validFilters, logs.TotalCount, _uriService, route);
+            var response = PaginationHelper.CreatePagedResponse(logs.Records!, validFilters, logs.TotalCount, _uriService, route);
 
             response.Success = true;
             response.Message = "Webhook notification logs retrieved successfully";
@@ -82,6 +82,8 @@ namespace _750HrsTracker.Services.Implementations
                         result = await HandleInvoicePaidNotificationAsync(stripeEvent.Id, stripeEvent.Type, invoicePaidObj!);
                         break;
                     case Events.InvoicePaymentFailed:
+                        break;
+                    case Events.InvoicePaymentSucceeded:
                         break;
                     case Events.CustomerSubscriptionTrialWillEnd:
                         var subscriptionObj = stripeEvent.Data.Object as Stripe.Subscription;
