@@ -33,7 +33,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
         public async Task<TeamSubscription> GetWthSubscription(Guid teamId)
         {
-            var teamSub = await _context.TeamSubscriptions.Include(ts => ts.Subscription).OrderByDescending(ts => ts.CreatedAt).FirstOrDefaultAsync(ts => ts.TeamId == teamId && !ts.Canceled);
+            var teamSub = await _context.TeamSubscriptions.Include(ts => ts.Subscription).OrderByDescending(ts => ts.CreatedAt).FirstOrDefaultAsync(ts => ts.TeamId == teamId && !ts.Canceled && ts.IsActive);
 
             return teamSub!;
         }
@@ -52,9 +52,11 @@ namespace _750HrsTracker.Repositories.Implementations
                     existingTeamSubscription.StartDate = teamSubscription.StartDate;
                     existingTeamSubscription.EndDate = teamSubscription.EndDate;
                     existingTeamSubscription.ModifiedAt = DateTime.Now;
+                    existingTeamSubscription.IsActive = teamSubscription.IsActive;
                     break;
                 case TeamSubscriptionUpdateAction.cancel:
                     existingTeamSubscription.Canceled = true;
+                    existingTeamSubscription.IsActive = false;
                     existingTeamSubscription.CanceledAt = DateTime.Now;
                     break;
 

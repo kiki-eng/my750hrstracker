@@ -312,8 +312,15 @@ namespace _750HrsTracker.Services.Implementations
                 Mode = "subscription",
                 SuccessUrl = _appSettings.FrontendBaseUrl + "/settings?subscription_success=true&session_id={CHECKOUT_SESSION_ID}",
                 CancelUrl = _appSettings.FrontendBaseUrl + "/settings?subscription_success=false&session_id={CHECKOUT_SESSION_ID}",
+                
             };
 
+            var team = await _teamRepository.GetTeamAsync((Guid)Session.TeamId!);
+
+            if (!string.IsNullOrEmpty(team.StripeCustomerId))
+            {
+                options.Customer = team.StripeCustomerId;
+            }
          
             var service = new SessionService();
             Session session = await service.CreateAsync(options);

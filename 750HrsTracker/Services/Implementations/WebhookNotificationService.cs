@@ -214,9 +214,10 @@ namespace _750HrsTracker.Services.Implementations
                     TeamId = subscriptionTransaction.TeamId,
                     SubscriptionId = subscriptionTransaction.SubscriptionId,
                     SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
-                    StartDate = invoice.Lines.First().Period.Start, 
+                    StartDate = invoice.Lines.First().Period.Start,
                     EndDate = invoice.Lines.First().Period.End,
-                    StripeSubscriptionId = invoice.SubscriptionId
+                    StripeSubscriptionId = invoice.SubscriptionId,
+                    IsActive = true
                 };
 
 
