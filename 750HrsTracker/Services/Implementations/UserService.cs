@@ -357,7 +357,7 @@ namespace _750HrsTracker.Services.Implementations
                     Firstname = request.Firstname,
                     Lastname = request.Lastname,
                     Email = request.Email,
-                    UserName = $"{address.User}",
+                    UserName = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     PasswordHash = Encryption.HashPassword(request.Password!),
                 };
