@@ -49,7 +49,7 @@ namespace _750HrsTracker.Controllers
         [HttpGet("all")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetSubscriptionResponse>>))]
         public async Task<IActionResult> GetAllSubscriptionAsync()
-            => Ok(await _subscriptionService.GetAllSubscriptionAsync());
+            => Ok(await _subscriptionService.GetAllSubscriptionAsync(Request));
 
         [Authorize(AuthenticationSchemes = CustomPubAccessAuthenticationSchemeOption.Name)]
         [HttpGet("{id}")]
