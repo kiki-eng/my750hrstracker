@@ -38,6 +38,14 @@ namespace _750HrsTracker.Controllers
             => Ok(await _subscriptionService.GetAllSubscriptionAsync(filter, Request.Path));
         
         [Authorize(AuthenticationSchemes = CustomPubAccessAuthenticationSchemeOption.Name)]
+        [HttpGet("all-pub")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetSubscriptionResponse>>))]
+        public async Task<IActionResult> GetAllSubscriptionPubAsync()
+            => Ok(await _subscriptionService.GetAllSubscriptionPubAsync());
+
+
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+        [ServiceFilter(typeof(SessionFilter))]
         [HttpGet("all")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetSubscriptionResponse>>))]
         public async Task<IActionResult> GetAllSubscriptionAsync()

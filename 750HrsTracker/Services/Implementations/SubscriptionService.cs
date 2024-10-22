@@ -9,10 +9,10 @@ using _750HrsTracker.Repositories.Implementations;
 using _750HrsTracker.Repositories.Interfaces;
 using _750HrsTracker.Services.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Stripe;
-using Stripe.Checkout;
 using Subscription = _750HrsTracker.Models.SubscriptionModels.Subscription;
 
 namespace _750HrsTracker.Services.Implementations
@@ -27,9 +27,10 @@ namespace _750HrsTracker.Services.Implementations
         private readonly Bugsnag.IClient _bugsnag;
         private readonly IUserRepository _userRepository;
         private readonly ITeamSubscriptionRepository _teamSubscriptionRepository;
+        private readonly ITeamRepository _teamRepository;
         public SubscriptionService(ISubscriptionRepository subscriptionRepository, IPermissionRepository permissionRepository,
             IMapper mapper, IUriService uriService, IOptionsSnapshot<AppSettings> appSettings, Bugsnag.IClient bugsnag, 
-            IUserRepository userRepository, ITeamSubscriptionRepository teamSubscriptionRepository)
+            IUserRepository userRepository, ITeamSubscriptionRepository teamSubscriptionRepository, ITeamRepository teamRepository)
         {
             _subscriptionRepository = subscriptionRepository;
             _permissionRepository = permissionRepository;
@@ -39,6 +40,7 @@ namespace _750HrsTracker.Services.Implementations
             _bugsnag = bugsnag;
             _userRepository = userRepository;
             _teamSubscriptionRepository = teamSubscriptionRepository;
+            _teamRepository = teamRepository;
         }
 
         public async Task<ResponseHandler<GetSubscriptionResponse>> AddSubscriptionAsync(AddUpdateSubscriptionRequest request)
@@ -114,7 +116,32 @@ namespace _750HrsTracker.Services.Implementations
             return response;
         }
 
-        public async Task<ResponseHandler<List<GetSubscriptionResponse>>> GetAllSubscriptionAsync()
+        public async Task<ResponseHandler<List<GetSubscriptionResponse>>> GetAllSubscriptionAsync(HttpRequest httpRequest)
+        {
+            ResponseHandler<List<GetSubscriptionResponse>> response = new();
+
+            var userData = Utility.GetUserIdFromToken(httpRequest);
+
+            var user = await _userRepository.GetUserAsync(Guid.Parse(userData.Item1));
+
+            var team = await _teamRepository.GetTeamAsync(Guid.Parse(user.DefaultTeamId!));
+
+
+            var subscriptions = await _subscriptionRepository.GetAllAsync();
+
+            if (team.UsedTrial)
+            {
+                subscriptions = subscriptions.Where(s => s.Slug!.ToLower() != "free-plan");
+            }
+
+            response.Success = true;
+            response.Message = "Subscriptions retrieved successfully";
+            response.Data = subscriptions.Select(s => _mapper.Map<GetSubscriptionResponse>(s)).ToList();
+
+            return response;
+        }
+        
+        public async Task<ResponseHandler<List<GetSubscriptionResponse>>> GetAllSubscriptionPubAsync()
         {
             ResponseHandler<List<GetSubscriptionResponse>> response = new();
 

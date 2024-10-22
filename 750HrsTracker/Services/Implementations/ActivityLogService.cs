@@ -483,7 +483,7 @@ namespace _750HrsTracker.Services.Implementations
                     }
                 }
 
-                zipStream.Position = 0;
+                    zipStream.Position = 0;
 
                 byte[] zipBytes = zipStream.ToArray();
 
@@ -492,7 +492,7 @@ namespace _750HrsTracker.Services.Implementations
             }
             else
             {
-                throw new ApplicationException("Could not export documents");
+                throw new ApplicationException("No document to download");
             }
 
 
