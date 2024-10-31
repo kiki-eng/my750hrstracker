@@ -77,11 +77,11 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
 
-            //var defaultRoles = await _context.Roles.Where(r => r.Name.ToLower() != Roles.Owner.ToString().ToLower() && r.Default).ToListAsync();
+            var defaultRoles = await _context.Roles.ToListAsync();
 
             var customRoles = await _context.Roles.Where(r => r.TeamId.Equals(team.Id) && !r.Default).ToListAsync();
 
-            roles = customRoles;
+            roles = defaultRoles.Union(customRoles).ToList();
 
             return roles;
         }
