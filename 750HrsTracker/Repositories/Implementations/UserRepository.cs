@@ -204,7 +204,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
 
                 List<UserRoles> userRoles = new List<UserRoles>();
-                List<Role> roles = await _context.Roles.Where(r => r.Name == Roles.Admin.ToString() || r.Name == Roles.Owner.ToString()).ToListAsync();
+                List<Role> roles = await _context.Roles.Where(r => r.Name == Roles.DesignatedRep.ToString()).ToListAsync();
                 List<string> roleNames = new List<string>();
 
 

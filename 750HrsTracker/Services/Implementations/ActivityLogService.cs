@@ -474,12 +474,16 @@ namespace _750HrsTracker.Services.Implementations
                 {
                     foreach (var document in documents)
                     {
-                        byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, document.RemoteDirectoryName!);                       
+                        byte[] fileBytes = await Storage.DownloadDocumentAsStream(_appSettings, document.RemoteDirectoryName!);
 
+                        if (fileBytes == null || fileBytes.Length == 0)
+                        {
+                            continue;
+                        }
                         // Add blob content to zip file
-                        ZipArchiveEntry entry = archive.CreateEntry(document.DocumentName!);
+                        ZipArchiveEntry entry = archive.CreateEntry(document.DocumentName!, CompressionLevel.Fastest);
                         using Stream entryStream = entry.Open();
-                        await entryStream.WriteAsync(fileBytes, 0 , fileBytes.Length);
+                        await entryStream.WriteAsync(fileBytes, 0, fileBytes.Length);
                     }
                 }
 
@@ -716,6 +720,34 @@ namespace _750HrsTracker.Services.Implementations
 
             return response;
 
-        }        
+        }
+
+        public async Task<LogReportDownloadResponse> DownloadActivityLogReportAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter)
+        {
+            LogReportDownloadResponse response = new();
+
+            string? fileName;
+            filter.PageNumber = 1;
+            filter.PageSize = 0;
+
+            var records = await _activityLogRepository.GetAllLogsAsync(filter, activityLogFilter, propertyType, (Guid)Session.TeamId!, true);
+
+            var pagedData = (records.Records!.Select(sn => MappedResponse(sn))).ToList();
+
+            fileName = $"{LogCategoryConstants.ReportDownloadFileName}_{DateTime.Now:dd-MM-yyyy}.xlsx";
+            var xcel = ReportHelper.ExportActivityLogReportToExcel(pagedData, fileName);
+
+            if (xcel.FileStatus.Equals(true))
+            {
+                response = xcel;
+                response.FileStatus = true;
+                response.FileName  = fileName;
+            }
+            else
+                response.FileStatus = false;
+
+
+            return response;
+        }
     }   
 }

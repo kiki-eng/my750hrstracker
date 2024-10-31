@@ -5,6 +5,12 @@ using System.Globalization;
 
 namespace _750HrsTracker.DTOs.Responses
 {
+    public class LogReportDownloadResponse
+    {
+        public bool FileStatus { get; set; }
+        public string? FileName { get; set; }
+        public byte[]? ExportContent { get; set; }
+    }
     public class GetActivityLogResponse
     {
         public Guid Id { get; set; }

@@ -77,11 +77,11 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Invalid team");
 
-            var defaultRoles = await _context.Roles.Where(r => r.Name.ToLower() != Roles.Owner.ToString().ToLower() && r.Default).ToListAsync();
+            //var defaultRoles = await _context.Roles.Where(r => r.Name.ToLower() != Roles.Owner.ToString().ToLower() && r.Default).ToListAsync();
 
             var customRoles = await _context.Roles.Where(r => r.TeamId.Equals(team.Id) && !r.Default).ToListAsync();
 
-            roles = defaultRoles.Union(customRoles).ToList();
+            roles = customRoles;
 
             return roles;
         }
@@ -460,16 +460,10 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var role = teamRoles.FirstOrDefault(tr => tr.Id.Equals(roleId)) ?? throw new ApplicationException("Invalid role selection") ;
 
-
-          
-
             var userRoles = await GetUserRolesInTeamAsync(userId, teamId);
 
-            var ownerRole = await _roleManager.FindByNameAsync(Roles.Owner.ToString());
-        
-
             var otherRoles = await _context.UserRoles.Where(ur => ur.TeamId == teamUser.TeamId
-                                   && ur.UserId == teamUser.UserId && ur.RoleId != ownerRole.Id).ToListAsync();
+                                   && ur.UserId == teamUser.UserId).ToListAsync();
 
             _context.UserRoles.RemoveRange(otherRoles);
 

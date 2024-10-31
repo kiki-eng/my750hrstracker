@@ -13,24 +13,16 @@ namespace _750HrsTracker.Persistence.Seeds
             {
                 new Role()
                 {
-                    Name = Roles.Admin.ToString(),
-                    Slug = Roles.Admin.ToString().ToLower(),
+                    Name = Roles.DesignatedRep.ToString(),
+                    Slug = Roles.DesignatedRep.ToString().ToLower(),
                     CreatedBy = "system",
                     RoleType = RoleType.team,
                     Default = true
                 },
                 new Role()
                 {
-                    Name = Roles.Owner.ToString(),
-                    Slug = Roles.Owner.ToString().ToLower(),
-                    CreatedBy = "system",
-                    RoleType = RoleType.team,
-                    Default = true
-                },
-                new Role()
-                {
-                    Name = Roles.Basic.ToString(),
-                    Slug = Roles.Basic.ToString().ToLower(),
+                    Name = Roles.Partner.ToString(),
+                    Slug = Roles.Partner.ToString().ToLower(),
                     CreatedBy = "system",
                     RoleType = RoleType.team,
                     Default = true

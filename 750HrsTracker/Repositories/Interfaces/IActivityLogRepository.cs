@@ -19,7 +19,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task AttachLogPropertyAsync(List<ActivityLogProperty> activityLogProperties);
         Task UpdateAttachedLogPropertyAsync(Guid activityLogId, List<ActivityLogProperty> activityLogProperties);
         Task<RepositoryResponseHandler<ActivityLog>> 
-            GetAllLogsAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType, Guid? teamId = null);
+            GetAllLogsAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType, Guid? teamId = null, bool withIncludes = false);
 
         Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType);
         Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId, ExportDocumentFilter filter);

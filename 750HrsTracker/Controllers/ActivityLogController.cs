@@ -2,6 +2,7 @@
 using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -89,6 +90,27 @@ namespace _750HrsTracker.Controllers
             var zipBytes = await _activityLogService.ExportDocumentsAsync(filter);
 
             return File(zipBytes, "application/zip", "Log_Documents.zip");
+        }
+        
+        
+        [Authorize(Policy = "Permission.ActivityLog.DownloadReport")]
+        [HttpGet("download-report")]
+        public async Task<IActionResult> ExportDocumentsAsync([FromQuery]AvailablePropertyType propertyType, [FromQuery] PaginationFilter filter, [FromQuery] ActivityLogFilter activityLogFilter)
+        {
+
+            var response = await _activityLogService.DownloadActivityLogReportAsync(propertyType, filter, activityLogFilter);
+
+            if (response.FileStatus)
+            {
+                Response.StatusCode = (int)HttpStatusCode.OK;
+
+                return File(response.ExportContent!, LogCategoryConstants.OpenXML_MIME_Type, response.FileName);
+
+            }
+            else
+            {
+                return BadRequest(response);
+            }
         }
 
 

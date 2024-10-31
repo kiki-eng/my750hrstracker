@@ -2,9 +2,8 @@
 {
     public enum Roles
     {
-        Admin, 
-        Owner,
-        Basic,
+        DesignatedRep,
+        Partner,
         TaxPreparer
     }
 

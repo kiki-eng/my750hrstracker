@@ -48,6 +48,7 @@ namespace _750HrsTracker.Persistence.Seeds
                 new Permission { Module = "ActivityLog", Name = "Delete"},
                 new Permission { Module = "ActivityLog", Name = "Import"},
                 new Permission { Module = "ActivityLog", Name = "ExportDocument"},
+                new Permission { Module = "ActivityLog", Name = "DownloadReport"},
 
                 // Dashboard
                 new Permission { Module = "Dashboard", Name = "View"},
@@ -108,11 +109,13 @@ namespace _750HrsTracker.Persistence.Seeds
                 "Permission.ActivityLog.Create",
                 "Permission.ActivityLog.View",
                 "Permission.ActivityLog.Update",
-                "Permission.Dashboard.View"
+                "Permission.Dashboard.View",
+                "Permission.ActivityLog.ExportDocument",
+                "Permission.ActivityLog.DownloadReport"
             };
             var taxPreparerPermissions = new List<string>
             {
-                "Permission.ActivityLog.View", "Permission.Dashboard.View", "Permission.ActivityLog.ExportDocument"
+                "Permission.ActivityLog.View", "Permission.Dashboard.View", "Permission.ActivityLog.ExportDocument","Permission.ActivityLog.DownloadReport"
             };
 
             var permissions = await context.Permissions.ToListAsync();
@@ -120,13 +123,6 @@ namespace _750HrsTracker.Persistence.Seeds
 
             foreach (var r in roles)
             {
-                if (r.Name == Roles.Basic.ToString())
-                {
-                    var basicPerms = permissions.Where(p => basicPermission.Contains(p.Value!)).ToList();
-
-                    await roleManager.SeedClaimsForRole(r, basicPerms, context);
-                }
-
                 if(r.Name == Roles.TaxPreparer.ToString())
                 {
                     var taxPreparerPerms = permissions.Where(p => taxPreparerPermissions.Contains(p.Value!)).ToList();
@@ -134,11 +130,7 @@ namespace _750HrsTracker.Persistence.Seeds
                     await roleManager.SeedClaimsForRole(r, taxPreparerPerms, context);
                 }
 
-                if (r.Name == Roles.Owner.ToString())
-                {
-                    await roleManager.SeedClaimsForRole(r, permissions, context);
-                }
-                if (r.Name == Roles.Admin.ToString())
+                if (r.Name == Roles.DesignatedRep.ToString() || r.Name == Roles.Partner.ToString())
                 {
                     var adminPermissions = permissions.Where(p => p.Value! != $"{PermissionConstants.Permission}.Team.DeleteAccount").ToList();
 

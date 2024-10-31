@@ -325,10 +325,12 @@ namespace _750HrsTracker.Repositories.Implementations
 
         }
 
-        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType, Guid? teamId = null)
+        public async Task<RepositoryResponseHandler<ActivityLog>> GetAllLogsAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, 
+            AvailablePropertyType propertyType, Guid? teamId = null, bool withIncludes = false)
         {
 
-            IQueryable<ActivityLog> query = _context.ActivityLogs;
+                
+            IQueryable<ActivityLog> query = _context.ActivityLogs.OrderByDescending(al => al.CreatedAt);
 
             if (teamId is not null)
             {
@@ -357,7 +359,7 @@ namespace _750HrsTracker.Repositories.Implementations
             
             if(activityLogFilter.Property != Guid.Empty)
             {
-                query = query.Where(al => al.ActivityLogProperties.Any(alp => alp.PropertyId == activityLogFilter.Property));
+                query = query.Where(al => al.ActivityLogProperties!.Any(alp => alp.PropertyId == activityLogFilter.Property));
             }
             else
             {
@@ -396,13 +398,16 @@ namespace _750HrsTracker.Repositories.Implementations
                 query = query.Where(al => al.CreatedAt >= startDate && al.CreatedAt <= endDate);
             }
 
+            if(filter.PageSize > 0)
+            {
+                query = query.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize);
+            }
             var records = await query
                 .Include(al => al.ActivityBy)
                 .Include(al => al.ActivityLogActivity).ThenInclude(la => la!.ActivityLogCategory)
-                .Include(al => al.ActivityLogProperties).ThenInclude(la => la!.Property)
+                .Include(al => al.ActivityLogProperties!).ThenInclude(la => la!.Property)
                 .Include(al => al.Task)
-                .OrderByDescending(al => al.CreatedAt)
-                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+                .ToListAsync();
 
             var totalCount = await query.CountAsync();
 
