@@ -39,6 +39,9 @@
         public string? AdminFirstname { get; set; }
         public string? AdminLastname { get;set; }
         public string? AdminEmailAddress { get; set;}
+
+        public string? IosReceiptValidationUrl { get; set; }
+        public string? AndroidReceiptValidationUrl { get; set; }
     }
 }
     

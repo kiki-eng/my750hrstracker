@@ -126,16 +126,6 @@ namespace _750HrsTracker.Helpers
             return valid;
         }
 
-        public static Dictionary<string, string> GetUniqueIdValiationRequestHeader(string uniqueId, string passcode, string secretKey)
-        {
-            string data = $"{uniqueId}{passcode}{secretKey}";
-            string encryptedkey = Encryption.SHA256(data);
-            Dictionary<string, string> header = new Dictionary<string, string>();
-            header.Add("x-uid-validate", encryptedkey);
-
-            return header;
-
-        }
 
         public static string GenerateNewDocumentCode(string docPrefix, string lastDocumentCode)
         {

@@ -9,6 +9,9 @@ namespace _750HrsTracker.Models.SubscriptionModels
         public string? Slug { get; set; }
         public decimal Price { get; set; }
         public string? StripePriceId { get; set; }
+        public string? IosProductId { get; set; }
+        public string? AndroidProductId { get; set; }
+        public int DurationDays { get; set; }
         public SubscriptionInterval SubscriptionInterval { get; set; }
 
         public int GracePeriodMinutes { get; set; }

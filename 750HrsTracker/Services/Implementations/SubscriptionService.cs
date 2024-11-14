@@ -1,5 +1,6 @@
 ﻿using _750HrsTracker.DTOs.Requests;
 using _750HrsTracker.DTOs.Responses;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models;
@@ -12,6 +13,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Stripe;
 using Subscription = _750HrsTracker.Models.SubscriptionModels.Subscription;
 
@@ -237,6 +239,109 @@ namespace _750HrsTracker.Services.Implementations
                 throw;                
             } 
           
+
+        }
+
+        public async Task<ResponseHandler<string>> ValidateInAppPurchaseReceiptAsync(ValidateInAppPurchaseReceiptRequest request, HttpRequest httpRequest)
+        {
+            ResponseHandler<string> response = new();
+
+            try
+            {
+                var userData = Utility.GetUserIdFromToken(httpRequest);
+
+
+                var user = await _userRepository.GetUserAsync(Guid.Parse(userData.Item1));
+
+
+                var receiptData = new Dictionary<string, string>();
+
+                var iosReceiptValidationUrl = Utility.ValidateAndFixUrl(_appSettings.IosReceiptValidationUrl!);
+                var androidReceiptValidationUrl = Utility.ValidateAndFixUrl(_appSettings.AndroidReceiptValidationUrl!);
+
+                if (request.DeviceType.Equals(DeviceType.ios))
+                {
+                    receiptData.Add("receipt-data", request.TransactionReceipt!);
+                }
+                else
+                {
+                    // prep request data for android
+                }
+
+                var uri = request.DeviceType.Equals(DeviceType.ios) ? new Uri(iosReceiptValidationUrl) : new Uri(androidReceiptValidationUrl);
+
+                var baseUrl = uri.Scheme + "://" + uri.Host + ":" +uri.Port;
+                var requestUri = uri.PathAndQuery;
+
+                
+
+                var httpResponse = await Utility.MakeHttpRequest(receiptData, baseUrl, requestUri, HttpMethod.Post) 
+                    ?? throw new ApplicationException("Unable to complete validation request");
+
+
+                var responseAsString = await httpResponse?.Content.ReadAsStringAsync()!;
+
+                if(httpResponse != null && httpResponse.IsSuccessStatusCode)
+                {
+                    if (request.DeviceType.Equals(DeviceType.ios))
+                    {
+                        var responseData = JsonConvert.DeserializeObject<IosReceiptVerificationResponse>(responseAsString);
+
+                        var subscriptionDetails = responseData?.Receipt?.InApp?.FirstOrDefault(ia => ia.TransactionId == request.TransactionId) 
+                            ?? throw new ApplicationException("Could not verify receipt");
+
+                        
+                        var subscription = await _subscriptionRepository.GetSubscriptionByPriceIdAsync(subscriptionDetails.ProductId!, 
+                            request.DeviceType.Equals(DeviceType.ios) ? SubscriptionType.ios : SubscriptionType.android);
+
+                        var purchaseDateTime = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(subscriptionDetails.PurchaseDateMs)).DateTime;
+                        var subscriptionTransaction = await _teamRepository.AddTeamSubscriptionTransactionAsync(new SubscriptionTransactions
+                        {
+                            IsMobileInAppPurchase = true,
+                            EventDataObject = responseAsString,
+                            LastActionById = user.Id,
+                            PurchaseDate = purchaseDateTime,
+                            TransactionId = subscriptionDetails.TransactionId,
+                            TeamId = Guid.Parse(user.DefaultTeamId!),
+                            SubscriptionId = subscription.Id,
+                        });
+
+                        var teamSubscription = await _teamSubscriptionRepository.AddAsync(new TeamSubscription
+                        {
+                            IsActive = true,
+                            StartDate = purchaseDateTime,
+                            EndDate = purchaseDateTime.AddDays(subscription.DurationDays),
+                            SubscriptionId = subscription.Id,
+                            SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
+                            TeamId = Guid.Parse(user.DefaultTeamId!)
+                        });
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else
+                {
+                    response.Message = "Unable to validate subscription";
+
+                    return response;
+                }
+
+
+
+                response.Success = true;
+                response.Message = "Receipt validated successfully";
+
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                _bugsnag.Notify(ex);
+                throw;
+            }
 
         }
     }

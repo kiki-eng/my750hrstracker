@@ -87,6 +87,12 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdateSubscriptionPriceAsync(Guid id, UpdateSubscriptionPriceRequest request)
           => Ok(await _subscriptionService.UpdateSubscriptionPriceAsync(id, request));
 
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+        [HttpPost("in-app-purchase/validate-receipt")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> ValidateInAppPurchaseReceiptAsync(ValidateInAppPurchaseReceiptRequest request)
+          => Ok(await _subscriptionService.ValidateInAppPurchaseReceiptAsync(request, Request));
+
         [Authorize(Policy = "Permission.Subscription.Manage")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [ServiceFilter(typeof(SessionFilter))]

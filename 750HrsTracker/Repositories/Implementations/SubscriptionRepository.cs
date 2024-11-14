@@ -110,9 +110,28 @@ namespace _750HrsTracker.Repositories.Implementations
             return updated.Entity;
         }
 
-        public async Task<Subscription> GetSubscriptionByPriceIdAsync(string priceId)
+        public async Task<Subscription> GetSubscriptionByPriceIdAsync(string priceId, SubscriptionType subscriptionType = SubscriptionType.stripe)
         {
-            var subscription = await _context.Subscriptions.FirstOrDefaultAsync(t => t.StripePriceId == priceId)
+            IQueryable<Subscription> query = _context.Subscriptions;
+
+            switch (subscriptionType)
+            {
+                case SubscriptionType.stripe:
+                    query = query.Where(t => t.StripePriceId == priceId);
+                    break;
+
+                case SubscriptionType.ios:
+                    query = query.Where(t => t.IosProductId == priceId);
+                    break;
+                
+                case SubscriptionType.android:
+                    query = query.Where(t => t.AndroidProductId == priceId);
+                    break;
+
+                default:
+                    throw new ApplicationException("Invalid subscription source type");
+            }
+            var subscription = await query.FirstAsync()
                 ?? throw new KeyNotFoundException("No subscription available");
 
             return subscription;

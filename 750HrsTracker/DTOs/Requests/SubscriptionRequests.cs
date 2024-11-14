@@ -34,4 +34,14 @@ namespace _750HrsTracker.DTOs.Requests
     {
         public string? PriceId { get; set; }
     }
+
+    public class ValidateInAppPurchaseReceiptRequest
+    {
+        public string? ProductId { get; set; }
+        public string? TransactionId { get; set; }  
+        public long TransactionDate { get; set; }  
+        public DeviceType DeviceType { get; set; }
+        public string? TransactionReceipt { get; set; }
+
+    }
 }

@@ -14,6 +14,10 @@ namespace _750HrsTracker.Models.SubscriptionModels
         public Subscription? Subcription { get; set; }
 
         public bool IsCheckoutTransaction { get; set; }
+        public bool IsMobileInAppPurchase { get; set; }
+
+        public string? TransactionId { get; set; }  
+        public DateTime? PurchaseDate { get; set; }    
 
         public string? InitialStripeSessionId { get; set; }
         public string? StripeCustomerId { get; set; }
