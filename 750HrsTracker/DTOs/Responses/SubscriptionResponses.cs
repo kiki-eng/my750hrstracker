@@ -12,6 +12,8 @@ namespace _750HrsTracker.DTOs.Responses
         public decimal Price { get; set; }
 
         public string? StripePriceId { get; set; }
+        public string? IosProductId { get; set; }
+        public string? AndroidProductId { get; set; }
         public SubscriptionInterval SubscriptionInterval { get; set; }
 
         public int GracePeriodMinutes { get; set; }
