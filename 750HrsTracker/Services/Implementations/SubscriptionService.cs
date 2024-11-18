@@ -288,7 +288,7 @@ namespace _750HrsTracker.Services.Implementations
                         var responseData = JsonConvert.DeserializeObject<IosReceiptVerificationResponse>(responseAsString);
 
                         var subscriptionDetails = responseData?.Receipt?.InApp?.FirstOrDefault(ia => ia.TransactionId == request.TransactionId) 
-                            ?? throw new ApplicationException("Could not verify receipt");
+                            ?? throw new ApplicationException($"Could not verify receipt - Status => {responseData?.Status}");
 
                         
                         var subscription = await _subscriptionRepository.GetSubscriptionByPriceIdAsync(subscriptionDetails.ProductId!, 
