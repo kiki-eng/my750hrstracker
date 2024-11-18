@@ -42,5 +42,19 @@ namespace _750HrsTracker.Controllers
 
             return Ok(response);
         }
+        
+        //[HttpPost("in-app-purchase-notifications")]
+        //[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        //public async Task<IActionResult> ProcessStripWebhookNotificationAsync()
+        //{
+        //    var response = await _webhookNotificationService.ProcessStripeWebhookNotificationAsync(HttpContext);
+
+        //    if (!response.Success)
+        //    {
+        //        return BadRequest(response);
+        //    }
+
+        //    return Ok(response);
+        //}
     }
 }
