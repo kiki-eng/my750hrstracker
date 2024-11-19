@@ -134,7 +134,7 @@ namespace _750HrsTracker.Services.Implementations
 
             if (team.UsedTrial)
             {
-                subscriptions = subscriptions.Where(s => s.Slug!.ToLower() != "free-plan");
+                subscriptions = subscriptions.Where(s => s.Slug!.ToLower() != SubscriptionConstants.FreeplanSlug);
             }
 
             response.Success = true;
