@@ -42,6 +42,8 @@
 
         public string? IosReceiptValidationUrl { get; set; }
         public string? AndroidReceiptValidationUrl { get; set; }
+
+        public bool ValidateInAppPurchase { get; set; }
     }
 }
     

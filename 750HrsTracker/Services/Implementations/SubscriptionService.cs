@@ -3,6 +3,7 @@ using _750HrsTracker.DTOs.Responses;
 using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models;
 using _750HrsTracker.Models.ResponseWrappers;
 using _750HrsTracker.Models.SubscriptionModels;
@@ -273,63 +274,102 @@ namespace _750HrsTracker.Services.Implementations
                 var baseUrl = uri.Scheme + "://" + uri.Host + ":" +uri.Port;
                 var requestUri = uri.PathAndQuery;
 
-                
 
-                var httpResponse = await Utility.MakeHttpRequest(receiptData, baseUrl, requestUri, HttpMethod.Post) 
-                    ?? throw new ApplicationException("Unable to complete validation request");
+                var subscription = await _subscriptionRepository.GetSubscriptionByPriceIdAsync(request.ProductId!,
+                           request.DeviceType.Equals(DeviceType.ios) ? SubscriptionType.ios : SubscriptionType.android);
 
-
-                var responseAsString = await httpResponse?.Content.ReadAsStringAsync()!;
-
-                if(httpResponse != null && httpResponse.IsSuccessStatusCode)
+                if(subscription.Slug!.Equals(SubscriptionConstants.FreeplanSlug))
                 {
-                    if (request.DeviceType.Equals(DeviceType.ios))
+                    var purchaseDate = DateTime.Now;
+                    var subscriptionTransaction = await _teamRepository.AddTeamSubscriptionTransactionAsync(new SubscriptionTransactions
                     {
-                        var responseData = JsonConvert.DeserializeObject<IosReceiptVerificationResponse>(responseAsString);
+                        IsMobileInAppPurchase = true,
+                        EventDataObject = "N/A",
+                        LastActionById = user.Id,
+                        PurchaseDate = DateTime.Now,
+                        TransactionId = "N/A",
+                        TeamId = Guid.Parse(user.DefaultTeamId!),
+                        SubscriptionId = subscription.Id,
+                    });
 
-                        var subscriptionDetails = responseData?.Receipt?.InApp?.FirstOrDefault(ia => ia.TransactionId == request.TransactionId) 
-                            ?? throw new ApplicationException($"Could not verify receipt - Status => {responseData?.Status}");
-
-                        
-                        var subscription = await _subscriptionRepository.GetSubscriptionByPriceIdAsync(subscriptionDetails.ProductId!, 
-                            request.DeviceType.Equals(DeviceType.ios) ? SubscriptionType.ios : SubscriptionType.android);
-
-                        var purchaseDateTime = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(subscriptionDetails.PurchaseDateMs)).DateTime;
-                        var subscriptionTransaction = await _teamRepository.AddTeamSubscriptionTransactionAsync(new SubscriptionTransactions
-                        {
-                            IsMobileInAppPurchase = true,
-                            EventDataObject = responseAsString,
-                            LastActionById = user.Id,
-                            PurchaseDate = purchaseDateTime,
-                            TransactionId = subscriptionDetails.TransactionId,
-                            TeamId = Guid.Parse(user.DefaultTeamId!),
-                            SubscriptionId = subscription.Id,
-                        });
-
-                        var teamSubscription = await _teamSubscriptionRepository.AddAsync(new TeamSubscription
-                        {
-                            IsActive = true,
-                            StartDate = purchaseDateTime,
-                            EndDate = purchaseDateTime.AddDays(subscription.DurationDays),
-                            SubscriptionId = subscription.Id,
-                            SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
-                            TeamId = Guid.Parse(user.DefaultTeamId!)
-                        });
-
-                    }
-                    else
+                    var teamSubscription = await _teamSubscriptionRepository.AddAsync(new TeamSubscription
                     {
+                        IsActive = true,
+                        StartDate = purchaseDate,
+                        EndDate = purchaseDate.AddDays(subscription.DurationDays),
+                        SubscriptionId = subscription.Id,
+                        SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
+                        TeamId = Guid.Parse(user.DefaultTeamId!)
+                    });
 
-                    }
+
+                    await _teamRepository.UpdateTeamTrialSubscriptionAsync(Guid.Parse(user.DefaultTeamId!), true);
                 }
                 else
                 {
-                    response.Message = "Unable to validate subscription";
+                    DateTime purchaseDateTime = DateTime.Now;
+                    string responseAsString = "N/A";
+                    string transactionId = "N/A";
 
-                    return response;
+
+
+                    if (_appSettings.ValidateInAppPurchase)
+                    {
+                        var httpResponse = await Utility.MakeHttpRequest(receiptData, baseUrl, requestUri, HttpMethod.Post)
+                        ?? throw new ApplicationException("Unable to complete validation request");
+
+                        responseAsString = await httpResponse?.Content.ReadAsStringAsync()!;
+                        if (httpResponse != null && httpResponse.IsSuccessStatusCode)
+                        {
+                            if (request.DeviceType.Equals(DeviceType.ios))
+                            {
+                                var responseData = JsonConvert.DeserializeObject<IosReceiptVerificationResponse>(responseAsString);
+
+                                var subscriptionDetails = responseData?.Receipt?.InApp?.FirstOrDefault(ia => ia.TransactionId == request.TransactionId)
+                                    ?? throw new ApplicationException($"Could not verify receipt - Status => {responseData?.Status}");
+
+
+                                purchaseDateTime = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(subscriptionDetails.PurchaseDateMs)).DateTime;
+                                transactionId = subscriptionDetails.TransactionId!;
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            response.Message = "Unable to validate subscription";
+
+                            return response;
+                        }
+                    }
+
+
+                    var subscriptionTransaction = await _teamRepository.AddTeamSubscriptionTransactionAsync(new SubscriptionTransactions
+                    {
+                        IsMobileInAppPurchase = true,
+                        EventDataObject = responseAsString,
+                        LastActionById = user.Id,
+                        PurchaseDate = purchaseDateTime,
+                        TransactionId = transactionId,
+                        TeamId = Guid.Parse(user.DefaultTeamId!),
+                        SubscriptionId = subscription.Id,
+                    });
+
+                    var teamSubscription = await _teamSubscriptionRepository.AddAsync(new TeamSubscription
+                    {
+                        IsActive = true,
+                        StartDate = purchaseDateTime,
+                        EndDate = purchaseDateTime.AddDays(subscription.DurationDays),
+                        SubscriptionId = subscription.Id,
+                        SubscriptionTransactionId = subscriptionTransaction.Id.ToString(),
+                        TeamId = Guid.Parse(user.DefaultTeamId!)
+                    });
+
+
+
                 }
-
-
 
                 response.Success = true;
                 response.Message = "Receipt validated successfully";

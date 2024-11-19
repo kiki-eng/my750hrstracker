@@ -1,4 +1,5 @@
 ﻿using _750HrsTracker.Helpers;
+using _750HrsTracker.Helpers.Constants;
 using _750HrsTracker.Models.Admin;
 using _750HrsTracker.Models.SubscriptionModels;
 using _750HrsTracker.Persistence.Contexts;
@@ -47,7 +48,7 @@ namespace _750HrsTracker.Persistence.Seeds
                     Name = "Free Plan",
                     CreatedAt = DateTime.Now,
                     Price = 0,
-                    Slug = "free-plan",
+                    Slug = SubscriptionConstants.FreeplanSlug,
                     SubscriptionInterval = Enums.SubscriptionInterval.none,
                     Features = JsonConvert.SerializeObject(new List<string>()
                     {

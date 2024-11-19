@@ -27,5 +27,6 @@ namespace _750HrsTracker.Repositories.Interfaces
 
         Task<RepositoryResponseHandler<Team>> GetAllTeamsAsync(PaginationFilter filter);
         Task<Team> GetTeamAsync(Guid teamId);
+        Task<Team> UpdateTeamTrialSubscriptionAsync(Guid teamId, bool usedTrial);
     }
 }

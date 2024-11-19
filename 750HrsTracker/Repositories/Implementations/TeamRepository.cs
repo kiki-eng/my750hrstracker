@@ -531,6 +531,20 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return team!;
         }
+        
+        public async Task<Team> UpdateTeamTrialSubscriptionAsync(Guid teamId, bool usedTrial)
+        {
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.Id == teamId) ?? throw new KeyNotFoundException("Team not found");
+
+            team.UsedTrial = usedTrial;
+            team.ModifiedAt = DateTime.Now;
+
+            var updated = _context.Teams.Update(team);
+
+            await _context.SaveChangesAsync();
+
+            return updated.Entity!;
+        }
 
         // === user invitation end === //
     }
