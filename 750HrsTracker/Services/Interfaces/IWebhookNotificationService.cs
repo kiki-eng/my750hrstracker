@@ -9,5 +9,6 @@ namespace _750HrsTracker.Services.Interfaces
     {
         Task<PagedResponseHandler<List<WebhookNotificationTraceLog>>> GetAllNotificationLogsAsync(PaginationFilter filter, string route);
         Task<ResponseHandler<string>> ProcessStripeWebhookNotificationAsync(HttpContext httpContext);
+        Task<ResponseHandler<string>> ProcessAppStoreWebhookNotificationAsync(HttpContext httpContext);
     }
 }

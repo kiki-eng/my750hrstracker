@@ -1,4 +1,5 @@
-﻿using _750HrsTracker.Enums;
+﻿using _750HrsTracker.DTOs.Requests;
+using _750HrsTracker.Enums;
 using _750HrsTracker.Filters;
 using _750HrsTracker.Helpers;
 using _750HrsTracker.Models.ResponseWrappers;
@@ -273,6 +274,23 @@ namespace _750HrsTracker.Services.Implementations
                 _bugsnag.Notify(ex);
                 return false;
             }
+        }
+
+        public async Task<ResponseHandler<string>> ProcessAppStoreWebhookNotificationAsync(HttpContext httpContext)
+        {
+            ResponseHandler<string> response = new();
+
+            var json = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
+
+            var notificationPayload = JsonConvert.DeserializeObject<AppleStoreNotificationRequest>(json);
+
+            var decodedNotfication = GetVerificationDecodedData(notificationPayload.SignedPayload!);
+            return response;
+        }
+
+        private  AppleStoreNotificationV2 GetVerificationDecodedData(string signedPayload)
+        {
+            return new AppleStoreNotificationV2();
         }
     }
 }
