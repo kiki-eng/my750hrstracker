@@ -49,8 +49,8 @@ namespace _750HrsTracker.Controllers
         [Authorize(Policy = "Permission.Property.View")]
         [HttpGet("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetPropertyResponse>>))]
-        public async Task<IActionResult> SearchPropertiesAsync([FromQuery] string keyword)
-            => Ok(await _propertyService.SearchPropertiesAsync(keyword));
+        public async Task<IActionResult> SearchPropertiesAsync([FromQuery] string keyword, [FromQuery] string propertyType)
+            => Ok(await _propertyService.SearchPropertiesAsync(keyword, propertyType));
         
         [Authorize(Policy = "Permission.Property.View")]
         [HttpGet("{id}")]
