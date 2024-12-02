@@ -144,7 +144,7 @@ namespace _750HrsTracker.Services.Implementations
 
         }
 
-        public async Task<ResponseHandler<List<GetPropertyResponse>>> SearchPropertiesAsync([NotNull] string keyword, string propertyType)
+        public async Task<ResponseHandler<List<GetPropertyResponse>>> SearchPropertiesAsync([NotNull] string keyword, [NotNull] string propertyType)
         {
 
             ResponseHandler<List<GetPropertyResponse>> response = new();
