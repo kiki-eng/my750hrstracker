@@ -47,8 +47,8 @@ namespace _750HrsTracker.Controllers
         [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetActivityLogResponse>>))]
-        public async Task<IActionResult> SearchActivityLogAsync([FromQuery] string keyword)
-            => Ok(await _activityLogService.SearchActivityLogAsync(keyword));
+        public async Task<IActionResult> SearchActivityLogAsync([FromQuery] string keyword, [FromQuery] AvailablePropertyType propertyType)
+            => Ok(await _activityLogService.SearchActivityLogAsync(keyword, propertyType));
 
         [Authorize(Policy = "Permission.ActivityLog.View")]
         [HttpGet("{id}")]

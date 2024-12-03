@@ -17,7 +17,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<GetActivityLogResponse>> GetActivityLogAsync(Guid id);
         Task<LogReportDownloadResponse> DownloadActivityLogReportAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter);
         Task<PagedResponseHandler<List<GetActivityLogResponse>>> GetAllActivityLogAsync(AvailablePropertyType propertyType, PaginationFilter filter, ActivityLogFilter activityLogFilter, string route);
-        Task<ResponseHandler<List<GetActivityLogResponse>>> SearchActivityLogAsync(string keyword);
+        Task<ResponseHandler<List<GetActivityLogResponse>>> SearchActivityLogAsync(string keyword, AvailablePropertyType propertyType);
         Task<ResponseHandler<GetActivityLogResponse>> UpdateActivityLogAsync(Guid id, AddActivityLogRequest request);
         Task<ResponseHandler<string>> DeleteActivityLogAsync(Guid id);
         Task<ResponseHandler<Base64FileModel>> DownloadActivityLogImportTemplateAsync();
