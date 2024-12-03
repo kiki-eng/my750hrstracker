@@ -149,8 +149,9 @@ namespace _750HrsTracker.Services.Implementations
 
             ResponseHandler<List<GetPropertyResponse>> response = new();
 
-            var property = await _propertyRepository.SearchEntityAsync(p => p.TeamId == Session.TeamId && p.Name!.ToLower().Contains(keyword.ToLower()) 
-                && p.PropertyType.ToString().ToLower() == propertyType);
+            var property = await _propertyRepository.SearchEntityAsync(p => p.TeamId == Session.TeamId && 
+                p.Name!.ToLower().Contains(keyword.ToLower()) && 
+                p.PropertyType.ToString().ToLower() == propertyType);
 
             response.Success = true;
             response.Message = "Properties retrieved successfully";

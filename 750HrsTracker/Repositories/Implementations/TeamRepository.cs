@@ -81,7 +81,7 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var customRoles = await _context.Roles.Where(r => r.TeamId.Equals(team.Id) && !r.Default).ToListAsync();
 
-            roles = defaultRoles.Union(customRoles).ToList();
+            roles = defaultRoles.Union(customRoles).OrderBy(r => r.Name).ToList();
 
             return roles;
         }

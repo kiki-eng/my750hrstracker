@@ -26,7 +26,7 @@ namespace _750HrsTracker.Controllers
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedResponseHandler<List<GetRoleResponse>>))]
-        public async Task<IActionResult> GetAllPermissionsAsync([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetAllRolesAsync([FromQuery] PaginationFilter filter)
             => Ok(await _roleService.GetAllRolesAsync(filter, Request.Path));
 
 
