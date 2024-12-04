@@ -25,6 +25,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 ?? throw new KeyNotFoundException("Log activity not found");
 
             existingLogActivity.Name = activityLogActivity.Name;
+            existingLogActivity.Slug = activityLogActivity.Slug;
             existingLogActivity.AvailablePropertyType = activityLogActivity.AvailablePropertyType;
 
             if (activityLogActivity.AvailablePropertyType.Equals(AvailablePropertyType.LTR))

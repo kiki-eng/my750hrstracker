@@ -216,7 +216,7 @@ namespace _750HrsTracker.Services.Implementations
                     <b>{request.InvitationCode}</b>
                 </div>
                 <div>
-                   <p> Link => <a href==""{request.InvitationLink}"" target=""_blank"">Visit/Dowload application></a> </p>
+                   <p> Link => <a href==""{request.InvitationLink}"" target=""_blank"">Visit or Dowload application</a> </p>
                 </div>
             ";
             try

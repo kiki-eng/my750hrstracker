@@ -395,7 +395,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 activityLogFilter.StartDate = new DateTime(startDate.Year, startDate.Month, startDate.Day).Add(new TimeSpan(0, 0, 0));
                 activityLogFilter.EndDate = new DateTime(endDate.Year, endDate.Month, endDate.Day).Add(new TimeSpan(23, 59, 59));
 
-                query = query.Where(al => al.CreatedAt >= startDate && al.CreatedAt <= endDate);
+                query = query.Where(al => al.ActivityDate >= startDate && al.ActivityDate <= endDate);
             }
 
             if(filter.PageSize > 0)
