@@ -272,6 +272,7 @@ namespace _750HrsTracker.Services.Implementations
         {
             GetActivityLogActivityResponse response = new()
             {
+                Id = activityLog.Id,
                 Name = activityLog.Name,
                 Slug = activityLog.Slug,
                 PropertyType = activityLog.AvailablePropertyType,
