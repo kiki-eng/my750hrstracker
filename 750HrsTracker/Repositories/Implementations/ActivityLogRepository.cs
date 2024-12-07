@@ -332,6 +332,8 @@ namespace _750HrsTracker.Repositories.Implementations
                 
             IQueryable<ActivityLog> query = _context.ActivityLogs.OrderByDescending(al => al.CreatedAt);
 
+
+
             if (teamId is not null)
             {
                 query = query.Where(al => al.TeamId == teamId);
@@ -398,7 +400,9 @@ namespace _750HrsTracker.Repositories.Implementations
                 query = query.Where(al => al.ActivityDate >= startDate && al.ActivityDate <= endDate);
             }
 
-            if(filter.PageSize > 0)
+            var totalCount = await query.CountAsync();
+
+            if (filter.PageSize > 0)
             {
                 query = query.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize);
             }
@@ -409,7 +413,6 @@ namespace _750HrsTracker.Repositories.Implementations
                 .Include(al => al.Task)
                 .ToListAsync();
 
-            var totalCount = await query.CountAsync();
 
             RepositoryResponseHandler<ActivityLog> response = new RepositoryResponseHandler<ActivityLog>
             {
