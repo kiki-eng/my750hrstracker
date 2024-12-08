@@ -23,5 +23,6 @@ namespace _750HrsTracker.Repositories.Interfaces
 
         Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType);
         Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId, ExportDocumentFilter filter);
+        Task<List<ActivityLog>>SearchAsync(Guid teamId, string keyword, AvailablePropertyType propertyType);
     }
 }
