@@ -579,6 +579,15 @@ namespace _750HrsTracker.Services.Implementations
                 response.Roles = user.Roles.Select(r => _mapper.Map<GetRolesOnlyResponse>(r)).ToList();
             }
 
+            if(user.UserTeams != null && user.UserTeams.Count > 0)
+            {
+                response.Teams = user.UserTeams.Select(ut => new GetTeamOnlyResponse
+                {
+                    Id = ut.Team!.Id,
+                    Name = ut.Team!.Name
+                }).ToList();
+            }
+
             return response;
         }
     }

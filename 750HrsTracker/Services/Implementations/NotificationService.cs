@@ -201,6 +201,8 @@ namespace _750HrsTracker.Services.Implementations
         public async Task<bool> SendInvitationNotification(InvitationNotificationRequest request, bool isMobileRequest = false, string appName = "750HrsTracker")
         {
 
+            string message = request.ExistingUser ? "Your login details remains the same after following through the process" : "";
+
             var html = $@"
                  <div id=""message-container"">
                     <p id=""salutation"">Hello there,</p>
@@ -209,6 +211,9 @@ namespace _750HrsTracker.Services.Implementations
                     </p>
                     <p class=""message-body"">
                        Copy to token below and follow the link to access application and accept the invitation.
+                    </p>
+                    <p class=""message-body"">
+                       {message}
                     </p>
                 </div>
                 <br/>

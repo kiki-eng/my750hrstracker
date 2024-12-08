@@ -15,6 +15,7 @@ namespace _750HrsTracker.Models
         public string? TeamName { get; set; }
         public bool InvitationAccepted { get; set; }
         public DateTime ExpiresAt { get; set; }
+        public bool ExistingUser { get; set; }
 
         public UserInvitation()
         {

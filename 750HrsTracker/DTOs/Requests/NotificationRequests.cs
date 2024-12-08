@@ -53,6 +53,7 @@ namespace _750HrsTracker.DTOs.Requests
         public string? InviterEmail { get; set; }
         public string? InvitationLink { get; set; }
         public string? TeamName { get; set; }
+        public bool ExistingUser { get; set; }
         public string? Origin { get; set; }
         public string? OriginIpAddress { get; set; }
     }

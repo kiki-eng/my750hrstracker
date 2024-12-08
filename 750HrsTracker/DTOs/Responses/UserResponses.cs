@@ -33,6 +33,7 @@ namespace _750HrsTracker.DTOs.Responses
         public List<GetRolesOnlyResponse>? Roles { get; set; }
         public Base64FileModel? ProfilePic { get; set; }
 
+        public List<GetTeamOnlyResponse>? Teams { get; set; }  
         public SubscriptionData? Subscription { get; set; }
     }
 

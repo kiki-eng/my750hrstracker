@@ -164,18 +164,22 @@ namespace _750HrsTracker.Repositories.Implementations
 
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId) ?? throw new KeyNotFoundException("Invalid role selected");
 
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == inviteeEmail); 
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == inviteeEmail);
+
+            bool userAlreadyExist = false;
 
             if(existingUser != null)
             {
-                //var isInTeam = await _context.Team_User.FirstOrDefaultAsync(ut => ut.TeamId == team.Id && ut.UserId == existingUser.Id);
+                var isInTeam = await _context.Team_User.FirstOrDefaultAsync(ut => ut.TeamId == team.Id && ut.UserId == existingUser.Id);
 
-                //if(isInTeam != null)
-                //{
-                //    throw new ApplicationException("User already belongs to this team.");
-                //}
-
-                throw new ApplicationException("User with provided email already exists in a team");
+                if (isInTeam != null)
+                {
+                    throw new ApplicationException("User already belongs to this team.");
+                }
+                else
+                {
+                    userAlreadyExist = true;
+                }
             }
 
             var existingInvitation = await _context.UserInvitations.FirstOrDefaultAsync(ui => ui.Email == inviteeEmail && ui.TeamId == team.Id);
@@ -222,6 +226,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 RoleId = role.Id.ToString(),
                 InviterEmail = user.Email,
                 InviterName = user.Firstname,
+                ExistingUser = userAlreadyExist
             };
 
             var savedInvitation = _context.UserInvitations.Add(userInvitation);

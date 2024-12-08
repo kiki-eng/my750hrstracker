@@ -17,4 +17,10 @@ namespace _750HrsTracker.DTOs.Responses
         public List<GetUsersOnlyResponse>? Users { get; set; }
         public List<GetPropertyResponse>? Properties { get; set; }
     }
+
+    public class GetTeamOnlyResponse
+    {
+        public Guid Id { get; set; }
+        public  string? Name { get; set; }
+    }
 }
