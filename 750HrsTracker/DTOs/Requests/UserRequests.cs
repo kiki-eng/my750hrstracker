@@ -35,6 +35,10 @@ namespace _750HrsTracker.DTOs.Requests
         public Base64FileModel? ProfilePicture { get; set; }
         
     }
+    public class SwitchTeamRequest
+    {
+        public Guid ToTeamId { get; set; }  
+    }
 
 
     public class RecoverPasswordRequest

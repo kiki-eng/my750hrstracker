@@ -19,6 +19,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<User> GetUserAsync(Guid userId, Guid teamId);
         Task<List<UserRolesOnly>> GetUserRolesAsync(Guid userId);
         Task<User> UpdateUserAsync(Guid id, User user);
+        Task<User> SwitchTeamAsync(Guid userId, Guid toTeamId);
 
         Task<UserProfilePicture> UpdateProfilePictureAsync(UserProfilePicture picture);
         Task<UserProfilePicture> GetProfilePictureAsync(Guid userId);

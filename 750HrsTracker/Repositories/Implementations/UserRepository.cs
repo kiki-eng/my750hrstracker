@@ -386,5 +386,33 @@ namespace _750HrsTracker.Repositories.Implementations
 
             return permissions;
         }
+
+        public async Task<User> SwitchTeamAsync(Guid userId, Guid toTeamId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new KeyNotFoundException("Unknown user");
+
+            var toTeam = await _context.Teams.FirstOrDefaultAsync(u => u.Id == toTeamId) ?? throw new KeyNotFoundException("Unknown team");
+
+            if(user.DefaultTeamId == toTeam.Id.ToString())
+            {
+                throw new ApplicationException("User already switched to team");
+            }
+
+            // confirm if user belongs to team
+            var exists = await _context.Team_User.FirstOrDefaultAsync(tu => tu.UserId == user.Id);
+
+            if(exists != null)
+            {
+                throw new KeyNotFoundException("User does not belong to this team");
+            }
+
+            user.DefaultTeamId = toTeam.Id.ToString();
+            user.ModifiedAt = DateTime.Now;
+
+            var updated = _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return updated.Entity;
+        }
     }
 }

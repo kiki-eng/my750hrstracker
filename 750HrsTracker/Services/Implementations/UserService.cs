@@ -28,9 +28,11 @@ namespace _750HrsTracker.Services.Implementations
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
+        private readonly Bugsnag.IClient _bugsnag;
 
         public UserService(IOptionsSnapshot<AppSettings> appSettings, INotificationService notificationService, 
-            IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, ITeamSubscriptionRepository teamSubscriptionRepository)
+            IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, 
+            ITeamSubscriptionRepository teamSubscriptionRepository, Bugsnag.IClient bugsnag)
         {
             _appSettings = appSettings.Value;
             _notificationService = notificationService;
@@ -38,6 +40,7 @@ namespace _750HrsTracker.Services.Implementations
             _mapper = mapper;
             _logger = logger;   
             _teamSubscriptionRepository = teamSubscriptionRepository;
+            _bugsnag = bugsnag;
         }
 
         public async Task<ResponseHandler<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
@@ -589,6 +592,24 @@ namespace _750HrsTracker.Services.Implementations
             }
 
             return response;
+        }
+
+        public async Task<ResponseHandler<string>> SwitchTeamAsync(Guid userId, SwitchTeamRequest request)
+        {
+            try
+            {
+                ResponseHandler<string> response = new();
+
+                var updatedUser = await _userRepository.SwitchTeamAsync(userId, request.ToTeamId);
+
+                response.Success = true;
+                response.Message = "User switch to team successful";
+                return response;
+            }catch(Exception ex)
+            {
+                _bugsnag.Notify(ex);
+                throw;
+            }
         }
     }
 }

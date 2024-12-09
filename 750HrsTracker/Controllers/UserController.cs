@@ -43,7 +43,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
 
         }
-       
+
 
 
         [AllowAnonymous]
@@ -69,7 +69,7 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
 
         }
-       
+
 
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{id}")]
@@ -78,7 +78,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetUserAsync(Guid id)
         {
             ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
-           
+
             response = await _userService.GetUserAsync(id);
 
             if (!response.Success)
@@ -120,7 +120,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetUserPermissionsAsync()
         {
             ResponseHandler<GetUserPermissionsResponse> response = new ResponseHandler<GetUserPermissionsResponse>();
-           
+
             response = await _userService.GetUserPermissionsAsync(Request);
 
             if (!response.Success)
@@ -130,7 +130,7 @@ namespace _750HrsTracker.Controllers
 
             return Ok(response);
         }
-        
+
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [Route("{userId}")]
         [HttpPatch]
@@ -138,7 +138,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdatetUserProfileAsync(Guid userId, UpdateUserRequest request)
         {
             ResponseHandler<GetUsersOnlyResponse> response = new ResponseHandler<GetUsersOnlyResponse>();
-           
+
             response = await _userService.UpdatetUserProfileAsync(userId, request);
 
             if (!response.Success)
@@ -162,7 +162,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdateMerchantUserSecurity(Guid userId, UpdateUserSecurityRequest request)
         {
             ResponseHandler<UpdateUserSecurityRequest> response = new ResponseHandler<UpdateUserSecurityRequest>();
-           
+
             response = await _userService.UpdateUserSecurityAsync(userId, request);
 
             if (!response.Success)
@@ -171,7 +171,7 @@ namespace _750HrsTracker.Controllers
             }
 
             return Ok(response);
-        }       
+        }
 
         [AllowAnonymous]
         [Route("recover-password")]
@@ -268,6 +268,18 @@ namespace _750HrsTracker.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Get user profile pic
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+        [Route("{userId}/switch-team")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
+        public async Task<IActionResult> SwitchTeamAsync(Guid userId, SwitchTeamRequest request)
+            => Ok(await _userService.SwitchTeamAsync(userId, request)); 
+        
         /// <summary>
         /// Get user profile pic
         /// </summary>
