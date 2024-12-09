@@ -486,7 +486,7 @@ namespace _750HrsTracker.Repositories.Implementations
             return log;
         }
         
-        public async Task<List<ActivityLog>> GetLogByIdAsync(Guid teamId, string keyword, AvailablePropertyType propertyType)
+        public async Task<List<ActivityLog>> SearchAsync(Guid teamId, string keyword, AvailablePropertyType propertyType)
         {
             
             var logs = await _context.ActivityLogs.Include(al => al.ActivityLogActivity).ThenInclude(al => al!.ActivityLogCategory)
@@ -497,11 +497,6 @@ namespace _750HrsTracker.Repositories.Implementations
                 .Where(l => l.TeamId == teamId && l.ActivityLogActivity!.Name!.ToLower().Contains(keyword.ToLower())).ToListAsync();
 
             return logs;
-        }
-
-        public Task<List<ActivityLog>> SearchAsync(Guid teamId, string keyword, AvailablePropertyType propertyType)
-        {
-            throw new NotImplementedException();
         }
     }
 }
