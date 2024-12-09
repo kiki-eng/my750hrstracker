@@ -13,7 +13,6 @@ namespace _750HrsTracker.Controllers
 {
     [Route("api/team")]
     [ApiController]
-    [ServiceFilter(typeof(SessionFilter))]
     public class TeamController : ControllerBase
     {
         private readonly ITeamService _teamService;
@@ -22,6 +21,7 @@ namespace _750HrsTracker.Controllers
             _teamService = teamService;
         }
 
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.AddRole")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPost("roles")]
@@ -29,6 +29,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> AddTeamRoleAsync(AddRoleRequest request)
             => Ok(await _teamService.AddTeamRoleAsync(request));
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.GetRole")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpGet("roles")]
@@ -36,6 +37,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetTeamRolesAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamRolesAsync(filter, Request.Path));
 
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.UpdateRole")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPatch("roles/{roleId}")]
@@ -43,6 +45,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdatetRoleAsync(Guid roleId, UpdateRoleRequest request)
             => Ok(await _teamService.UpdatetRoleAsync(roleId, request));
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.DeleteRole")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpDelete("roles/{roleId}")]
@@ -50,6 +53,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> DeleteRoleAsync(Guid roleId)
             => Ok(await _teamService.DeleteRoleAsync(roleId));
 
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.UpdateRole")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPatch("roles/{roleId}/update-permissions")]
@@ -57,6 +61,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> UpdateRolePermissionsAsync(Guid roleId, UpdateRolePermissionsRequest request)
             => Ok(await _teamService.UpdateRolePermissionsAsync(roleId, request));
 
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.InviteUser")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPost("invite-user")]
@@ -74,8 +79,12 @@ namespace _750HrsTracker.Controllers
         [HttpPost("create-invited-user")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> CreateInvitedUserAsync(CreateInvitedUserRequest request)
-            => Ok(await _teamService.CreateInvitedUserAsync(request));
+        {
+            var response = await _teamService.CreateInvitedUserAsync(request);
+            return Ok(response);
+        }
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.InviteUser")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpGet("pending-invitation")]
@@ -83,6 +92,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetPendingUserInvitationsAsync()
             => Ok(await _teamService.GetPendingUserInvitationsAsync());
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.GetUsers")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpGet("get-users")]
@@ -90,13 +100,15 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> GetTeamUsersAsync([FromQuery] PaginationFilter filter)
             => Ok(await _teamService.GetTeamUsersAsync(filter, Request.Path));
 
-            [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+        [ServiceFilter(typeof(SessionFilter))]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpGet("get-users-once")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<List<GetUsersOnlyResponse>>))]
         public async Task<IActionResult> GetTeamUsersAsync()
             => Ok(await _teamService.GetTeamUsersAsync());
 
 
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.MakeSpouse")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPost("make-spouse")]
@@ -104,6 +116,7 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> MaKeSpouseRequestAsync(MakeSpouseRequest request)
             => Ok(await _teamService.MaKeSpouseRequestAsync(request));
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.ActivateDeactivate")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPatch("activate-deactivate-user")]
@@ -111,13 +124,16 @@ namespace _750HrsTracker.Controllers
         public async Task<IActionResult> ActivateDeactivateUsersAsync(MakeSpouseRequest request)
             => Ok(await _teamService.ActivateDeactivateUsersAsync(request));
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.UpdateRole")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpPatch("update-user-role")]
+        [ServiceFilter(typeof(SessionFilter))]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<string>))]
         public async Task<IActionResult> UpdateUserRoleAsync(UpdateUserRoleRequest request)
             => Ok(await _teamService.UpdateUserRoleAsync(request));
         
+        [ServiceFilter(typeof(SessionFilter))]
         [Authorize(Policy = "Permission.Team.DeleteAccount")]
         [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
         [HttpDelete("delete-account")]

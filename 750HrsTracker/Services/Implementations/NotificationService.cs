@@ -218,7 +218,7 @@ namespace _750HrsTracker.Services.Implementations
                 </div>
                 <br/>
                 <div>
-                    <b>{(request.ExistingUser ? "" : request.InvitationCode)}</b>
+                    <b>{request.InvitationCode}</b>
                 </div>
                 <div>
                    <p> Link => <a href=""{request.InvitationLink}"" target=""_blank"">Click to accept invitation</a> </p>

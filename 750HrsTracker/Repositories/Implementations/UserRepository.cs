@@ -145,6 +145,7 @@ namespace _750HrsTracker.Repositories.Implementations
             user.ResetTokenExpires = null;
 
             await _userManager.UpdateAsync(user);
+            await _context.SaveChangesAsync();
 
             return user;
         }
@@ -401,7 +402,7 @@ namespace _750HrsTracker.Repositories.Implementations
             // confirm if user belongs to team
             var exists = await _context.Team_User.FirstOrDefaultAsync(tu => tu.UserId == user.Id);
 
-            if(exists != null)
+            if(exists == null)
             {
                 throw new KeyNotFoundException("User does not belong to this team");
             }

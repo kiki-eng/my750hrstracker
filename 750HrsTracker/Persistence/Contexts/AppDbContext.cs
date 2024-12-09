@@ -166,6 +166,7 @@ namespace _750HrsTracker.Persistence.Contexts
             builder.Entity<UserRoles>(b =>
             {
                 b.ToTable("UserRoles");
+                b.HasKey(ur => new { ur.UserId, ur.TeamId, ur.RoleId });
                 b.HasIndex(ur => new { ur.UserId, ur.TeamId, ur.RoleId }).IsUnique();
             });
             

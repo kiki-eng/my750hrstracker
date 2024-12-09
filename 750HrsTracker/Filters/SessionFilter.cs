@@ -22,6 +22,6 @@ namespace _750HrsTracker.Filters
                 sessionProvider!.Initialise(user);
             }
             var resultContext = await next();
-        }
+            }
     }
 }
