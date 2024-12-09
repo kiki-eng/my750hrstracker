@@ -210,7 +210,7 @@ namespace _750HrsTracker.Services.Implementations
                         You have been invited by {request.InviterName} to join {request.TeamName} on {appName}.
                     </p>
                     <p class=""message-body"">
-                       Copy to token below and follow the link to access application and accept the invitation.
+                      {(request.ExistingUser ? "Click the link below to accept invitation and login using your existing credentials" : "Copy to token below and follow the link to access application and accept the invitation")}.
                     </p>
                     <p class=""message-body"">
                        {message}
@@ -218,15 +218,15 @@ namespace _750HrsTracker.Services.Implementations
                 </div>
                 <br/>
                 <div>
-                    <b>{request.InvitationCode}</b>
+                    <b>{(request.ExistingUser ? "" : request.InvitationCode)}</b>
                 </div>
                 <div>
-                   <p> Link => <a href==""{request.InvitationLink}"" target=""_blank"">Visit or Dowload application</a> </p>
+                   <p> Link => <a href=""{request.InvitationLink}"" target=""_blank"">Click to accept invitation</a> </p>
                 </div>
             ";
             try
             {
-                var sent = await _emailService.SendMail(request.RecipientEmail!, "750HrsTracker: New User Invitation!", html);
+                var sent = await _emailService.SendMail(request.RecipientEmail!, $"750HrsTracker: {(request.ExistingUser ? "" : "New ")}User Invitation!", html);
                 return sent;
             }
             catch
