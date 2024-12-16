@@ -334,7 +334,7 @@ namespace _750HrsTracker.Services.Implementations
 
             response.Success = true;
             response.Message = "Activity logs retrieved successfully";
-            response.Data = ActivityLog.Select(p => _mapper.Map<GetActivityLogResponse>(p)).ToList();
+            response.Data = ActivityLog.Select(p => MappedResponse(p)).ToList();
 
             return response;
         }

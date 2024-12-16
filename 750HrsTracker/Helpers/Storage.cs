@@ -144,7 +144,7 @@ namespace _750HrsTracker.Helpers
             }
             else
             {
-                throw new KeyNotFoundException("Blob not found");
+                return null!;
             }
 
         }

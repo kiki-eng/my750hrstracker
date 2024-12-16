@@ -494,7 +494,7 @@ namespace _750HrsTracker.Repositories.Implementations
                 .Include(al => al.ActivityLogProperties)!.ThenInclude(al => al.Property)
                 .Include(al => al.ActivityBy)
                 .Include(al => al.Team)
-                .Where(l => l.TeamId == teamId && l.ActivityLogActivity!.Name!.ToLower().Contains(keyword.ToLower())).ToListAsync();
+                .Where(l => l.TeamId == teamId && l.ActivityLogActivity!.Name!.ToLower().Contains(keyword.ToLower()) && l.PropertyType == propertyType).ToListAsync();
 
             return logs;
         }

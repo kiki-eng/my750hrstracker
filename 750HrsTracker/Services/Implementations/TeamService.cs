@@ -144,7 +144,7 @@ namespace _750HrsTracker.Services.Implementations
                 InvitationCode = invitationDetails.Code,
                 InviterName = invitationDetails.InviterName,
                 InviterEmail = invitationDetails.InviterEmail,
-                InvitationLink = _appSettings.AppBaseUrl,
+                InvitationLink = _appSettings.AppBaseUrl + "/complete-invitation",
                 TeamName = invitationDetails.TeamName,
                 ExistingUser = invitationDetails.ExistingUser,
                 Origin = _appSettings.NotificationOrigin,
