@@ -11,7 +11,7 @@ namespace _750HrsTracker.Services.Interfaces
 {
     public interface IActivityLogService
     {
-        Task<ResponseHandler<GetDashboardResponse>> GetDashboardDataAsync(AvailablePropertyType availablePropertyType);
+        Task<ResponseHandler<GetDashboardResponse>> GetDashboardDataAsync(AvailablePropertyType availablePropertyType, DasboardSummaryType summaryType = DasboardSummaryType.TEAM);
         Task<ResponseHandler<GetActivityLogResponse>> AddActivityLogAsync(AddActivityLogRequest request);
         Task<ResponseHandler<GetActivityLogResponse>> AddSTRActivityLogAsync(BaseAddActivityLogRequest request);
         Task<ResponseHandler<GetActivityLogResponse>> GetActivityLogAsync(Guid id);

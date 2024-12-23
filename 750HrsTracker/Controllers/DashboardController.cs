@@ -32,7 +32,7 @@ namespace _750HrsTracker.Controllers
         [Authorize(Policy = "Permission.Dashboard.View")]
         [HttpGet("get-data")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetDashboardResponse>))]
-        public async Task<IActionResult> GetDashboardDataAsync([FromQuery] AvailablePropertyType propertyType)
-            => Ok(await _activityLogService.GetDashboardDataAsync(propertyType));
+        public async Task<IActionResult> GetDashboardDataAsync([FromQuery] AvailablePropertyType propertyType, [FromQuery] DasboardSummaryType summaryType = DasboardSummaryType.TEAM)
+            => Ok(await _activityLogService.GetDashboardDataAsync(propertyType, summaryType));
     }
 }

@@ -168,6 +168,12 @@ namespace _750HrsTracker.Repositories.Implementations
 
             bool userAlreadyExist = false;
 
+
+            if (!role.Name.Equals(Roles.TaxPreparer) && _context.UserRoles.Any(r => r.RoleId == role.Id && r.TeamId == team.Id))
+            {
+                throw new ApplicationException("You cannot have more than one user on this role");
+            }
+
             if(existingUser != null)
             {
                 var isInTeam = await _context.Team_User.FirstOrDefaultAsync(ut => ut.TeamId == team.Id && ut.UserId == existingUser.Id);

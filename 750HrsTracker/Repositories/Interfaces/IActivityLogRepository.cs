@@ -21,7 +21,7 @@ namespace _750HrsTracker.Repositories.Interfaces
         Task<RepositoryResponseHandler<ActivityLog>> 
             GetAllLogsAsync(PaginationFilter filter, ActivityLogFilter activityLogFilter, AvailablePropertyType propertyType, Guid? teamId = null, bool withIncludes = false);
 
-        Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType);
+        Task<GetDashboardResponse> GetRecentActivityLogsAsync(Guid teamId, Guid currentUserId, AvailablePropertyType propertyType, bool isTeamSummary = true);
         Task<List<ActivityLogDocument>> GetDocumentsByTeamIdAsync(Guid teamId, ExportDocumentFilter filter);
         Task<List<ActivityLog>>SearchAsync(Guid teamId, string keyword, AvailablePropertyType propertyType);
     }

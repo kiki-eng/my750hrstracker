@@ -128,33 +128,42 @@ namespace _750HrsTracker.Services.Implementations
         public async Task<ResponseHandler<string>> InviteUserAsync(InviteUserRequest request, HttpRequest httpRequest)
         {
             var response = new ResponseHandler<string>();
-            var currentUserDetail = await _userRepository.GetUserAsync((Guid)Session.UserId!);
 
-            if (currentUserDetail.Email.Trim() == request.EmailAddress!.Trim())
+            try
             {
-                throw new ApplicationException("Self invitation is not allowed");
+                var currentUserDetail = await _userRepository.GetUserAsync((Guid)Session.UserId!);
+
+                if (currentUserDetail.Email.Trim() == request.EmailAddress!.Trim())
+                {
+                    throw new ApplicationException("Self invitation is not allowed");
+                }
+
+
+                var invitationDetails = await _teamRepository.InviteUserAsync((Guid)Session.TeamId!, (Guid)Session.UserId!, request.EmailAddress!, request.RoleId);
+
+                var invitationNotificationRequest = new InvitationNotificationRequest()
+                {
+                    RecipientEmail = invitationDetails.Email,
+                    InvitationCode = invitationDetails.Code,
+                    InviterName = invitationDetails.InviterName,
+                    InviterEmail = invitationDetails.InviterEmail,
+                    InvitationLink = _appSettings.AppBaseUrl + "/complete-invitation",
+                    TeamName = invitationDetails.TeamName,
+                    ExistingUser = invitationDetails.ExistingUser,
+                    Origin = _appSettings.NotificationOrigin,
+                    OriginIpAddress = Utility.GetRequestIPAddress(httpRequest)
+                };
+
+                await _notificationService.SendInvitationNotification(invitationNotificationRequest);
+                response.Success = true;
+                response.Message = "User invitation sent successfully";
+                return response;
             }
-
-
-            var invitationDetails = await _teamRepository.InviteUserAsync((Guid)Session.TeamId!, (Guid)Session.UserId!, request.EmailAddress!, request.RoleId);
-           
-            var invitationNotificationRequest = new InvitationNotificationRequest()
+            catch(Exception ex)
             {
-                RecipientEmail = invitationDetails.Email,
-                InvitationCode = invitationDetails.Code,
-                InviterName = invitationDetails.InviterName,
-                InviterEmail = invitationDetails.InviterEmail,
-                InvitationLink = _appSettings.AppBaseUrl + "/complete-invitation",
-                TeamName = invitationDetails.TeamName,
-                ExistingUser = invitationDetails.ExistingUser,
-                Origin = _appSettings.NotificationOrigin,
-                OriginIpAddress = Utility.GetRequestIPAddress(httpRequest)
-            };
-
-            await _notificationService.SendInvitationNotification(invitationNotificationRequest);
-            response.Success = true;
-            response.Message = "User invitation sent successfully";
-            return response;
+                response.Message = ex.Message;
+                return response;
+            }
         }
         public async Task<ResponseHandler<string>> ValidateInvitationAsync(ValidateInvitationRequest request)
         {

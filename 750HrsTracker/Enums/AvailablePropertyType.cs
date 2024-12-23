@@ -6,4 +6,11 @@
         LTR, 
         ALL
     }
+
+    public enum DasboardSummaryType
+    {
+        TEAM,
+        PERSONAL
+
+    }
 }
