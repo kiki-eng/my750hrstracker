@@ -22,7 +22,7 @@ namespace _750HrsTracker.Services.Interfaces
         Task<ResponseHandler<GetUsersOnlyResponse>> ActivateDeactivateUsersAsync(MakeSpouseRequest request);
         Task<ResponseHandler<string>> UpdateUserRoleAsync(UpdateUserRoleRequest request);
         Task<ResponseHandler<string>> DeactivateAccountAsync();
-
+        Task<ResponseHandler<string>> DeleteAccountAsync(Guid userId);
         Task<ResponseHandler<CreateStripeCheckoutSessionResponse>> CreateStripeCheckoutSessionAsync(CreateStripeCheckoutSessionRequest request);
 
     }

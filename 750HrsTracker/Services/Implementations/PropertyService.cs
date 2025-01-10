@@ -151,7 +151,13 @@ namespace _750HrsTracker.Services.Implementations
 
             var property = await _propertyRepository.SearchEntityAsync(p =>
                  p.TeamId == Session.TeamId &&
-                 p.Name!.ToLower().Contains(keyword.ToLower()) &&
+                (
+                 p.Name!.ToLower().Contains(keyword.ToLower()) ||
+                 p.Description!.ToLower().Contains(keyword.ToLower()) ||
+                 p.Address!.ToLower().Contains(keyword.ToLower()) ||
+                 p.PropertyType.ToString().ToLower().Contains(keyword.ToLower()) ||
+                 p.Code!.ToLower().Contains(keyword.ToLower())
+                ) &&
                  p.PropertyType == propertyType);
 
             response.Success = true;

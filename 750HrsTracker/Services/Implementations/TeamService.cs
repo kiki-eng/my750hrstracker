@@ -252,6 +252,17 @@ namespace _750HrsTracker.Services.Implementations
                 Message = "Account deleted successfully",
             };
         }
+        
+        public async Task<ResponseHandler<string>> DeleteAccountAsync(Guid userId)
+        {
+            var deactivatedAccount = await _teamRepository.DeleteTeamUserAsync((Guid)Session.TeamId!, userId, (Guid)Session.UserId!);
+
+            return new ResponseHandler<string>()
+            {
+                Success = true,
+                Message = "Account deleted successfully",
+            };
+        }
 
         public async Task<ResponseHandler<GetUsersOnlyResponse>> MaKeSpouseRequestAsync(MakeSpouseRequest request)
         {

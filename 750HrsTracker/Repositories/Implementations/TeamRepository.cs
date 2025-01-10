@@ -427,6 +427,43 @@ namespace _750HrsTracker.Repositories.Implementations
             return deleted.Entity;
 
         }
+         public async Task<Team> DeleteTeamUserAsync(Guid teamId, Guid userId, Guid currentUserId)
+        {
+            var team = await _context.Teams
+                .Include(t => t.ActivityLogs)!.ThenInclude(t => t.ActivityLogProperties)
+                .Include(t => t.Properties)
+                .Include(t => t.PropertyTeamUsers)
+                .Include(t => t.TeamUsers)!.ThenInclude(tu => tu.User)
+                .FirstOrDefaultAsync(m => m.Id == teamId) ?? throw new KeyNotFoundException("Unknown team");
+
+            var user = await _context.Team_User.FirstOrDefaultAsync(u => u.TeamId == teamId && u.UserId == userId);
+
+
+
+            if (currentUserId == (Guid)user!.UserId!)
+            {
+                throw new ApplicationException("User cannot perform this operation.");
+            }
+
+            //var users = await _context.Users.Include(u => u.UserTeams).Where(u => u.UserTeams!.Where(ut => ut.TeamId == team.Id).ToList().Count == 1).ToListAsync();
+
+
+            //_context.Team_User.RemoveRange(team.TeamUsers!);
+            //_context.Users.RemoveRange(users!);
+            //_context.ActivityLogs.RemoveRange(team.ActivityLogs!);
+            //_context.ActivityLogs.RemoveRange(team.ActivityLogs!);
+            //_context.Properties.RemoveRange(team.Properties!);
+            //_context.PropertyTeamUsers.RemoveRange(team.PropertyTeamUsers!);
+            //_context.Teams.Remove(team);
+
+
+            var deleted = _context.Team_User.Remove(user);
+
+            await _context.SaveChangesAsync();
+
+            return team;
+
+        }
 
         public async Task<User> MakeSpouseAsync(Guid teamId, Guid userId)
         {

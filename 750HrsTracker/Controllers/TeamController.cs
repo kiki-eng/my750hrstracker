@@ -140,6 +140,15 @@ namespace _750HrsTracker.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
         public async Task<IActionResult> DeactivateAccountAsync()
             => Ok(await _teamService.DeactivateAccountAsync());
+        
+
+        [ServiceFilter(typeof(SessionFilter))]
+        [Authorize(Policy = "Permission.Team.DeleteAccount")]
+        [Authorize(Policy = "AppUserPolicy", AuthenticationSchemes = "AppUserScheme")]
+        [HttpDelete("user/{userId}/delete")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponseHandler<GetUsersOnlyResponse>))]
+        public async Task<IActionResult> DeleteAccountAsync(Guid userId)
+            => Ok(await _teamService.DeleteAccountAsync(userId));
 
     }
 }
