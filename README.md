@@ -1,20 +1,55 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# 750 Hours Tracker
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+750 Hours Tracker is an ASP.NET Core Web API built to support activity tracking and broader user, team, permission, subscription, and administrative workflows.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+The project evolved over time into a structured backend application with authentication, authorization, role and permission management, activity logging, document handling, subscriptions, webhooks, database persistence, and third-party integrations.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+## Core Features
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+- User authentication and JWT-based authorization
+- Role and permission management
+- Activity logging and categorization
+- Team and user management
+- Subscription and payment-related workflows
+- Document and property management
+- Admin and dashboard endpoints
+- Webhook handling
+- Relational data persistence with Entity Framework Core
+- Swagger/OpenAPI documentation
+- Global error handling
+- Email integration
+- External service integrations
+
+## Tech Stack
+
+- C#
+- .NET 6
+- ASP.NET Core Web API
+- Entity Framework Core
+- SQL Server
+- ASP.NET Core Identity
+- JWT Authentication
+- AutoMapper
+- Swagger / OpenAPI
+- SendGrid
+- Stripe
+- Azure Blob Storage
+- Bugsnag
+
+## Architecture
+
+The application is organized into separate layers and concerns, including:
+
+- Controllers
+- Services
+- Repositories
+- DTOs
+- Models
+- Middleware
+- Persistence
+- Permission Management
+- AutoMapper Profiles
+- Extensions
+- Providers
+
+This structure helps keep business logic, data access, API contracts, and infrastructure concerns separated and easier to maintain.
